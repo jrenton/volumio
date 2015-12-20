@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "devDependencies": {
+    "gulp": "^3.8.8",
+    "notify-send": "^0.1.2",
+    "vue": "^1.0.12",
+    "vue-router": "^0.7.7"
+  },
+  "dependencies": {
+    "laravel-elixir": "^4.0.0",
+    "bootstrap-sass": "^3.0.0"
+  }
+}

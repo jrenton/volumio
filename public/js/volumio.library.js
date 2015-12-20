@@ -35,11 +35,12 @@ function loadLibraryIfNeeded() {
 
         var $libLoader = $("#lib-loader");
         $libLoader.show();
-        $.post('db/?cmd=loadlib', {}, function(data) {
+        
+        AjaxUtils.post('sendCommand?cmd=loadlib', {}, function(data) {
             $libLoader.hide();
             $("#lib-content").show();
             onLoadedLibData(data);
-        }, 'json');
+        });
     }
 }
 

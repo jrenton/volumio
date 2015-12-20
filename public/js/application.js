@@ -23,9 +23,10 @@ $(document).ready(function() {
 
     // Make pagination demo work
     $(".pagination a").click(function() {
-        if (!$(this).parent().hasClass("previous") && !$(this).parent().hasClass("next")) {
-            $(this).parent().siblings("li").removeClass("active");
-            $(this).parent().addClass("active");
+        var $parent = $(this).parent();
+        if (!$parent.hasClass("previous") && !$parent.hasClass("next")) {
+            $parent.siblings("li").removeClass("active");
+            $parent.addClass("active");
         }
     });
 
@@ -38,6 +39,5 @@ $(document).ready(function() {
     $("a[href='#']").click(function() {
         return false
     });
-
 });
 

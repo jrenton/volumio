@@ -33,7 +33,9 @@ var AjaxUtils = {
 	        },
 	        error : function(a, b, c) {
 	            console.error("FAILED " + method + " request " + action + " from func " + caller);
-	            console.error(c);
+	            console.log(a);
+	            console.log(b);
+	            console.log(c);
 	            if (typeof error === "function") {
 	            	error(a, b, c);
 	            }

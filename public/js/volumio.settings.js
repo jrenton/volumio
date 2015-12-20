@@ -1,6 +1,6 @@
 jQuery(document).ready(function($){ 'use strict';
 
-    backendRequest();
+    backendRequest(GUI);
 
     if (GUI.state != 'disconnected') {
         $('#loader').hide();

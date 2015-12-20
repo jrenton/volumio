@@ -12,9 +12,7 @@
 	<!--[if lte IE 7]>
 		<link href="css/font-awesome-ie7.min.css" rel="stylesheet">
 	<![endif]-->
-	<?php if ($sezione == 'index') { ?>
 	<link href="css/jquery.countdown.css" rel="stylesheet">
-	<?php } ?>
 	<!--<link rel="stylesheet" href="css/jquery.mobile.custom.structure.min.css">-->
 	<link href="css/jquery.pnotify.default.css" rel="stylesheet">
 	<link rel="stylesheet" href="css/panels.css">
@@ -24,29 +22,25 @@
     <!--[if lt IE 9]>
       <script src="js/html5shiv.js"></script>
     <![endif]-->
-
-    <!-- allows removal of the mobile safari window dressing when 
-         added to the home screen of an iOS app. Also requires 
-         link.js which is included below -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 	<style type="text/css" id="dynamicCss">
 	</style>
 </head>
 
-<body class="<?php echo $sezione ?>">
+<body id="app">
 
 <div id="menu-top" class="ui-header ui-bar-f ui-header-fixed slidedown" data-position="fixed" data-role="header" role="banner">
 	<div class="dropdown">
-		<a class="dropdown-toggle" id="menu-settings" role="button" data-toggle="dropdown" data-target="#" href="<?php echo $sezione ?>.php"><i class="fa fa-th-list dx"></i></a>
+		<a class="dropdown-toggle" id="menu-settings" role="button" data-toggle="dropdown" data-target="#" href="index.php"><i class="fa fa-th-list dx"></i></a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="menu-settings">
-			<li class="<?php ami('index'); ?>"><a href="index.php"><i class="fa fa-play sx"></i> Main</a></li>
-			<li class="<?php ami('sources'); ?>"><a href="sources.php"><i class="fa fa-folder-open sx"></i> Library</a></li>
-			<li class="<?php ami('mpd-config'); ?>"><a href="mpd-config.php"><i class="fa fa-cogs sx"></i> Playback</a></li>
-			<li class="<?php ami('net-config'); ?>"><a href="net-config.php"><i class="fa fa-sitemap sx"></i> Network</a></li>
-			<li class="<?php ami('settings'); ?>"><a href="settings.php"><i class="fa fa-wrench sx"></i> System</a></li>
-			<li class="<?php ami('credits'); ?>"><a href="credits.php"><i class="fa fa-trophy sx"></i> Credits</a></li>
+			<li><a href="index.php"><i class="fa fa-play sx"></i> Main</a></li>
+			<li><a href="sources.php"><i class="fa fa-folder-open sx"></i> Library</a></li>
+			<li><a href="mpd-config.php"><i class="fa fa-cogs sx"></i> Playback</a></li>
+			<li><a href="net-config.php"><i class="fa fa-sitemap sx"></i> Network</a></li>
+			<li><a href="settings.php"><i class="fa fa-wrench sx"></i> System</a></li>
+			<li><a href="credits.php"><i class="fa fa-trophy sx"></i> Credits</a></li>
 			<li><a href="#poweroff-modal" data-toggle="modal"><i class="fa fa-power-off sx"></i> Turn off</a></li>
 		</ul>
 	</div>
@@ -55,7 +49,12 @@
 			<i class="fa fa-chevron-left sx"></i>
 		</a>
 		<span id="webradio-add">
-			<a href="#webradio-modal" data-toggle="modal" title="Add New WebRadio"><button class="btn"><i class="fa fa-plus"></i><em id="webradio-add-text"></em></button></a>
+			<a href="#webradio-modal" data-toggle="modal" title="Add New WebRadio">
+				<button class="btn">
+					<i class="fa fa-plus"></i>
+					<em id="webradio-add-text"></em>
+				</button>
+			</a>
 		</span>
 	</div>
 	<form id="db-search" action="javascript:getDB('search', '', 'file');">
@@ -67,21 +66,31 @@
 </div>
 <div id="menu-bottom" class="ui-footer ui-bar-f ui-footer-fixed slidedown" data-position="fixed" data-role="footer"  role="banner">
 	<ul>
-		<?php if ($sezione == 'index') { ?>
-		<li id="open-panel-sx"><a href="#panel-sx" class="open-panel-sx" data-toggle="tab"><i class="fa fa-music sx"></i> Browse</a></li>
-		<li id="open-panel-lib"><a href="#panel-lib" class="open-panel-lib" data-toggle="tab"><i class="fa fa-columns sx"></i> Library</a></li>
-		<li id="open-playback" class="active"><a href="#playback" class="close-panels" data-toggle="tab"><i class="fa fa-play sx"></i> Playback</a></li>
-		<li id="open-panel-dx"><a href="#panel-dx" class="open-panel-dx" data-toggle="tab"><i class="fa fa-list sx"></i> Playlist</a></li>
-		<?php } else { ?>
-		<li id="open-panel-sx"><a href="index.php#panel-sx" class="open-panel-sx"><i class="fa fa-music sx"></i> Browse</a></li>
-		<li id="open-panel-lib"><a href="index.php#panel-lib" class="open-panel-lib"><i class="fa fa-columns sx"></i> Library</a></li>
-		<li id="open-playback"><a href="index.php#playback" class="close-panels"><i class="fa fa-play sx"></i> Playback</a></li>
-		<li id="open-panel-dx"><a href="index.php#panel-dx" class="open-panel-dx"><i class="fa fa-list sx"></i> Playlist</a></li>
-		<?php } ?>
+		<li id="open-panel-sx">
+			<a v-link="{ path: 'browse' }" class="open-panel-sx">
+				<i class="fa fa-music sx"></i> Browse
+			</a>
+		</li>
+		<li id="open-panel-lib">
+			<a v-link="{ path: 'library' }" class="open-panel-lib">
+				<i class="fa fa-columns sx"></i> Library
+			</a>
+		</li>
+		<li id="open-playback">
+			<a v-link="{ path: 'playback' }" class="close-panels">
+				<i class="fa fa-play sx"></i> Playback
+			</a>
+		</li>
+		<li id="open-panel-dx">
+			<a v-link="{ path: 'playlist' }" class="open-panel-dx">
+				<i class="fa fa-list sx"></i> Playlist
+			</a>
+		</li>
 	</ul>
 </div>
 <div id="main-container">
-            @yield('content')
+	<router-view></router-view>
+</div>
 <form class="form-horizontal" action="settings.php" method="post">
 	<div id="poweroff-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="poweroff-modal-label" aria-hidden="true">
 		<div class="modal-header">
@@ -152,80 +161,59 @@
 <script src="js/notify.js"></script>
 <script src="js/jquery.countdown.js"></script>
 <script src="js/jquery.scrollTo.min.js"></script>
-<script src="js/vue.min.js"></script>
+<script src="js/jquery.knob.js"></script>
+<script src="js/bootstrap-contextmenu.js"></script>
+<script src="js/jquery.pnotify.min.js"></script>
+<script src="js/custom_checkbox_and_radio.js"></script>
+<script src="js/custom_radio.js"></script>
+<script src="js/jquery.tagsinput.js"></script>
+<script src="js/jquery.placeholder.js"></script>
+<script src="js/parsley.min.js"></script>
+<script src="js/i18n/_messages.en.js" type="text/javascript"></script>
+<script src="js/jquery.pnotify.min.js"></script>
+<script src="js/bootstrap-fileupload.js"></script>
+<script src="js/main.js"></script>
 <script src="js/volumio.utils.js"></script>
 <script src="js/volumio.api.js"></script>
 <script src="js/volumio.lazyloader.js"></script>
 <script src="js/volumio.library.js"></script>
+<script src="js/volumio.playback.js"></script>
+<script src="js/application.js"></script>
+<script src="js/volumio.settings.js"></script>
+<!--<script src="js/jquery.dropkick-1.0.0.js"></script>-->
 
-<!-- 'fixes' links to other pages so that when saved to the homescreen
-     on a iOS device all the links stay within the app 
-	 Note from mikelangeloz -- 
-	 This breaks Dropdown menus, needs to be fixed
-<script type="text/javascript" src="js/links.js"></script>
--->
 <?php
-if ($sezione == 'index') { ?>
-	<script src="js/jquery.knob.js"></script>
-	<script src="js/bootstrap-contextmenu.js"></script>
-	<script src="js/jquery.pnotify.min.js"></script>
-	<script src="js/volumio.playback.js"></script>
-<?php } else { ?>
-	<!--<script src="js/jquery.dropkick-1.0.0.js"></script>-->
-	<script src="js/custom_checkbox_and_radio.js"></script>
-	<script src="js/custom_radio.js"></script>
-	<script src="js/jquery.tagsinput.js"></script>
-	<script src="js/jquery.placeholder.js"></script>
-	<script src="js/parsley.min.js"></script>
-	<script src="js/i18n/_messages.en.js" type="text/javascript"></script>
-	<script src="js/application.js"></script>
-	<script src="js/volumio.settings.js"></script>
-	<script src="js/jquery.pnotify.min.js"></script>
-	<script src="js/bootstrap-fileupload.js"></script>
-<?php
-}
 //WebRadio Add Dialog
-if(isset($_POST['radio-name']) && isset($_POST['radio-url'])) {
-    $url = $_POST['radio-url'];
-	$name = $_POST['radio-name'];
-    $ret = file_put_contents('/var/lib/mpd/music/WEBRADIO/'.$name.'.pls', $url);
-	session_start();
-	sendMpdCommand($mpd,'update WEBRADIO');
-	// set UI notify
-	$_SESSION['notify']['msg'] = 'New WebRadio Added';
-	// unlock session file
-	playerSession('unlock');
-}
+// if(isset($_POST['radio-name']) && isset($_POST['radio-url'])) {
+//     $url = $_POST['radio-url'];
+// 	$name = $_POST['radio-name'];
+//     $ret = file_put_contents('/var/lib/mpd/music/WEBRADIO/'.$name.'.pls', $url);
+// 	session_start();
+// 	sendMpdCommand($mpd,'update WEBRADIO');
+// 	// set UI notify
+// 	$_SESSION['notify']['msg'] = 'New WebRadio Added';
+// 	// unlock session file
+// 	playerSession('unlock');
+// }
 ?>
 <script type="text/javascript">
-	setLibOptions(
-		<? echo isset($_SESSION['displaylib']) && $_SESSION['displaylib'] == 1 ? 1 : 0;?>/*is enabled?*/,
-		<? echo isset($_SESSION['displaylibastab']) && $_SESSION['displaylibastab'] == 1 ? 1 : 0;?>/*display as tab or in browse view?*/,
-		<? echo $sezione == 'index' ? 1 : 0; ?>/*should load it?*/
-	);
+
 </script>
 
 <!--[if lt IE 8]>
 <script src="js/icon-font-ie7.js"></script>
 <script src="js/icon-font-ie7-24.js"></script>
 <![endif]-->
-
-</div>
 <?php
 // write backend response on UI Notify popup
-if (isset($_SESSION['notify']) && $_SESSION['notify'] != '') {
-	sleep(1);
-	ui_notify($_SESSION['notify']);
-	session_start();
-	$_SESSION['notify'] = '';
-	session_write_close();
-}
+// if (isset($_SESSION['notify']) && $_SESSION['notify'] != '') {
+// 	sleep(1);
+// 	ui_notify($_SESSION['notify']);
+// 	session_start();
+// 	$_SESSION['notify'] = '';
+// 	session_write_close();
+// }
 ?>
 
-<div id="debug" <?php if ($_SESSION['hiddendebug'] == 1 OR $_SESSION['debug'] == 0) {echo "class=\"hide\"";} ?>>
-	<pre>
-		<?php debug_footer($db); ?>
-	</pre>
-</div>
 </body>
 </html>

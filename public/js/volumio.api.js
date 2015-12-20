@@ -1,45 +1,3 @@
- GUI = {
-    MpdState: 0,
-	SpopState: 0,
-    cmd: 'status',
-    playlist: null,
-    currentsong: null,
-    currentknob: null,
-    state: '',
-    currentpath: '',
-    halt: 0,
-    volume: null,
-    currentDBpos: new Array(0,0,0,0,0,0,0,0,0,0,0),
-    DBentry: new Array('', '', '', '', '', ''), // path, x, y, title, artist, album
-    visibility: 'visible',
-    DBupdate: 0
-};
-
-var Playlist = new Vue({
-	el: '#playlist',
-	data: {
-		mpdSongs: [],
-		spotifySongs: []
-	},
-	methods: {
-	    playSpotifySong: function (song) {
-	      sendCommand("spop-goto", { "path": song.index });
-	    },
-	    removeSpotifySong: function (song) {
-	    	sendCommand("spop-qrm", { "path": song.index }, function(data) {
-	    		console.log(data);
-	    		getPlaylist();
-	    	});
-	    },
-        playMpdSong: function (song) {
-            sendCmd("play " + song.index);
-        },
-        removeMpdSong: function (song) {
-            sendCmd("trackremove&songid=" + song.index);
-        }
-	}
-});
-
 // FUNCTIONS
 // ----------------------------------------------------------------------------------------------------
 
@@ -50,55 +8,57 @@ function sendCmd(inputcmd) {
 }
 
 function sendPLCmd(inputcmd) {
-    AjaxUtils.get("db/?cmd=" + inputcmd, {}, function(data) {
+    AjaxUtils.get("sendCommand?cmd=" + inputcmd, {}, function(data) {
         GUI.halt = 1;
     });
 }
 
-function backendRequest() {
-    AjaxUtils.get("_player_engine.php?state=" + GUI.MpdState['state'], {}, function(data) {
+function backendRequest(gui) {
+    AjaxUtils.get("playerEngine?state=" + gui.MpdState['state'], {}, function(data) {
         console.log("BACKEND REQUEST");
         console.log(data);
-        GUI.MpdState = data;
+        gui.MpdState = data;
         if(data.base64) {
             showCoverImage(data.base64);
         }
-        renderUI();
+        renderUI(gui.playback);
         $('#loader').hide();
-        backendRequest();
+        backendRequest(gui.MpdState);
     }, function(a, b, c) {
-        setTimeout(function() {
-            GUI.state = 'disconnected';
-            $('#loader').show();
-            $('#countdown-display').countdown('pause');
-            window.clearInterval(GUI.currentKnob);
-            backendRequest();
-        }, 2000);
+        // setTimeout(function() {
+        //     GUI.state = 'disconnected';
+        //     $('#loader').show();
+        //     $('#countdown-display').countdown('pause');
+        //     window.clearInterval(GUI.currentKnob);
+        //     backendRequest();
+        // }, 2000);
     });
 }
 
-function backendRequestSpop() {
-    var state = GUI.SpopState['state'];
+function backendRequestSpop(gui) {
+    var state = gui.SpopState['state'];
     
     if (state != 'pause' && state != 'play') {
         removeCoverImage();
     }
     
-    AjaxUtils.get("_player_engine_spop.php?state=" + state, {}, function(data) {
+    AjaxUtils.get("playerEngineSpop?state=" + state, {}, function(data) {
         if (data != '') {
-            GUI.SpopState = data;
-            getSpopImage(data.uri);
-            renderUI();
-            backendRequestSpop();
+            if (data) {
+                gui.SpopState = data;
+                getSpopImage(data.uri);
+                renderUI(gui);
+                backendRequestSpop(gui);
+            }
         } else {
-            setTimeout(function() {
-                backendRequestSpop();
-            }, 5000);
+            // setTimeout(function() {
+            //     backendRequestSpop();
+            // }, 5000);
         }
     }, function(a, b, c) {
-        setTimeout(function() {
-                backendRequestSpop();
-            }, 5000);
+        // setTimeout(function() {
+        //         backendRequestSpop();
+        //     }, 5000);
     });
 }
 
@@ -116,14 +76,14 @@ function toggleActive($ele, $parent) {
 function getPlaylist() {
     sendCommand("spop-qls", null, function(data) {
         if(data) {
-            Playlist.spotifySongs = data.tracks; 
+            GUI.playlist.spotifySongs = data.tracks; 
         }
     });
     
     sendCommand("playlist", null, function(data) {
         if(data) {
             console.log(data);
-            Playlist.mpdSongs = data; 
+            GUI.playlist.mpdSongs = data; 
         }
     });
 }
@@ -144,73 +104,6 @@ function parsePath(str) {
 	
 	return songpath;
 }
-
-var MPDFile = new Vue({
-	el: '#database',
-	data: {
-        isLibrary: false,
-		files: [],
-        mpdDirectories: [],
-        spotifyTracks: [],
-        spotifyDirectories: []
-	},
-	methods: {
-	    playSong: function (song) {
-            sendCommands([
-                        { name: 'spop-stop' }, 
-                        { name: 'addplay', data: { path: song.file }}
-                        ], function(data) {
-                gotoPlayback();
-            });
-            
-            //notify('add', song.title);
-	    },
-        playSpotifyTrack: function (playTrack) {
-            sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
-                gotoPlayback(playTrack);
-                //getPlaylist();
-            });
-    
-            $.each(this.spotifyTracks, function(index, track) {
-                var trackUri = track.SpopTrackUri;
-
-                if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
-                    sendCommand("spop-uadd", { path: trackUri });
-                }
-            });
-    
-            getPlaylist();
-        },
-        openDirectory: function (dir) {
-            getDB('filepath', dir.directory, 'file', 0);
-        },
-        getFileName: function (file) {
-            var title = file.Title;
-            
-            if (!title) {
-                title = file.Name;
-                
-                if (!title) {
-                    var lastIndex = file.file.lastIndexOf('/') + 1;
-                    title = file.file.substr(lastIndex, file.file.length - lastIndex - 4);
-                }
-            }
-            
-            return title;
-        },
-        getAlbumArtist: function (file) {
-            var albumArtist = "";
-            
-            if (file.Artist && file.Album) {
-                albumArtist = file.Artist + " - " + file.Album;
-            } else if(file.Artist) {
-                albumArtist = file.Artist;
-            }
-            
-            return albumArtist;
-        }
-	}
-});	
 
 function removeCoverImage() {
     //$("#playbackCover").removeClass("coverImage");
@@ -288,7 +181,7 @@ function getDB(cmd, commandData, browsemode, uplevel, callback, fail) {
 		};
 	}
     
-    var uri = "db/?cmd=" + cmd;
+    var uri = "sendCommand?cmd=" + cmd;
     
     AjaxUtils.post(uri, commandData, function(data) {
         if (typeof callback === "function") {
@@ -302,28 +195,28 @@ function populateDB(data, path, uplevel, keyword){
         GUI.currentpath = path;
     }
     
-    MPDFile.files = [];
-    MPDFile.mpdDirectories = [];
-    MPDFile.spotifyTracks = [];
-    MPDFile.spotifyDirectories = [];
-    MPDFile.isLibrary = false;
+    GUI.browse.files = [];
+    GUI.browse.mpdDirectories = [];
+    GUI.browse.spotifyTracks = [];
+    GUI.browse.spotifyDirectories = [];
+    GUI.browse.isLibrary = false;
 
 	if (!keyword || path == '') {
         if (library && library.isEnabled && !library.displayAsTab) {
-            MPDFile.isLibrary = true;
+            GUI.browse.isLibrary = true;
         }
     }
 
 	for (var i = 0; i < data.length; i++) {
         var dataItem = data[i];
         if (dataItem.Type == 'MpdFile') {
-            MPDFile.files.push(dataItem);
+            GUI.browse.files.push(dataItem);
         } else if (dataItem.Type == 'MpdDirectory')  {
-            MPDFile.mpdDirectories.push(dataItem);            
+            GUI.browse.mpdDirectories.push(dataItem);            
         } else if (dataItem.Type == 'SpopTrack') {
-            MPDFile.spotifyTracks.push(dataItem);            
+            GUI.browse.spotifyTracks.push(dataItem);            
         } else if (dataItem.Type == 'SpopDirectory') {
-            MPDFile.spotifyDirectories.push(dataItem);            
+            GUI.browse.spotifyDirectories.push(dataItem);            
         }
 	}
 
@@ -342,78 +235,37 @@ function populateDB(data, path, uplevel, keyword){
 	}
 }
 
-var PlaybackVol = new Vue({
-	el: '#playback',
-	data: {
-		song: {}
-	},
-	methods: {
-	    playPause: function () {
-            var cmd = '';
-            if (GUI.state == 'play') {
-                cmd = 'pause';
-                $('#countdown-display').countdown('pause');
-            } else if (GUI.state == 'pause') {
-                cmd = 'play';
-                $('#countdown-display').countdown('resume');
-            } else if (GUI.state == 'stop') {
-                cmd = 'play';
-                $('#countdown-display').countdown({since: 0, compact: true, format: 'MS'});
-            }
-
-            window.clearInterval(GUI.currentKnob);
-            sendCmd(cmd);
-            resetState();
-            //sendCommand("spop-goto", { "path": this.song.index });
-	    },
-	    nav: function (direction) {
-	    	GUI.halt = 1;
-            //console.log("nav bitch");
-			$('#countdown-display').countdown('pause');
-			window.clearInterval(GUI.currentKnob);
-            
-            sendCmd(direction);
-            //resetState();
-	    }
-	}
-});
-
-function resetState() {
-    //backendRequest();
-    //backendRequestSpop();
-}
-
-function renderUI() {
+function renderUI(gui) {
     console.log("does the ui render?");
-    console.log(GUI);
-    if (GUI.SpopState['state'] == 'play' || GUI.SpopState['state'] == 'pause') {
+    console.log(gui);
+    if (gui.SpopState['state'] == 'play' || gui.SpopState['state'] == 'pause') {
        // If Spop is playing, temporarily redirect button control and title display to Spop
-        GUI.state = GUI.SpopState['state'];
+        gui.state = gui.SpopState['state'];
 
         // Combine the Spop state array with the Mpd state array - any state variable defined by Spop will overwrite the corresponding Mpd state variable
-        var objectCombinedState = $.extend({}, GUI.MpdState, GUI.SpopState);
+        var objectCombinedState = $.extend({}, gui.MpdState, gui.SpopState);
         updateGUI(objectCombinedState);
         refreshTimer(parseInt(objectCombinedState['elapsed']), parseInt(objectCombinedState['time']), objectCombinedState['state']);
         refreshKnob(objectCombinedState);
     } else {
        // Else UI should be connected to MPD status
-        GUI.state = GUI.MpdState['state'];
-        updateGUI(GUI.MpdState);
-        refreshTimer(parseInt(GUI.MpdState['elapsed']), parseInt(GUI.MpdState['time']), GUI.MpdState['state']);
-        refreshKnob(GUI.MpdState);
+        gui.state = gui.MpdState['state'];
+        updateGUI(gui.MpdState);
+        refreshTimer(parseInt(gui.MpdState['elapsed']), parseInt(gui.MpdState['time']), GUI.MpdState['state']);
+        refreshKnob(gui.MpdState);
     }
 
-    if (GUI.state != 'disconnected') {
+    if (gui.state != 'disconnected') {
         $('#loader').hide();
     }
 
-    if (GUI.MpdState['playlist'] != GUI.playlist) {
+    if (gui.MpdState['playlist'] != gui.playlist) {
         //GUI.MpdState
         getPlaylist();
-        GUI.playlist = GUI.MpdState['playlist'];
+        //gui.playlist = gui.MpdState['playlist'];
     }
 
-    GUI.halt = 0;
+    gui.halt = 0;
 }
 
 // update interface
@@ -474,7 +326,9 @@ function updateGUI(objectInputState) {
         volume.val((objectInputState['volume'] == '-1') ? 100 : objectInputState['volume']).trigger('change');
     }
     console.log(objectInputState);
-    PlaybackVol.song = { Artist: objectInputState['currentartist'], Title: objectInputState['currentsong'] };
+    //PlaybackVol.song = { Artist: objectInputState['currentartist'], Title: objectInputState['currentsong'] };
+    GUI.currentsong.Artist = objectInputState['currentartist'];
+    GUI.currentsong.Title = objectInputState['currentsong'];
 
     if (objectInputState['repeat'] == 1) {
         $('#repeat').addClass('btn-primary');
@@ -498,13 +352,12 @@ function updateGUI(objectInputState) {
     }
 
     GUI.halt = 0;
-    GUI.currentsong = objectInputState['currentsong'];
-	GUI.currentartist = objectInputState['currentartist'];
+    //GUI.currentsong = objectInputState['currentsong'];
+	//GUI.currentartist = objectInputState['currentartist'];
 
 	//Change Name according to Now Playing
-	if (GUI.currentartist != null && GUI.currentsong != null) {
-		document.title = objectInputState['currentsong'] + ' - ' + objectInputState['currentartist'] + ' - ' + 'Volumio';
-
+	if (GUI.currentsong.Artist && GUI.currentsong.Title) {
+		document.title = GUI.currentsong.Title + ' - ' + GUI.currentsong.Artist + ' - ' + 'Volumio';
 	} else {
 		document.title = 'Volumio - Audiophile Music Player';
     }
@@ -549,15 +402,17 @@ function refreshKnob(json){
 
 // time conversion
 function timeConvert(seconds) {
-    if(isNaN(seconds)) {
+    var display;
+    if (isNaN(seconds)) {
     	display = '';
     } else {
-    	minutes = Math.floor(seconds / 60);
+    	var minutes = Math.floor(seconds / 60);
     	seconds -= minutes * 60;
-    	mm = (minutes < 10) ? ('0' + minutes) : minutes;
-    	ss = (seconds < 10) ? ('0' + seconds) : seconds;
+    	var mm = (minutes < 10) ? ('0' + minutes) : minutes;
+    	var ss = (seconds < 10) ? ('0' + seconds) : seconds;
     	display = mm + ':' + ss;
     }
+    
     return display;
 }
 

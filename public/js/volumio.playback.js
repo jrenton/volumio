@@ -1,63 +1,11 @@
 jQuery(document).ready(function($){ 'use strict';
 
-    // INITIALIZATION
-    // ----------------------------------------------------------------------------------------------------
-    // first connection with MPD and SPOP daemons
-    backendRequest();
-	backendRequestSpop();
-
-    // first GUI update
-    updateGUI(GUI.MpdState);
-    getDB('filepath', GUI.currentpath, 'file');
-    $.pnotify.defaults.history = false;
-    getPlaylist();
-
-    // hide "connecting" layer
-    if (GUI.state != 'disconnected') {
-        $('#loader').hide();
-    }
-
     // BUTTONS
     // ----------------------------------------------------------------------------------------------------
     // playback
     $('.btn-cmd').click(function(){
         var cmd;
         var $this = $(this);
-        // stop
-        // if ($this.attr('id') == 'stop') {
-        //     refreshTimer(0, 0, 'stop')
-		// 	window.clearInterval(GUI.currentKnob);
-        //     $('.playlist li').removeClass('active');
-        //     $('#total').html('');
-        // }
-        // // play/pause
-        // else if ($this.attr('id') == 'play') {
-        //     //if (json['currentsong'] != null) {
-        //         if (GUI.state == 'play') {
-        //             cmd = 'pause';
-        //             $('#countdown-display').countdown('pause');
-        //         } else if (GUI.state == 'pause') {
-        //             cmd = 'play';
-        //             $('#countdown-display').countdown('resume');
-        //         } else if (GUI.state == 'stop') {
-        //             cmd = 'play';
-        //             $('#countdown-display').countdown({since: 0, compact: true, format: 'MS'});
-        //         }
-
-        //         window.clearInterval(GUI.currentKnob);
-        //         sendCmd(cmd);
-
-        //         return;
-        // }
-        // // previous/next
-        // else if ($this.attr('id') == 'previous' || $this.attr('id') == 'next') {
-        //     GUI.halt = 1;
-
-		// 	$('#countdown-display').countdown('pause');
-		// 	window.clearInterval(GUI.currentKnob);
-        // }
-        // // step volume control
-        // else 
         if ($this.hasClass('btn-volume')) {
             if (GUI.volume == null ) {
                 GUI.volume = $('#volume').val();
@@ -128,18 +76,12 @@ jQuery(document).ready(function($){ 'use strict';
 					// Spop expects input to seek in ms
 					sendCmd('seek ' + seekto * 1000);
 					// Spop idle mode does not detect a seek change, so update UI manually
-					$.ajax({
-						type : 'GET',
-						url : '_player_engine_spop.php?state=manualupdate',
-						async : true,
-						cache : false,
-						success : function(data) {
+					AjaxUtils.get('playerEngineSpop?state=manualupdate', {}, function(data) {
 							if (data != '') {
 								GUI.SpopState = data;
 								renderUI();
 							}
-						}
-					});
+						});
 
 				} else {
 					seekto = Math.floor((value * parseInt(GUI.MpdState['time'])) / 1000);
@@ -161,7 +103,8 @@ jQuery(document).ready(function($){ 'use strict';
 
     // volume knob
     var volumeKnob = $('#volume');
-    volumeKnob[0].isSliding = function() {
+    if (volumeKnob.length > 0) {
+            volumeKnob[0].isSliding = function() {
         return volumeKnob[0].knobEvents.isSliding;
     }
     volumeKnob[0].setSliding = function(sliding) {
@@ -239,6 +182,7 @@ jQuery(document).ready(function($){ 'use strict';
         }
     };
     volumeKnob.knob(volumeKnob[0].knobEvents);
+    }
 
     // PLAYLIST
     // ----------------------------------------------------------------------------------------------------
@@ -404,7 +348,7 @@ jQuery(document).ready(function($){ 'use strict';
 
     // open tab from external link
     var url = document.location.toString();
-    if (url.match('#')) {
+    if (url.match('#') && !url.match('#!')) {
         $('#menu-bottom a[href=#'+url.split('#')[1]+']').tab('show') ;
     }
 
