@@ -9,7 +9,7 @@ class AlbumArtService
         $fileName = "/mnt/" . str_replace("\\", "/", $file);
         $basePath = substr($fileName, 0, strrpos($fileName, '/') + 1);
     
-        return findAlbumArtInFolder($basePath);
+        return $this->findAlbumArtInFolder($basePath);
     }
     
     function findAlbumArtInFolder($path)

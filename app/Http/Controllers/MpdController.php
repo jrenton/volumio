@@ -36,8 +36,8 @@ class MpdController extends Controller
         }
         
         // fetch MPD status
-        $status = $this->connectionService->_parseStatusResponse($this->mpdService->MpdStatus($mpd));
-    
+        $mpdStatus = $this->mpdService->MpdStatus($mpd);
+        $status = array_merge(...$mpdStatus);
         // check for CMediaFix
         if ($request->session()->get('cmediafix') == 1) 
         {
@@ -58,7 +58,7 @@ class MpdController extends Controller
             // feth next song and put in SESSION
             $request->session()->put('nextsongid', $status['nextsongid']);
         }
-    
+        
         // register player STATE in SESSION
         $request->session()->put('state', $status['state']);
     
@@ -74,36 +74,39 @@ class MpdController extends Controller
         } 
         // -----  check and compare GUI state with Backend state  ----  //
     
-        $curTrack = $this->mpdService->getTrackInfo($mpd, $status['song']);
-        
-        foreach($curTrack[0] as $key => $value)
+        if (array_key_exists("song", $status))
         {
-            if($key == "Name") 
+           $curTrack = $this->mpdService->getTrackInfo($mpd, $status['song']);
+        
+            foreach($curTrack[0] as $key => $value)
             {
-                $key = "Title";
-            }
+                if($key == "Name") 
+                {
+                    $key = "Title";
+                }
+                
+                $status[$key] = $value;
+            } 
             
-            $status[$key] = $value;
+            $status['base64'] = $this->albumArtService->getBase64AlbumArt($status["file"]);
+        
+            if (isset($status['Title'])) 
+            {
+                $status['currentartist'] = $status['Artist'];
+                $status['currentsong'] = $status['Title'];
+                $status['currentalbum'] = $status['Album'];
+                $status['fileext'] = parseFileStr($status['file'],'.');
+            } 
+            else 
+            {
+                $path = $this->connectionService->parseFileStr($curTrack[0]['file'],'/');
+                $status['fileext'] = $this->connectionService->parseFileStr($curTrack[0]['file'],'.');
+                $status['currentartist'] = "";
+                $status['currentsong'] = $song;
+                $status['currentalbum'] = "path: ".$path;
+            }
         }
         
-        $status['base64'] = $this->albumArtService->getBase64AlbumArt($status["file"]);
-        
-        if (isset($status['Title'])) 
-        {
-            $status['currentartist'] = $status['Artist'];
-            $status['currentsong'] = $status['Title'];
-            $status['currentalbum'] = $status['Album'];
-            $status['fileext'] = parseFileStr($status['file'],'.');
-        } 
-        else 
-        {
-            $path = $this->connectionService->parseFileStr($curTrack[0]['file'],'/');
-            $status['fileext'] = $this->connectionService->parseFileStr($curTrack[0]['file'],'.');
-            $status['currentartist'] = "";
-            $status['currentsong'] = $song;
-            $status['currentalbum'] = "path: ".$path;
-        }
-    
         // CMediaFix
         if ($request->session()->get('cmediafix') == 1 && $status['state'] == 'play' ) 
         {

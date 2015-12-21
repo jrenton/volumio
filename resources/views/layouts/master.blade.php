@@ -154,6 +154,11 @@
 		connecting...
 	</div>
 </div>
+<div class="modal hide" id="errorResponseModal">
+    <h2>Ajax error occurred</h2>
+    <p id="errorResponseUrl"></p>
+    <div id="errorResponseContent"></div>
+</div>
 <script src="js/jquery-1.8.2.min.js"></script>
 <script src="js/jquery-ui-1.11.1.custom.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
