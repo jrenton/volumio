@@ -12070,14 +12070,7 @@ var store = require('../store');
 module.exports = {
     template: require('./browse.html'),
     data: function data() {
-        return window.GUI.browse;
-        // return {
-        // 	isLibrary: false,
-        // 	files: [{ Title: "Something" }],
-        // 	mpdDirectories: [],
-        // 	spotifyTracks: [],
-        // 	spotifyDirectories: []
-        // }
+        return store.state.browse;
     },
     methods: {
         playSong: function playSong(song) {
@@ -12139,7 +12132,7 @@ module.exports = {
 
 var Vue = require("vue");
 var VueRouter = require("vue-router");
-// var store = require("./store");
+var store = require("./store");
 //var appView = require('./app.js');
 // var browseView = require('./browse.js');
 // var libraryView = require('./library.js');
@@ -12155,7 +12148,7 @@ router.map({
         component: require('./playback/playback')
     },
     '/browse': {
-        component: require('./browse/browse.js')
+        component: require('./browse/browse')
     },
     // '/library': {
     //     component: libraryView
@@ -12168,7 +12161,11 @@ router.map({
     }
 });
 
-var App = Vue.extend({});
+var App = Vue.extend({
+    data: function data() {
+        return store.state;
+    }
+});
 // Start the App
 router.start(App, '#app');
 
@@ -12179,8 +12176,6 @@ $(function () {
     backendRequest(window.GUI);
     backendRequestSpop(window.GUI);
 
-    // first GUI update
-    updateGUI(window.GUI.MpdState);
     getDB('filepath', GUI.currentpath, 'file');
     $.pnotify.defaults.history = false;
     getPlaylist();
@@ -12191,18 +12186,18 @@ $(function () {
     }
 });
 
-},{"./browse/browse.js":5,"./playback/playback":8,"./playlist/playlist":10,"vue":3,"vue-router":2}],7:[function(require,module,exports){
-module.exports = '<div class="tab-content">\n    <div id="playbackCover"></div>\n    <div id="playbackOverlay"></div>\n    <div id="playback" class="tab-pane active">\n        <div class="container txtmid">\n            <div id="playback-info">\n                <span id="currentsong">{{ song.Title }}</span>				\n                <span id="currentartist">{{ song.Artist }}</span>\n                <!--<span id="currentalbum"></span>-->\n            </div>\n            <!-- <span id="playlist-position">&nbsp;</span> -->\n            <div class="playback-controls">	\n                <button class="btn" title="Previous" v-on:click="nav(\'previous\')">\n                    <i class="fa fa-step-backward"></i>\n                </button>\n                <!--<button id="stop" class="btn btn-cmd" title="Stop"><i class="fa fa-stop"></i></button>-->\n                <a id="play" href="#" title="Play/Pause" v-on:click="playPause()">\n                    <span class="fa-stack fa-4x">\n                        <i class="fa fa-circle-thin fa-stack-2x"></i>\n                        <i class="fa fa-stack-1x" v-bind:class="{ \'fa-play\': song.state == \'stop\' || song.state == \'pause\' || !song.state, \'fa-pause\': song.state == \'play\'}"></i>\n                    </span>\n                </a>\n                <button class="btn" title="Next" v-on:click="nav(\'next\')">\n                    <i class="fa fa-step-forward"></i>\n                </button>\n            </div>\n            <div class="row-fluid">\n            \n                <div class="span4">\n                    <div id="timeknob">\n                        <div id="countdown" ms-user-select="none">\n                            <input class="playbackknob" id="time" value="0" data-readonly="false" data-min="0" data-max="1000" data-width="100%" data-thickness="0.30" data-bgColor="rgba(0,0,0,0)" data-fgcolor="#007F0B">\n                        </div>\n                        <span id="countdown-display"></span>\n                        <span id="total"></span>\n                    </div>\n                    <div class="btn-toolbar">\n                        <div class="btn-group">\n                            <a id="repeat" class="btn btn-cmd btn-toggle" href="#notarget" title="Repeat">\n                                <i class="fa fa-repeat"></i>\n                            </a>\n                            <a id="random" class="btn btn-cmd btn-toggle" href="#notarget" title="Random">\n                                <i class="fa fa-random"></i>\n                            </a>\n                            <a id="single" class="btn btn-cmd btn-toggle" href="#notarget" title="Single">\n                                <i class="fa fa-refresh"></i>\n                            </a>\n                            <a id="consume" class="btn btn-cmd btn-toggle" href="#notarget" title="Consume Mode">\n                                <i class="fa fa-trash"></i>\n                            </a>			\n                        </div>\n                    </div>\n                </div>\n                <div class="span4"></div> \n\n                <div class="span4 volume">\n                    <input class="volumeknob" id="volume" data-width="211" data-cursor="true" data-bgColor="rgba(0,0,0,0)" data-fgColor="#007F0B" data-thickness=".25" data-angleArc="250" data-angleOffset="-125" data-skin="tron" value="66">	\n                    <div class="btn-toolbar floatright">\n                        <div class="btn-group">\n                            <a id="volumedn" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-down"></i></a>\n                            <a id="volumemute" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-off"></i> <i class="fa fa-exclamation"></i></a>\n                            <!--<a id="ramplay" class="btn btn-cmd btn-toggle" title="Ramplay" href="#notarget"><i class="fa fa-copy"></i></a> -->\n                            <a id="volumeup" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-up"></i></a>\n                            <!--<a id="dbupdate" class="btn btn-cmd" href="#notarget" title="Updating Music DB..."><i class="fa fa-refresh"></i></a>-->\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>';
+},{"./browse/browse":5,"./playback/playback":8,"./playlist/playlist":10,"./store":11,"vue":3,"vue-router":2}],7:[function(require,module,exports){
+module.exports = '<div class="tab-content">\n    <div id="playback" class="tab-pane active">\n        <div class="container txtmid">\n            <div id="playback-info">\n                <span id="currentsong">{{ song.Title }}</span>				\n                <span id="currentartist">{{ song.Artist }}</span>\n                <!--<span id="currentalbum"></span>-->\n            </div>\n            <!-- <span id="playlist-position">&nbsp;</span> -->\n            <div class="playback-controls">	\n                <button class="btn" title="Previous" v-on:click="nav(\'previous\')">\n                    <i class="fa fa-step-backward"></i>\n                </button>\n                <!--<button id="stop" class="btn btn-cmd" title="Stop"><i class="fa fa-stop"></i></button>-->\n                <a id="play" href="#" title="Play/Pause" v-on:click="playPause()">\n                    <span class="fa-stack fa-4x">\n                        <i class="fa fa-circle-thin fa-stack-2x"></i>\n                        <i class="fa fa-stack-1x" v-bind:class="{ \'fa-play\': song.state == \'stop\' || song.state == \'pause\' || !song.state, \'fa-pause\': song.state == \'play\'}"></i>\n                    </span>\n                </a>\n                <button class="btn" title="Next" v-on:click="nav(\'next\')">\n                    <i class="fa fa-step-forward"></i>\n                </button>\n            </div>\n            <div class="row-fluid">\n            \n                <div class="span4">\n                    <div id="timeknob">\n                        <div id="countdown" ms-user-select="none">\n                            <input class="playbackknob" id="time" value="0" data-readonly="false" data-min="0" data-max="1000" data-width="100%" data-thickness="0.30" data-bgColor="rgba(0,0,0,0)" data-fgcolor="#007F0B">\n                        </div>\n                        <span id="countdown-display"></span>\n                        <span id="total"></span>\n                    </div>\n                    <div class="btn-toolbar">\n                        <div class="btn-group">\n                            <a id="repeat" class="btn btn-cmd btn-toggle" href="#notarget" title="Repeat">\n                                <i class="fa fa-repeat"></i>\n                            </a>\n                            <a id="random" class="btn btn-cmd btn-toggle" href="#notarget" title="Random">\n                                <i class="fa fa-random"></i>\n                            </a>\n                            <a id="single" class="btn btn-cmd btn-toggle" href="#notarget" title="Single">\n                                <i class="fa fa-refresh"></i>\n                            </a>\n                            <a id="consume" class="btn btn-cmd btn-toggle" href="#notarget" title="Consume Mode">\n                                <i class="fa fa-trash"></i>\n                            </a>			\n                        </div>\n                    </div>\n                </div>\n                <div class="span4"></div> \n\n                <div class="span4 volume">\n                    <input class="volumeknob" id="volume" data-width="211" data-cursor="true" data-bgColor="rgba(0,0,0,0)" data-fgColor="#007F0B" data-thickness=".25" data-angleArc="250" data-angleOffset="-125" data-skin="tron" value="66">	\n                    <div class="btn-toolbar floatright">\n                        <div class="btn-group">\n                            <a id="volumedn" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-down"></i></a>\n                            <a id="volumemute" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-off"></i> <i class="fa fa-exclamation"></i></a>\n                            <!--<a id="ramplay" class="btn btn-cmd btn-toggle" title="Ramplay" href="#notarget"><i class="fa fa-copy"></i></a> -->\n                            <a id="volumeup" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-up"></i></a>\n                            <!--<a id="dbupdate" class="btn btn-cmd" href="#notarget" title="Updating Music DB..."><i class="fa fa-refresh"></i></a>-->\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>';
 },{}],8:[function(require,module,exports){
 'use strict';
 
-//var store = require('../store');
+var store = require('../store');
 
 module.exports = {
     template: require('./playback.html'),
     data: function data() {
         return {
-            song: window.GUI.currentsong
+            song: store.state.currentsong
         };
     },
     methods: {
@@ -12234,7 +12229,7 @@ module.exports = {
     }
 };
 
-},{"./playback.html":7}],9:[function(require,module,exports){
+},{"../store":11,"./playback.html":7}],9:[function(require,module,exports){
 module.exports = '<div class="tab-content">\n	<div id="playlist">\n		<ul class="playlist">\n			<li id="pl-{{ song.index }}" v-for="song in mpdSongs">\n				<div class="pl-action" v-on:click="removeMpdSong(song)">\n					<a href="#notarget" title="Remove song from playlist">\n						<i class="fa fa-trash"></i>\n					</a>\n				</div>\n				<div class="pl-entry" v-on:click="playMpdSong(song)">\n					{{ song.title }}\n					<span>\n						{{ song.artist }} - {{ song.album }}\n					</span>\n				</div>\n			</li>\n			<li id="pl-{{ song.index }}" v-for="song in spotifySongs">\n				<div class="pl-action" v-on:click="removeSpotifySong(song)">\n					<a href="#notarget" title="Remove song from playlist">\n						<i class="fa fa-trash"></i>\n					</a>\n				</div>\n				<div class="pl-entry" v-on:click="playSpotifySong(song)">\n					{{ song.title }}\n					<span>\n						{{ song.artist }} - {{ song.album }}\n					</span>\n				</div>\n			</li>\n		</ul>\n	</div>\n</div>';
 },{}],10:[function(require,module,exports){
 'use strict';
@@ -12244,11 +12239,7 @@ var store = require('../store');
 module.exports = {
 				template: require('./playlist.html'),
 				data: function data() {
-								// return {
-								// 	mpdSongs: [],
-								// 	spotifySongs: []
-								// }
-								return store.state.playist;
+								return store.state.playlist;
 				},
 				methods: {
 								playSpotifySong: function playSpotifySong(song) {
@@ -12277,9 +12268,8 @@ window.GUI = {
     SpopState: 0,
     cmd: 'status',
     playlist: {},
-    currentsong: { Artist: "", Title: "" },
+    currentsong: { Artist: "", Title: "", state: "" },
     currentknob: null,
-    state: '',
     currentpath: '',
     halt: 0,
     volume: null,
@@ -12293,6 +12283,9 @@ window.GUI = {
         mpdDirectories: [],
         spotifyTracks: [],
         spotifyDirectories: []
+    },
+    library: {
+        showLibrary: false
     }
 };
 

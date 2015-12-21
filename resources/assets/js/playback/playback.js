@@ -1,10 +1,10 @@
-//var store = require('../store');
+var store = require('../store');
 
 module.exports = {
     template: require('./playback.html'),
 	data: function() {
         return { 
-            song: window.GUI.currentsong
+            song: store.state.currentsong
         };
 	},
 	methods: {

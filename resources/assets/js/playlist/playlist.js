@@ -3,11 +3,7 @@ var store = require('../store');
 module.exports = {
 	template: require('./playlist.html'),
 	data: function() {
-		// return {
-		// 	mpdSongs: [],
-		// 	spotifySongs: []
-		// }
-        return store.state.playist;
+        return store.state.playlist;
 	},
 	methods: {
 	    playSpotifySong: function (song) {

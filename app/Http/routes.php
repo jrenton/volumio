@@ -28,6 +28,10 @@ $app->get('/', function () {
     return view('home');
 });
 
+$app->get('player', [
+    'as' => 'player', 'uses' => 'PlayerController@command'
+]);
+
 $app->get('playerEngine', [
     'as' => 'playerEngine', 'uses' => 'MpdController@playerEngine'
 ]);

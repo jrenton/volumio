@@ -3,9 +3,8 @@ window.GUI = {
     SpopState: 0,
     cmd: 'status',
     playlist: {},
-    currentsong: { Artist: "", Title: "" },
+    currentsong: { Artist: "", Title: "", state: "" },
     currentknob: null,
-    state: '',
     currentpath: '',
     halt: 0,
     volume: null,
@@ -19,6 +18,9 @@ window.GUI = {
         mpdDirectories: [],
         spotifyTracks: [],
         spotifyDirectories: []
+    },
+    library: {
+        showLibrary: false
     }
 };
 

@@ -1,6 +1,6 @@
 var Vue = require("vue");
 var VueRouter = require("vue-router");
-// var store = require("./store");
+var store = require("./store");
 //var appView = require('./app.js');
 // var browseView = require('./browse.js');
 // var libraryView = require('./library.js');
@@ -16,7 +16,7 @@ router.map({
         component: require('./playback/playback')
     },
     '/browse': {
-        component: require('./browse/browse.js')
+        component: require('./browse/browse')
     },
     // '/library': {
     //     component: libraryView
@@ -29,7 +29,11 @@ router.map({
     }
 })
 
-var App = Vue.extend({});
+var App = Vue.extend({
+    data: function() {
+        return store.state;
+    }
+});
 // Start the App
 router.start(App, '#app');
 
@@ -40,11 +44,9 @@ $(function() {
     backendRequest(window.GUI);
 	backendRequestSpop(window.GUI);
 
-    // first GUI update
-    updateGUI(window.GUI.MpdState);
     getDB('filepath', GUI.currentpath, 'file');
     $.pnotify.defaults.history = false;
-    getPlaylist();
+    //getPlaylist();
 
     // hide "connecting" layer
     if (GUI.state != 'disconnected') {

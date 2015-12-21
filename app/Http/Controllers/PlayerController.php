@@ -13,21 +13,21 @@ class PlayerController extends Controller
 {
     protected $connectionService;
     protected $albumArtService;
-    protected $spopService;
+    protected $spotifyService;
     protected $mpdService;
 
-    public function __construct(ConnectionService $connectionService, SpotifyService $spopService, MpdService $mpdService, AlbumArtService $albumArtService)
+    public function __construct(ConnectionService $connectionService, SpotifyService $spotifyService, MpdService $mpdService, AlbumArtService $albumArtService)
     {
         $this->connectionService = $connectionService;
         $this->albumArtService = $albumArtService;
-        $this->spopService = $spopService;
+        $this->spotifyService = $spotifyService;
         $this->mpdService = $mpdService;
     }
     
     function sendCommand(Request $request)
     {
         $mpd = $this->mpdService->openMpdSocket(DAEMONIP, 6600);        
-        $spop = $this->spopService->openSpopSocket(DAEMONIP, 6602);
+        $spop = $this->spotifyService->openSpopSocket(DAEMONIP, 6602);
         
         $commandName = $request->input('cmd');
         
@@ -48,7 +48,7 @@ class PlayerController extends Controller
                     {
                         if ($spop && strcmp(substr($path,0,7),"SPOTIFY") == 0) 
                         {
-                            $arraySpopSearchResults = $this->spopService->querySpopDB($spop, 'filepath', $path);
+                            $arraySpopSearchResults = $this->spotifyService->querySpopDB($spop, 'filepath', $path);
                             echo json_encode($arraySpopSearchResults);
                         } 
                         else 
@@ -63,7 +63,7 @@ class PlayerController extends Controller
         
                         if ($spop) 
                         {
-                            $arraySpopSearchResults = $this->spopService->querySpopDB($spop, 'filepath', '');
+                            $arraySpopSearchResults = $this->spotifyService->querySpopDB($spop, 'filepath', '');
                             $arraySearchResults = array_merge($arraySearchResults, $arraySpopSearchResults);
                         }
         
@@ -135,7 +135,7 @@ class PlayerController extends Controller
         
                         if ($spop) 
                         {
-                            $arraySpopSearchResults = $this->spopService->querySpopDB($spop, 'file', $_POST['query']);
+                            $arraySpopSearchResults = $this->spotifyService->querySpopDB($spop, 'file', $_POST['query']);
                             $arraySearchResults = array_merge($arraySearchResults, $arraySpopSearchResults);
                         }
         
@@ -166,7 +166,7 @@ class PlayerController extends Controller
                     {
                         $sSpopPlaylistIndex = end(explode("@", $path));
                         $this->mpdService->sendMpdCommand($mpd,'stop');
-                        echo $this->spopService->sendSpopCommand($spop, "play " . $sSpopPlaylistIndex);
+                        echo $this->spotifyService->sendSpopCommand($spop, "play " . $sSpopPlaylistIndex);
                     }
                     break;
         
@@ -174,7 +174,7 @@ class PlayerController extends Controller
                     if (isset($path) && $path != '') 
                     {
                         $sSpopPlaylistIndex = end(explode("@", $path));
-                        echo $this->spopService->sendSpopCommand($spop, "add " . $sSpopPlaylistIndex);
+                        echo $this->spotifyService->sendSpopCommand($spop, "add " . $sSpopPlaylistIndex);
                     }
                     break;
                 default:
@@ -201,7 +201,7 @@ class PlayerController extends Controller
                             $this->mpdService->sendMpdCommand($mpd, "stop");
                         }
                         
-                        echo json_encode($this->spopService->sendSpopCommand($spop, $spopCommand));
+                        echo json_encode($this->spotifyService->sendSpopCommand($spop, $spopCommand));
                     }
                     break;
             }
@@ -223,7 +223,97 @@ class PlayerController extends Controller
         
         if ($spop) 
         {
-            $this->spopService->closeSpopSocket($spop);
+            $this->spotifyService->closeSpopSocket($spop);
+        }
+    }
+    
+    public function command(Request $request)
+    {
+        $mpd = $this->mpdService->openMpdSocket(DAEMONIP, 6600);        
+        $spop = $this->spotifyService->openSpopSocket(DAEMONIP, 6602);
+        
+        $commandName = $request->input('cmd');
+        
+        if ($commandName) 
+        {
+            if ( !$mpd ) 
+            {
+                echo json_encode(['error' => 'Error Connecting to MPD daemon']);
+            } 
+            else 
+            {
+                $sRawCommand = $commandName;
+                $sSpopCommand = NULL;
+
+                if ($spop) 
+                {
+                    // If Spop daemon connected
+                    $stringSpopState = $this->spotifyService->getSpopState($spop,"CurrentState")['state'];
+
+                    if (strcmp($stringSpopState, 'play') == 0 || strcmp($stringSpopState, 'pause') == 0) 
+                    {
+                        // If spotify playback mode
+                        if (strcmp($sRawCommand, "previous") == 0) 
+                        {
+                            $sSpopCommand = "prev";
+                        } 
+                        else if (strcmp($sRawCommand, "pause") == 0) 
+                        {
+                            $sSpopCommand = "toggle";
+                        } 
+                        else if (strcmp(substr($sRawCommand,0,6), "random") == 0) 
+                        {
+                            $sSpopCommand = "shuffle";
+                        } 
+                        else if (strcmp(substr($sRawCommand,0,6), "repeat") == 0) 
+                        {
+                            $sSpopCommand = "repeat";
+                        } 
+                        else if (strcmp(substr($sRawCommand,0,6), "single") == 0 || strcmp(substr($sRawCommand,0,7), "consume") == 0) 
+                        {
+                            // Ignore command since spop does not support
+                            $sSpopCommand = "";
+                        } 
+                        else if (strcmp($sRawCommand, "play") == 0 || strcmp($sRawCommand, "next") == 0 || strcmp($sRawCommand, "stop") == 0 || strcmp(substr($sRawCommand,0,4), "seek") == 0) 
+                        {
+                            $sSpopCommand = $sRawCommand;
+                        }
+                    }
+                }
+
+                if (isset($sSpopCommand)) 
+                {
+                    // If command is to be passed to spop
+                    if (strcmp($sSpopCommand,"") != 0) 
+                    {
+                        echo json_encode($this->spotifyService->sendSpopCommand($spop,$sSpopCommand));
+                    }
+                } 
+                else 
+                {
+                    // Else pass command to MPD
+                    echo json_encode($this->mpdService->sendMpdCommand($mpd,$sRawCommand));
+                }
+            }
+        } 
+        else 
+        {
+            echo json_encode(
+                [
+                'service'       => 'MPD COMMAND INTERFACE',
+                'disclaimer'    => 'INTERNAL USE ONLY!',
+                'hosted_on' 	=> gethostname() . ":" . $_SERVER['SERVER_PORT']
+                ]);
+        }
+
+        if ($mpd) 
+        {
+            $this->mpdService->closeMpdSocket($mpd);
+        }
+
+        if ($spop) 
+        {
+            $this->spotifyService->closeSpopSocket($spop);
         }
     }
 }

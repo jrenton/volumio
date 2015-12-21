@@ -35,7 +35,7 @@
 	<div class="dropdown">
 		<a class="dropdown-toggle" id="menu-settings" role="button" data-toggle="dropdown" data-target="#" href="index.php"><i class="fa fa-th-list dx"></i></a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="menu-settings">
-			<li><a href="index.php"><i class="fa fa-play sx"></i> Main</a></li>
+			<li><a v-link="{ path: 'playback' }"><i class="fa fa-play sx"></i> Main</a></li>
 			<li><a href="sources.php"><i class="fa fa-folder-open sx"></i> Library</a></li>
 			<li><a href="mpd-config.php"><i class="fa fa-cogs sx"></i> Playback</a></li>
 			<li><a href="net-config.php"><i class="fa fa-sitemap sx"></i> Network</a></li>
@@ -66,29 +66,30 @@
 </div>
 <div id="menu-bottom" class="ui-footer ui-bar-f ui-footer-fixed slidedown" data-position="fixed" data-role="footer"  role="banner">
 	<ul>
-		<li id="open-panel-sx">
-			<a v-link="{ path: 'browse' }" class="open-panel-sx">
+		<li>
+			<a v-link="{ path: 'browse' }">
 				<i class="fa fa-music sx"></i> Browse
 			</a>
 		</li>
-		<li id="open-panel-lib">
-			<a v-link="{ path: 'library' }" class="open-panel-lib">
+		<li v-if="showLibrary">
+			<a v-link="{ path: 'library' }">
 				<i class="fa fa-columns sx"></i> Library
 			</a>
 		</li>
-		<li id="open-playback">
-			<a v-link="{ path: 'playback' }" class="close-panels">
+		<li>
+			<a v-link="{ path: 'playback' }">
 				<i class="fa fa-play sx"></i> Playback
 			</a>
 		</li>
-		<li id="open-panel-dx">
-			<a v-link="{ path: 'playlist' }" class="open-panel-dx">
+		<li>
+			<a v-link="{ path: 'playlist' }">
 				<i class="fa fa-list sx"></i> Playlist
 			</a>
 		</li>
 	</ul>
 </div>
 <div id="main-container">
+    <div id="playbackCover"></div>
 	<router-view></router-view>
 </div>
 <form class="form-horizontal" action="settings.php" method="post">

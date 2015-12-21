@@ -2,7 +2,7 @@
 // ----------------------------------------------------------------------------------------------------
 
 function sendCmd(inputcmd) {
-    AjaxUtils.get('command/?cmd=' + inputcmd, {}, function(data) {
+    AjaxUtils.get('player?cmd=' + inputcmd, {}, function(data) {
         GUI.halt = 1;
     });
 }
@@ -76,14 +76,14 @@ function toggleActive($ele, $parent) {
 function getPlaylist() {
     sendCommand("spop-qls", null, function(data) {
         if(data) {
-            GUI.playlist.spotifySongs = data.tracks; 
+            window.GUI.playlist.spotifySongs = data.tracks; 
         }
     });
     
     sendCommand("playlist", null, function(data) {
         if(data) {
             console.log(data);
-            GUI.playlist.mpdSongs = data; 
+            window.GUI.playlist.mpdSongs = data;
         }
     });
 }

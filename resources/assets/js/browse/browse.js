@@ -3,14 +3,7 @@ var store = require('../store');
 module.exports = {
     template: require('./browse.html'),
 	data: function() {
-        return window.GUI.browse;
-		// return {
-		// 	isLibrary: false,
-		// 	files: [{ Title: "Something" }],
-		// 	mpdDirectories: [],
-		// 	spotifyTracks: [],
-		// 	spotifyDirectories: []
-		// }
+        return store.state.browse;
 	},
 	methods: {
 	    playSong: function (song) {
