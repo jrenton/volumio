@@ -3,20 +3,20 @@
 module.exports = {
     template: require('./playback.html'),
 	data: function() {
-		//return { song: {} };
-        return { song: window.GUI.currentsong };
-        //return { song: { Artist: "Eminem", Title: "Superman" } };
+        return { 
+            song: window.GUI.currentsong
+        };
 	},
 	methods: {
 	    playPause: function () {
             var cmd = '';
-            if (GUI.state == 'play') {
+            if (this.song.state == 'play') {
                 cmd = 'pause';
                 $('#countdown-display').countdown('pause');
-            } else if (GUI.state == 'pause') {
+            } else if (this.song.state == 'pause') {
                 cmd = 'play';
                 $('#countdown-display').countdown('resume');
-            } else if (GUI.state == 'stop') {
+            } else if (this.song.state == 'stop') {
                 cmd = 'play';
                 $('#countdown-display').countdown({since: 0, compact: true, format: 'MS'});
             }

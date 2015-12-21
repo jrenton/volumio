@@ -17,7 +17,7 @@
                 <a id="play" href="#" title="Play/Pause" v-on:click="playPause()">
                     <span class="fa-stack fa-4x">
                         <i class="fa fa-circle-thin fa-stack-2x"></i>
-                        <i class="fa fa-play fa-stack-1x"></i>
+                        <i class="fa fa-stack-1x" v-bind:class="{ 'fa-play': song.state == 'stop' || song.state == 'pause' || !song.state, 'fa-pause': song.state == 'play'}"></i>
                     </span>
                 </a>
                 <button class="btn" title="Next" v-on:click="nav('next')">

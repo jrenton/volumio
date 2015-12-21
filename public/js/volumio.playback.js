@@ -55,7 +55,7 @@ jQuery(document).ready(function($){ 'use strict';
     $('.playbackknob').knob({
         inline: false,
 		change : function (value) {
-            if (GUI.state != 'stop') {
+            if (GUI.currentsong.state != 'stop') {
 				// console.log('GUI.halt (Knobs)= ', GUI.halt);
 				window.clearInterval(GUI.currentKnob)
 				//$('#time').val(value);
@@ -64,7 +64,7 @@ jQuery(document).ready(function($){ 'use strict';
 			} else $('#time').val(0);
         },
         release : function (value) {
-			if (GUI.state != 'stop') {
+			if (GUI.currentsong.state != 'stop') {
 				//console.log('release percent = ', value);
 				GUI.halt = 1;
 				// console.log('GUI.halt (Knobs2)= ', GUI.halt);

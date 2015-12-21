@@ -238,7 +238,7 @@ function renderUI(gui) {
     console.log(gui);
     if (gui.SpopState['state'] == 'play' || gui.SpopState['state'] == 'pause') {
        // If Spop is playing, temporarily redirect button control and title display to Spop
-        gui.state = gui.SpopState['state'];
+        gui.currentsong.state = gui.SpopState['state'];
 
         // Combine the Spop state array with the Mpd state array - any state variable defined by Spop will overwrite the corresponding Mpd state variable
         var objectCombinedState = $.extend({}, gui.MpdState, gui.SpopState);
@@ -247,7 +247,7 @@ function renderUI(gui) {
         refreshKnob(objectCombinedState);
     } else {
        // Else UI should be connected to MPD status
-        gui.state = gui.MpdState['state'];
+        gui.currentsong.state = gui.MpdState['state'];
         updateGUI(gui.MpdState);
         refreshTimer(parseInt(gui.MpdState['elapsed']), parseInt(gui.MpdState['time']), GUI.MpdState['state']);
         refreshKnob(gui.MpdState);
@@ -385,7 +385,7 @@ function refreshKnob(json){
     var delta = json['time'] / 1000;
     var $time = $("#time");
     $time.val(initTime*10).trigger('change');
-    if (GUI.state == 'play') {
+    if (GUI.currentsong.state == 'play') {
         GUI.currentKnob = setInterval(function() {
             if (GUI.visibility == 'visible') {
                 initTime = initTime + 0.1;
