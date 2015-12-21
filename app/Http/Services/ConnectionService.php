@@ -89,42 +89,50 @@ class ConnectionService
 		$plistLine = strtok($resp,"\n");
 		$plistFile = "";
 	
-		while ( $plistLine ) 
-		{
-			if (strpos($plistLine, ": ") === false)
-			{
-				continue;
-			}
-			
-			list ( $element, $value ) = explode(": ",$plistLine,2);
-	
-			if ( $element == "file" OR $element == "playlist") 
-			{
-				$plCounter++;
-				$plistFile = $value;
-				$plistArray[$plCounter]["file"] = $plistFile;
-				$plistArray[$plCounter]["fileext"] = $this->parseFileStr($plistFile,'.');
-				$plistArray[$plCounter]["Type"] = "MpdFile";
-			} 
-			else if ( $element == "directory") 
-			{
-				$dirCounter++;
-				$dirArray[$dirCounter]["directory"] = $value;
-				$dirArray[$dirCounter]["Type"] = "MpdDirectory";
-			} 
-			else 
-			{
-				$plistArray[$plCounter][$element] = $value;
-				
-				if(isset($plistArray[$plCounter]["Time"]))
-				{
-					$plistArray[$plCounter]["Time2"] = $this->songTime($plistArray[$plCounter]["Time"]);					
-				}
-			}
-	
-			$plistLine = strtok("\n");
-		}
-	
+        //dd($plistLine);
+        try 
+        {
+            while ( $plistLine ) 
+            {
+                if (strpos($plistLine, ": ") === false)
+                {
+                    continue;
+                }
+                
+                list ( $element, $value ) = explode(": ",$plistLine,2);
+        
+                if ( $element == "file" OR $element == "playlist") 
+                {
+                    $plCounter++;
+                    $plistFile = $value;
+                    $plistArray[$plCounter]["file"] = $plistFile;
+                    $plistArray[$plCounter]["fileext"] = $this->parseFileStr($plistFile,'.');
+                    $plistArray[$plCounter]["Type"] = "MpdFile";
+                } 
+                else if ( $element == "directory") 
+                {
+                    $dirCounter++;
+                    $dirArray[$dirCounter]["directory"] = $value;
+                    $dirArray[$dirCounter]["Type"] = "MpdDirectory";
+                } 
+                else 
+                {
+                    $plistArray[$plCounter][$element] = $value;
+                    
+                    if(isset($plistArray[$plCounter]["Time"]))
+                    {
+                        $plistArray[$plCounter]["Time2"] = $this->songTime($plistArray[$plCounter]["Time"]);					
+                    }
+                }
+        
+                $plistLine = strtok("\n");
+            }
+        } 
+        catch (Exception $e) 
+        {
+            throw new \Exception($plistLine);
+        }
+		
 		return array_merge($dirArray, $plistArray);
 	}
 	
@@ -141,6 +149,8 @@ class ConnectionService
 		$plistFile = "";
 		$plCounter = -1;
 
+        //dd($plistLine);
+        
 		while ($plistLine) 
 		{
 			if(strpos($plistLine, ": ") !== false)
