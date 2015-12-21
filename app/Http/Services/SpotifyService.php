@@ -248,24 +248,25 @@ class SpotifyService
 			while ($i < $nQueryStringParts) 
 			{
 				$sCurrentDirectory = $sCurrentDirectory . "/" . $arrayQueryStringParts[$i];
-				if (isset($arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"]) && $arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"] == 0) {
+				if (isset($arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"]) && $arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"] == 0) 
+                {
 					$sCurrentDisplayPath = $sCurrentDisplayPath . "/" . "Starred";
-	
 				} 
 				else 
 				{
 					$sCurrentDisplayPath = $sCurrentDisplayPath . "/" . $arrayResponse["playlists"][$arrayQueryStringParts[$i]]["name"];
 				}
 	
-				if (strcmp($arrayResponse["playlists"][$arrayQueryStringParts[$i]]["type"], "playlist") == 0) { 
-				// This is a playlist, navigate into it and stop
+				if (strcmp($arrayResponse["playlists"][$arrayQueryStringParts[$i]]["type"], "playlist") == 0) 
+                { 
+				    // This is a playlist, navigate into it and stop
 					$arrayResponse = $this->sendSpopCommand($sock,"ls " . $arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"]);
 					break;
-	
-				} else {
-				// Index further into the directory listing
+				} 
+                else 
+                {
+				    // Index further into the directory listing
 					$arrayResponse = $arrayResponse["playlists"][$arrayQueryStringParts[$i]];
-	
 				}
 	
 				$i++;
@@ -276,10 +277,12 @@ class SpotifyService
 			array_push($arrayReturn, $arrayCurrentEntry);
 	
 			$i = 0;
-			if (isset($arrayResponse["tracks"])) { 
-			// This is a tracklist within a playlist
+			if (isset($arrayResponse["tracks"])) 
+            { 
+			    // This is a tracklist within a playlist
 				$nItems = sizeof($arrayResponse["tracks"]);
-				while ($i < $nItems) {
+				while ($i < $nItems) 
+                {
 					$arrayCurrentEntry = array();
 					$arrayCurrentEntry["Type"] = "SpopTrack";
 					$arrayCurrentEntry["SpopTrackUri"] = (string)$arrayResponse["tracks"][$i]["uri"];
@@ -291,29 +294,33 @@ class SpotifyService
 	
 					$i++;
 				}
-	
-			} else if (isset($arrayResponse["playlists"])) {
-			// This is a browsable listing
+			} 
+            else if (isset($arrayResponse["playlists"])) 
+            {
+			    // This is a browsable listing
 				$nItems = sizeof($arrayResponse["playlists"]);
-				while ($i < $nItems) {
+				while ($i < $nItems) 
+                {
 					$arrayCurrentEntry = array();
 					$arrayCurrentEntry["Type"] = "SpopDirectory";
 					$sItemDisplayName = $arrayResponse["playlists"][$i]["name"];
 	
-					if (strcmp($arrayResponse["playlists"][$i]["type"], "playlist") == 0) {
-					// This is a browsable playlist
+					if (strcmp($arrayResponse["playlists"][$i]["type"], "playlist") == 0) 
+                    {
+					   // This is a browsable playlist
 						$arrayCurrentEntry["SpopPlaylistIndex"] = $arrayResponse["playlists"][$i]["index"];
 						$sItemDirectory = $sCurrentDirectory . "/" . $i . "@" . $arrayResponse["playlists"][$i]["index"];
 	
-						if ($arrayResponse["playlists"][$i]["index"] == 0) {
+						if ($arrayResponse["playlists"][$i]["index"] == 0) 
+                        {
 							$sItemDisplayName = "Starred";
-	
 						}
 	
-					} else {
-					// This is a Spotify folder
+					} 
+                    else 
+                    {
+					   // This is a Spotify folder
 						$sItemDirectory = $sCurrentDirectory . "/" . $i;
-	
 					}
 	
 					$arrayCurrentEntry["directory"] = $sItemDirectory;
@@ -322,9 +329,7 @@ class SpotifyService
 	
 					$i++;
 				}
-	
 			}
-	
 		}
 	
 		return $arrayReturn;
