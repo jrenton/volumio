@@ -416,7 +416,6 @@ class MpdService
 			break;
 		}
 		
-        dd($response);
 		//$response =  htmlentities($this->readMpdResponse($sock),ENT_XML1,'UTF-8');
 		//$response = htmlspecialchars($this->readMpdResponse($sock));
 		return $response;
