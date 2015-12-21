@@ -86,42 +86,48 @@ class ConnectionService
 		$dirArray = array();
 		$plCounter = -1;
 		$dirCounter = 0;
-		$plistLine = strtok($resp,"\n");
+		$plistLine = strtok($resp, "\n");
 		$plistFile = "";
 	
 		while ( $plistLine ) 
 		{
-			if (strpos($plistLine, ": ") === false)
-			{
-				continue;
-			}
+            try
+            {
+                list ( $element, $value ) = explode(": ", $plistLine, 2);
+	
+                if ( $element == "file" OR $element == "playlist") 
+                {
+                    $plCounter++;
+                    $plistFile = $value;
+                    $plistArray[$plCounter]["file"] = $plistFile;
+                    $plistArray[$plCounter]["fileext"] = $this->parseFileStr($plistFile,'.');
+                    $plistArray[$plCounter]["Type"] = "MpdFile";
+                } 
+                else if ( $element == "directory") 
+                {
+                    $dirCounter++;
+                    $dirArray[$dirCounter]["directory"] = $value;
+                    $dirArray[$dirCounter]["Type"] = "MpdDirectory";
+                } 
+                else 
+                {
+                    $plistArray[$plCounter][$element] = $value;
+                    
+                    if(isset($plistArray[$plCounter]["Time"]))
+                    {
+                        $plistArray[$plCounter]["Time2"] = $this->songTime($plistArray[$plCounter]["Time"]);					
+                    }
+                }
+            }
+            catch(\Exception $ex)
+            {
+                
+            }
+			// if (strpos($plistLine, ": ") === false)
+			// {
+			// 	continue;
+			// }
 			
-			list ( $element, $value ) = explode(": ",$plistLine,2);
-	
-			if ( $element == "file" OR $element == "playlist") 
-			{
-				$plCounter++;
-				$plistFile = $value;
-				$plistArray[$plCounter]["file"] = $plistFile;
-				$plistArray[$plCounter]["fileext"] = $this->parseFileStr($plistFile,'.');
-				$plistArray[$plCounter]["Type"] = "MpdFile";
-			} 
-			else if ( $element == "directory") 
-			{
-				$dirCounter++;
-				$dirArray[$dirCounter]["directory"] = $value;
-				$dirArray[$dirCounter]["Type"] = "MpdDirectory";
-			} 
-			else 
-			{
-				$plistArray[$plCounter][$element] = $value;
-				
-				if(isset($plistArray[$plCounter]["Time"]))
-				{
-					$plistArray[$plCounter]["Time2"] = $this->songTime($plistArray[$plCounter]["Time"]);					
-				}
-			}
-	
 			$plistLine = strtok("\n");
 		}
 	
@@ -143,12 +149,17 @@ class ConnectionService
 
 		while ($plistLine) 
 		{
-			if(strpos($plistLine, ": ") !== false)
-			{
-				list ( $element, $value ) = explode(": ", $plistLine, 2);
-				$plistArray[$element] = $value;
-				$plistLine = strtok("\n");
-			}
+            try
+            {
+                list ( $element, $value ) = explode(": ", $plistLine, 2);
+                $plistArray[$element] = $value;
+            }
+            catch(\Exception $ex)
+            {
+                
+            }
+            
+            $plistLine = strtok("\n");            
 		}
 
         $percent = 0;
@@ -276,7 +287,7 @@ class ConnectionService
 			if (session_destroy()) 
 			{
 				$dbh  = $this->cfgdb_connect($db);
-				if (cfgdb_update('cfg_engine',$dbh,'sessionid','')) 
+				if ($this->cfgdb_update('cfg_engine',$dbh,'sessionid','')) 
 				{
 					$dbh = null;
 					return true;
@@ -292,7 +303,7 @@ class ConnectionService
 		{
 			$_SESSION[$var] = $value;
 			$dbh  = $this->cfgdb_connect($db);
-			cfgdb_update('cfg_engine',$dbh,$var,$value);
+			$this->cfgdb_update('cfg_engine',$dbh,$var,$value);
 			$dbh = null;
 		}
 		
@@ -395,19 +406,25 @@ class ConnectionService
 		}
 	}
 	
-	function cfgdb_delete($table,$dbh,$id) {
-	if (!isset($id)) {
-	$querystr = "DELETE FROM ".$table;
-	} else {
-	$querystr = "DELETE FROM ".$table." WHERE id=".$id;
-	}
-	//debug
-	error_log(">>>>> cfgdb_delete(".$table.",dbh,".$id.") >>>>> \n".$querystr, 0);
-		if ($this->sdbquery($querystr,$dbh)) {
-		return true;
-		} else {
-		return false;
+	function cfgdb_delete($table,$dbh,$id) 
+    {
+        if (!isset($id)) 
+        {
+            $querystr = "DELETE FROM ".$table;
+        } 
+        else 
+        {
+            $querystr = "DELETE FROM ".$table." WHERE id=".$id;
+        }
+        
+        //debug
+        error_log(">>>>> cfgdb_delete(".$table.",dbh,".$id.") >>>>> \n".$querystr, 0);
+		if ($this->sdbquery($querystr, $dbh)) 
+        {
+		  return true;
 		}
+        
+		return false;
 	}
 	
 	function sdbquery($querystr, $dbh) 
@@ -748,14 +765,14 @@ class ConnectionService
 		$cmdstring = "tar -czf ".$filepath." /var/lib/mpd /etc/auto.nas /etc/mpd.conf /var/www/db/player.db";
 		}
 		
-	sysCmd($cmdstring);
+	$this->sysCmd($cmdstring);
 	return $filepath;
 	}
 	
 	function wrk_restore($backupfile) {
 	$path = "/run/".$backupfile;
 	$cmdstring = "tar xzf ".$path." --overwrite --directory /";
-		if (sysCmd($cmdstring)) {
+		if ($this->sysCmd($cmdstring)) {
 			recursiveDelete($path);
 		}
 	}
@@ -778,334 +795,371 @@ class ConnectionService
 	
 	function wrk_sourcemount($db,$action,$id) 
 	{
-		switch ($action) {
-			
+		switch ($action) 
+        {
 			case 'mount':
 				$dbh = $this->cfgdb_connect($db);
 				$mp = $this->cfgdb_read('cfg_source',$dbh,'',$id);
-				sysCmd("mkdir \"/mnt/NAS/".$mp[0]['name']."\"");
-				if ($mp[0]['type'] == 'cifs') {
-				// smb/cifs mount
-				if (empty($mp[0]['username'])) {
-				$mp[0]['username'] = 'guest';
-				}
-				$mountstr = "mount -t cifs \"//".$mp[0]['address']."/".$mp[0]['remotedir']."\" -o username=".$mp[0]['username'].",password=".$mp[0]['password'].",rsize=".$mp[0]['rsize'].",wsize=".$mp[0]['wsize'].",iocharset=".$mp[0]['charset'].",".$mp[0]['options']." \"/mnt/NAS/".$mp[0]['name']."\"";
-				} else {
-				// nfs mount
-				$mountstr = "mount -t nfs -o ".$mp[0]['options']." \"".$mp[0]['address'].":/".$mp[0]['remotedir']."\" \"/mnt/NAS/".$mp[0]['name']."\"";
+				$this->sysCmd("mkdir \"/mnt/NAS/".$mp[0]['name']."\"");
+				if ($mp[0]['type'] == 'cifs') 
+                {
+                    // smb/cifs mount
+                    if (empty($mp[0]['username'])) 
+                    {
+                        $mp[0]['username'] = 'guest';
+                    }
+                    $mountstr = "mount -t cifs \"//".$mp[0]['address']."/".$mp[0]['remotedir']."\" -o username=".$mp[0]['username'].",password=".$mp[0]['password'].",rsize=".$mp[0]['rsize'].",wsize=".$mp[0]['wsize'].",iocharset=".$mp[0]['charset'].",".$mp[0]['options']." \"/mnt/NAS/".$mp[0]['name']."\"";
+				} 
+                else 
+                {
+				    // nfs mount
+				    $mountstr = "mount -t nfs -o ".$mp[0]['options']." \"".$mp[0]['address'].":/".$mp[0]['remotedir']."\" \"/mnt/NAS/".$mp[0]['name']."\"";
 				}
 				// debug
 				error_log(">>>>> mount string >>>>> ".$mountstr,0);
-				$sysoutput = sysCmd($mountstr);
+				$sysoutput = $this->sysCmd($mountstr);
 				error_log(var_dump($sysoutput),0);
-				if (empty($sysoutput)) {
-					if (!empty($mp[0]['error'])) {
-					$mp[0]['error'] = '';
-					cfgdb_update('cfg_source',$dbh,'',$mp[0]);
+				if (empty($sysoutput)) 
+                {
+					if (!empty($mp[0]['error'])) 
+                    {
+                        $mp[0]['error'] = '';
+                        $this->cfgdb_update('cfg_source',$dbh,'',$mp[0]);
 					}
-				$return = 1;
-				} else {
-				sysCmd("rmdir \"/mnt/NAS/".$mp[0]['name']."\"");
-				$mp[0]['error'] = implode("\n",$sysoutput);
-				cfgdb_update('cfg_source',$dbh,'',$mp[0]);
-				$return = 0;
+				    $return = 1;
+				} 
+                else
+                {
+                    $this->sysCmd("rmdir \"/mnt/NAS/".$mp[0]['name']."\"");
+                    $mp[0]['error'] = implode("\n",$sysoutput);
+                    $this->cfgdb_update('cfg_source',$dbh,'',$mp[0]);
+                    $return = 0;
 				}	
 			break;
 			
 			case 'mountall':
-			$dbh = $this->cfgdb_connect($db);
-			$mounts = $this->cfgdb_read('cfg_source',$dbh);
-			foreach ($mounts as $mp) {
-				if (!wrk_checkStrSysfile('/proc/mounts',$mp['name']) ) {
-				$return = wrk_sourcemount($db,'mount',$mp['id']);
-				}
-			}
-			$dbh = null;
+                $dbh = $this->cfgdb_connect($db);
+                $mounts = $this->cfgdb_read('cfg_source',$dbh);
+                foreach ($mounts as $mp) 
+                {
+                    if (!$this->wrk_checkStrSysfile('/proc/mounts',$mp['name']) ) 
+                    {
+                        $return = $this->wrk_sourcemount($db,'mount',$mp['id']);
+                    }
+                }
+                $dbh = null;
 			break;
-			
 		}
-	return $return;
+        
+	   return $return;
 	}
 	
-	function wrk_sourcecfg($db,$queueargs) {
-	$action = $queueargs['mount']['action'];
-	unset($queueargs['mount']['action']);
-		switch ($action) {
-	
+	function wrk_sourcecfg($db,$queueargs) 
+    {
+        $action = $queueargs['mount']['action'];
+        unset($queueargs['mount']['action']);
+		switch ($action) 
+        {
 			case 'reset': 
-			$dbh = $this->cfgdb_connect($db);
-			$source = $this->cfgdb_read('cfg_source',$dbh);
-				foreach ($source as $mp) {
-				sysCmd("umount -f \"/mnt/NAS/".$mp['name']."\"");
-				sysCmd("rmdir \"/mnt/NAS/".$mp['name']."\"");
-				}
-			if (cfgdb_delete('cfg_source',$dbh)) {
-			$return = 1;
-			} else {
-			$return = 0;
-			}
-			$dbh = null;
+                $dbh = $this->cfgdb_connect($db);
+                $source = $this->cfgdb_read('cfg_source',$dbh);
+                foreach ($source as $mp) 
+                {
+                    $this->sysCmd("umount -f \"/mnt/NAS/".$mp['name']."\"");
+                    $this->sysCmd("rmdir \"/mnt/NAS/".$mp['name']."\"");
+                }
+                if ($this->cfgdb_delete('cfg_source',$dbh)) 
+                {
+                    $return = 1;
+                } 
+                else 
+                {
+                    $return = 0;
+                }
+                $dbh = null;
 			break;
 	
 			case 'add':
-			$dbh = $this->cfgdb_connect($db);
-			print_r($queueargs);
-			unset($queueargs['mount']['id']);
-			// format values string
-			foreach ($queueargs['mount'] as $key => $value) {
-				if ($key == 'error') {
-				$values .= "'".SQLite3::escapeString($value)."'";
-				error_log(">>>>> values on line 1014 >>>>> ".$values, 0);
-				} else {
-				$values .= "'".SQLite3::escapeString($value)."',";
-				error_log(">>>>> values on line 1016 >>>>> ".$values, 0);
-				}
-			}
-			error_log(">>>>> values on line 1019 >>>>> ".$values, 0);
-			// write new entry
-			cfgdb_write('cfg_source',$dbh,$values);
-			$newmountID = $dbh->lastInsertId();
-			$dbh = null;
-			if (wrk_sourcemount($db,'mount',$newmountID)) {
-			$return = 1;
-			} else {
-			$return = 0;
-			}
+                $dbh = $this->cfgdb_connect($db);
+                print_r($queueargs);
+                unset($queueargs['mount']['id']);
+                // format values string
+                foreach ($queueargs['mount'] as $key => $value) 
+                {
+                    if ($key == 'error') 
+                    {
+                        $values .= "'".SQLite3::escapeString($value)."'";
+                        error_log(">>>>> values on line 1014 >>>>> ".$values, 0);
+                    } 
+                    else 
+                    {
+                        $values .= "'".SQLite3::escapeString($value)."',";
+                        error_log(">>>>> values on line 1016 >>>>> ".$values, 0);
+                    }
+                }
+                error_log(">>>>> values on line 1019 >>>>> ".$values, 0);
+                // write new entry
+                $this->cfgdb_write('cfg_source',$dbh,$values);
+                $newmountID = $dbh->lastInsertId();
+                $dbh = null;
+                if ($this->wrk_sourcemount($db,'mount',$newmountID)) 
+                {
+                    $return = 1;
+                } 
+                else 
+                {
+                    $return = 0;
+                }
 			break;
 			
 			case 'edit':
-			$dbh = $this->cfgdb_connect($db);
-			$mp = $this->cfgdb_read('cfg_source',$dbh,'',$queueargs['mount']['id']);
-			cfgdb_update('cfg_source',$dbh,'',$queueargs['mount']);	
-			sysCmd("umount -f \"/mnt/NAS/".$mp[0]['name']."\"");
-				if ($mp[0]['name'] != $queueargs['mount']['name']) {
-				sysCmd("rmdir \"/mnt/NAS/".$mp[0]['name']."\"");
-				sysCmd("mkdir \"/mnt/NAS/".$queueargs['mount']['name']."\"");
-				}
-			if (wrk_sourcemount($db,'mount',$queueargs['mount']['id'])) {
-			$return = 1;
-			} else {
-			$return = 0;
-			}
-			error_log(">>>>> wrk_sourcecfg(edit) exit status = >>>>> ".$return, 0);
-			$dbh = null;
+                $dbh = $this->cfgdb_connect($db);
+                $mp = $this->cfgdb_read('cfg_source',$dbh,'',$queueargs['mount']['id']);
+                $this->cfgdb_update('cfg_source',$dbh,'',$queueargs['mount']);	
+                $this->sysCmd("umount -f \"/mnt/NAS/".$mp[0]['name']."\"");
+                if ($mp[0]['name'] != $queueargs['mount']['name']) 
+                {
+                    $this->sysCmd("rmdir \"/mnt/NAS/".$mp[0]['name']."\"");
+                    $this->sysCmd("mkdir \"/mnt/NAS/".$queueargs['mount']['name']."\"");
+                }
+                if ($this->wrk_sourcemount($db,'mount',$queueargs['mount']['id'])) 
+                {
+                    $return = 1;
+                } 
+                else 
+                {
+                    $return = 0;
+                }
+                error_log(">>>>> wrk_sourcecfg(edit) exit status = >>>>> ".$return, 0);
+                $dbh = null;
 			break;
-			
 			case 'delete':
-			$dbh = $this->cfgdb_connect($db);
-			$mp = $this->cfgdb_read('cfg_source',$dbh,'',$queueargs['mount']['id']);
-			sysCmd("umount -f \"/mnt/NAS/".$mp[0]['name']."\"");
-			sysCmd("rmdir \"/mnt/NAS/".$mp[0]['name']."\"");
-			if (cfgdb_delete('cfg_source',$dbh,$queueargs['mount']['id'])) {
-			$return = 1;
-			} else {
-			$return = 0;
-			}
-			$dbh = null;
+                $dbh = $this->cfgdb_connect($db);
+                $mp = $this->cfgdb_read('cfg_source',$dbh,'',$queueargs['mount']['id']);
+                $this->sysCmd("umount -f \"/mnt/NAS/".$mp[0]['name']."\"");
+                $this->sysCmd("rmdir \"/mnt/NAS/".$mp[0]['name']."\"");
+                if ($this->cfgdb_delete('cfg_source',$dbh,$queueargs['mount']['id'])) 
+                {
+                    $return = 1;
+                } 
+                else 
+                {
+                    $return = 0;
+                }
+                $dbh = null;
 			break;
 		}
 	
-	return $return;
+	   return $return;
 	}
 	
-	function wrk_getHwPlatform() {
-	$file = '/proc/cpuinfo';
+	function wrk_getHwPlatform() 
+    {
+        $file = '/proc/cpuinfo';
 		$fileData = file($file);
-		foreach($fileData as $line) {
-			if (substr($line, 0, 8) == 'Hardware') {
+		foreach($fileData as $line) 
+        {
+			if (substr($line, 0, 8) == 'Hardware') 
+            {
 				$arch = trim(substr($line, 11, 50)); 
-					switch($arch) {
-						
-						// RaspberryPi
-						case 'BCM2708':
-						$arch = '01';
-						break;
-						
-						// UDOO
-						case 'SECO i.Mx6 UDOO Board':
-						$arch = '02';
-						break;
-						
-						// CuBox
-						case 'Marvell Dove (Flattened Device Tree)':
-						$arch = '03';
-						break;
-						
-						// BeagleBone Black
-						case 'Generic AM33XX (Flattened Device Tree)':
-						$arch = '04';
-						break;
-						
-						// Compulab Utilite
-						case 'Compulab CM-FX6':
-						$arch = '05';
-						break;
-						
-						// Wandboard
-						case 'Freescale i.MX6 Quad/DualLite (Device Tree)':
-						$arch = '06';
-						break;
-						
-						// Cubieboard 
-						case 'sun7i':
-						$arch = '07';
-						break;
-						
-						// RaspberryPi 2
-						case 'BCM2709':
-						$arch = '08';
-						break;
-						
-						// Odroid C1
-						case 'ODROIDC':
-						$arch = '09';
-						break;
-						
-						default:
-						$arch = '--';
-						break;
-					}
+                switch($arch) 
+                {
+                    // RaspberryPi
+                    case 'BCM2708':
+                    $arch = '01';
+                    break;
+                    
+                    // UDOO
+                    case 'SECO i.Mx6 UDOO Board':
+                    $arch = '02';
+                    break;
+                    
+                    // CuBox
+                    case 'Marvell Dove (Flattened Device Tree)':
+                    $arch = '03';
+                    break;
+                    
+                    // BeagleBone Black
+                    case 'Generic AM33XX (Flattened Device Tree)':
+                    $arch = '04';
+                    break;
+                    
+                    // Compulab Utilite
+                    case 'Compulab CM-FX6':
+                    $arch = '05';
+                    break;
+                    
+                    // Wandboard
+                    case 'Freescale i.MX6 Quad/DualLite (Device Tree)':
+                    $arch = '06';
+                    break;
+                    
+                    // Cubieboard 
+                    case 'sun7i':
+                    $arch = '07';
+                    break;
+                    
+                    // RaspberryPi 2
+                    case 'BCM2709':
+                    $arch = '08';
+                    break;
+                    
+                    // Odroid C1
+                    case 'ODROIDC':
+                    $arch = '09';
+                    break;
+                    
+                    default:
+                    $arch = '--';
+                    break;
+                }
 			}
 		}
-	if (!isset($arch)) {
-	$arch = '--';
-	}
-	return $arch;
+        
+        if (!isset($arch)) 
+        {
+            $arch = '--';
+        }
+        
+        return $arch;
 	}
 	
-	function wrk_setHwPlatform($db) {
-	$arch = wrk_getHwPlatform();
-	$playerid = wrk_playerID($arch);
-	// register playerID into database
-	$this->playerSession('write',$db,'playerid',$playerid);
-	// register platform into database
-		switch($arch) {
+	function wrk_setHwPlatform($db) 
+    {
+        $arch = $this->wrk_getHwPlatform();
+        $playerid = $this->wrk_playerID($arch);
+        // register playerID into database
+        $this->playerSession('write',$db,'playerid',$playerid);
+        // register platform into database
+		switch($arch) 
+        {
 			case '01':
-			$this->playerSession('write',$db,'hwplatform','RaspberryPi');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','RaspberryPi');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '02':
-			$this->playerSession('write',$db,'hwplatform','UDOO');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','UDOO');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '03':
-			$this->playerSession('write',$db,'hwplatform','CuBox');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','CuBox');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '04':
-			$this->playerSession('write',$db,'hwplatform','BeagleBone Black');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','BeagleBone Black');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '05':
-			$this->playerSession('write',$db,'hwplatform','Compulab Utilite');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','Compulab Utilite');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '06':
-			$this->playerSession('write',$db,'hwplatform','Wandboard');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','Wandboard');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '07':
-			$this->playerSession('write',$db,'hwplatform','Cubieboard');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','Cubieboard');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '08':
-			$this->playerSession('write',$db,'hwplatform','RaspberryPi2');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','RaspberryPi2');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			case '09':
-			$this->playerSession('write',$db,'hwplatform','Odroid-C1');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
+                $this->playerSession('write',$db,'hwplatform','Odroid-C1');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
 			break;
 			
 			default:
-			$this->playerSession('write',$db,'hwplatform','unknown');
-			$this->playerSession('write',$db,'hwplatformid',$arch);
-			
-		
-	
+                $this->playerSession('write',$db,'hwplatform','unknown');
+                $this->playerSession('write',$db,'hwplatformid',$arch);
+            break;
 		}
 	}
 	
-	function wrk_playerID($arch) {
-	// $playerid = $arch.md5(uniqid(rand(), true)).md5(uniqid(rand(), true));
-	$playerid = $arch.md5_file('/sys/class/net/eth0/address');
-	return $playerid;
+	function wrk_playerID($arch) 
+    {
+        // $playerid = $arch.md5(uniqid(rand(), true)).md5(uniqid(rand(), true));
+        $playerid = $arch.md5_file('/sys/class/net/eth0/address');
+        return $playerid;
 	}
 	
-	function wrk_sysChmod() {
-	sysCmd('chmod -R 777 /var/www/db');
-	sysCmd('chmod a+x /var/www/command/orion_optimize.sh');
-	sysCmd('chmod 777 /run');
-	sysCmd('chmod 777 /run/sess*');
-	sysCmd('chmod a+rw /etc/mpd.conf');
+	function wrk_sysChmod() 
+    {
+        $this->sysCmd('chmod -R 777 /var/www/db');
+        $this->sysCmd('chmod a+x /var/www/command/orion_optimize.sh');
+        $this->sysCmd('chmod 777 /run');
+        $this->sysCmd('chmod 777 /run/sess*');
+        $this->sysCmd('chmod a+rw /etc/mpd.conf');
 	}
 	
-	function wrk_sysEnvCheck($arch,$install) {
+	function wrk_sysEnvCheck($arch,$install) 
+    {
 		if ($arch == '01' OR $arch == '02' OR $arch == '03' OR $arch == '04' OR $arch == '05' OR $arch == '06') {
 		// /etc/rc.local
 	//	 $a = '/etc/rc.local';
 	//	 $b = '/var/www/_OS_SETTINGS/etc/rc.local';
 	//	 if (md5_file($a) != md5_file($b)) {
-	//	 sysCmd('cp '.$b.' '.$a);
+	//	 $this->sysCmd('cp '.$b.' '.$a);
 	//	 }
 		
 		// /etc/samba/smb.conf
 	//	 $a = '/etc/samba/smb.conf';
 	//	 $b = '/var/www/_OS_SETTINGS/etc/samba/smb.conf';
 	//	 if (md5_file($a) != md5_file($b)) {
-	//	 sysCmd('cp '.$b.' '.$a.' ');
+	//	 $this->sysCmd('cp '.$b.' '.$a.' ');
 	//	 }
 		// /etc/nginx.conf
 		$a = '/etc/nginx/nginx.conf';
 		$b = '/var/www/_OS_SETTINGS/etc/nginx/nginx.conf';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		// stop nginx
-		sysCmd('killall -9 nginx');
+		$this->sysCmd('killall -9 nginx');
 		// start nginx
-		sysCmd('nginx');
+		$this->sysCmd('nginx');
 		}
 		// /etc/php5/cli/php.ini
 		$a = '/etc/php5/cli/php.ini';
 		$b = '/var/www/_OS_SETTINGS/etc/php5/cli/php.ini';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		$restartphp = 1;
 		}
 		// /etc/php5/fpm/php-fpm.conf
 		$a = '/etc/php5/fpm/php-fpm.conf';
 		$b = '/var/www/_OS_SETTINGS/etc/php5/fpm/php-fpm.conf';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		$restartphp = 1;
 		}
 		// /etc/php5/fpm/php.ini
 		$a = '/etc/php5/fpm/php.ini';
 		$b = '/var/www/_OS_SETTINGS/etc/php5/fpm/php.ini';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		$restartphp = 1;
 		}
 		
 			if ($install == 1) {
 			// remove autoFS for NAS mount
-			sysCmd('cp /var/www/_OS_SETTINGS/etc/auto.master /etc/auto.master');
-			sysCmd('rm /etc/auto.nas');
-			sysCmd('service autofs restart');
+			$this->sysCmd('cp /var/www/_OS_SETTINGS/etc/auto.master /etc/auto.master');
+			$this->sysCmd('rm /etc/auto.nas');
+			$this->sysCmd('service autofs restart');
 			// /etc/php5/mods-available/apc.ini
-			sysCmd('cp /var/www/_OS_SETTINGS/etc/php5/mods-available/apc.ini /etc/php5/mods-available/apc.ini');
+			$this->sysCmd('cp /var/www/_OS_SETTINGS/etc/php5/mods-available/apc.ini /etc/php5/mods-available/apc.ini');
 			// /etc/php5/fpm/pool.d/ erase
-			sysCmd('rm /etc/php5/fpm/pool.d/*');
+			$this->sysCmd('rm /etc/php5/fpm/pool.d/*');
 			// /etc/php5/fpm/pool.d/ copy
-			sysCmd('cp /var/www/_OS_SETTINGS/etc/php5/fpm/pool.d/* /etc/php5/fpm/pool.d/');
+			$this->sysCmd('cp /var/www/_OS_SETTINGS/etc/php5/fpm/pool.d/* /etc/php5/fpm/pool.d/');
 			$restartphp = 1;
 			}
 			
@@ -1113,21 +1167,21 @@ class ConnectionService
 		$a = '/etc/php5/fpm/pool.d/command.conf';
 		$b = '/var/www/_OS_SETTINGS/etc/php5/fpm/pool.d/command.conf';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		$restartphp = 1;
 		}
 		// /etc/php5/fpm/pool.d/db.conf
 		$a = '/etc/php5/fpm/pool.d/db.conf';
 		$b = '/var/www/_OS_SETTINGS/etc/php5/fpm/pool.d/db.conf';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		$restartphp = 1;
 		}
 		// /etc/php5/fpm/pool.d/display.conf
 		$a = '/etc/php5/fpm/pool.d/display.conf';
 		$b = '/var/www/_OS_SETTINGS/etc/php5/fpm/pool.d/display.conf';
 		if (md5_file($a) != md5_file($b)) {
-		sysCmd('cp '.$b.' '.$a.' ');
+		$this->sysCmd('cp '.$b.' '.$a.' ');
 		$restartphp = 1;
 		}
 			// (RaspberryPi arch)
@@ -1135,83 +1189,97 @@ class ConnectionService
 	//		$a = '/boot/cmdline.txt';
 	//			$b = '/var/www/_OS_SETTINGS/boot/cmdline.txt';
 	//			if (md5_file($a) != md5_file($b)) {
-	//			sysCmd('cp '.$b.' '.$a.' ');
+	//			$this->sysCmd('cp '.$b.' '.$a.' ');
 				// /etc/fstab
 	//			$a = '/etc/fstab';
 	//			$b = '/var/www/_OS_SETTINGS/etc/fstab_raspberry';
 	//			if (md5_file($a) != md5_file($b)) {
-	//				sysCmd('cp '.$b.' '.$a.' ');
+	//				$this->sysCmd('cp '.$b.' '.$a.' ');
 	//				$reboot = 1;
 	//				}
 	//			}
 	//		}
 			if (isset($restartphp) && $restartphp == 1) {
-			sysCmd('service php5-fpm restart');
+			$this->sysCmd('service php5-fpm restart');
 			}
 			if (isset($reboot) && $reboot == 1) {
-			sysCmd('reboot');
+			$this->sysCmd('reboot');
 			}
 		}	
 	}
 	
 	
-	function alsa_findHwMixerControl($device) {
-	if (isset($_SESSION['i2s']) && $_SESSION['i2s'] == 'Hifiberryplus') {
-	$hwmixerdev = 'Playback Digital';
-	} elseif (isset($_SESSION['i2s']) && $_SESSION['i2s'] == 'Hifiberry') {
-	$hwmixerdev = 'Playback Digital';
-	} elseif (isset($_SESSION['i2s']) && $_SESSION['i2s'] == 'Iqaudio') {
-	$hwmixerdev = 'Playback Digital';
-	} else {
-	$cmd = "amixer -c ".$device." |grep \"mixer control\"";
-	$str = sysCmd($cmd);
-	$hwmixerdev = substr(substr($str[0], 0, -(strlen($str[0]) - strrpos($str[0], "'"))), strpos($str[0], "'")+1);
-	}
-	return $hwmixerdev;
-	}
-	
-	function ui_notify($notify) {
-	$output .= "<script>";
-	$output .= "jQuery(document).ready(function() {";
-	$output .= "$.pnotify.defaults.history = false;";
-	$output .= "$.pnotify({";
-	$output .= "title: '".$notify['title']."',";
-	$output .= "text: '".$notify['msg']."',";
-	$output .= "icon: 'icon-ok',";
-	$output .= "opacity: .9});";
-	$output .= "});";
-	$output .= "</script>";
-	echo $output;
+	function alsa_findHwMixerControl($device) 
+    {
+        if (isset($_SESSION['i2s']) && $_SESSION['i2s'] == 'Hifiberryplus') 
+        {
+            $hwmixerdev = 'Playback Digital';
+        } 
+        elseif (isset($_SESSION['i2s']) && $_SESSION['i2s'] == 'Hifiberry') 
+        {
+            $hwmixerdev = 'Playback Digital';
+        } 
+        elseif (isset($_SESSION['i2s']) && $_SESSION['i2s'] == 'Iqaudio') 
+        {
+            $hwmixerdev = 'Playback Digital';
+        } 
+        else 
+        {
+            $cmd = "amixer -c ".$device." |grep \"mixer control\"";
+            $str = $this->sysCmd($cmd);
+            $hwmixerdev = substr(substr($str[0], 0, -(strlen($str[0]) - strrpos($str[0], "'"))), strpos($str[0], "'")+1);
+	   }
+       
+	   return $hwmixerdev;
 	}
 	
-	function ui_lastFM_coverart($artist,$album,$lastfm_apikey) {
-	$url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=".$lastfm_apikey."&artist=".urlencode($artist)."&album=".urlencode($album)."&format=json";
-	// debug
-	//echo $url;
-	$ch = curl_init($url);
-	curl_setopt($ch, CURLOPT_FILE, $fp);
-	curl_setopt($ch, CURLOPT_HEADER, 0);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	$output = curl_exec($ch);
-	$output = json_decode($output,true);
-	curl_close($ch);
-	/* debug
-	echo "<pre>";
-	print_r($output);
-	echo "</pre>";
-	echo "<br>";
-	*/
-	// key [3] == extralarge last.fm image
-	return $output['album']['image'][3]['#text'];
+	function ui_notify($notify) 
+    {
+        $output .= "<script>";
+        $output .= "jQuery(document).ready(function() {";
+        $output .= "$.pnotify.defaults.history = false;";
+        $output .= "$.pnotify({";
+        $output .= "title: '".$notify['title']."',";
+        $output .= "text: '".$notify['msg']."',";
+        $output .= "icon: 'icon-ok',";
+        $output .= "opacity: .9});";
+        $output .= "});";
+        $output .= "</script>";
+        echo $output;
+	}
+	
+	function ui_lastFM_coverart($artist,$album,$lastfm_apikey) 
+    {
+        $url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=".$lastfm_apikey."&artist=".urlencode($artist)."&album=".urlencode($album)."&format=json";
+        // debug
+        //echo $url;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_FILE, $fp);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $output = curl_exec($ch);
+        $output = json_decode($output,true);
+        curl_close($ch);
+        /* debug
+        echo "<pre>";
+        print_r($output);
+        echo "</pre>";
+        echo "<br>";
+        */
+        // key [3] == extralarge last.fm image
+        return $output['album']['image'][3]['#text'];
 	}
 	
 	// ACX Functions
-	function sezione() {
+	function sezione() 
+    {
 		echo '<pre><strong>sezione</strong> = '.$GLOBALS['sezione'].'</pre>';
 	}
 	
-	function ami($sz=null) {
-		switch ($sz) {
+	function ami($sz = null) 
+    {
+		switch ($sz) 
+        {
 			case 'index':
 				echo (in_array($GLOBALS['sezione'], array(
 					'index'
@@ -1250,7 +1318,8 @@ class ConnectionService
 		}	
 	}
 	
-	function current_item($sez=null) {
+	function current_item($sez=null) 
+    {
 		echo (($GLOBALS['sezione'] == $sez)?' class="current"':'');
 	}
 }

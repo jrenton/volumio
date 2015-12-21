@@ -12221,7 +12221,6 @@ module.exports = {
 
             window.clearInterval(GUI.currentKnob);
             sendCmd(cmd);
-            resetState();
             //sendCommand("spop-goto", { "path": this.song.index });
         },
         nav: function nav(direction) {
@@ -12231,7 +12230,6 @@ module.exports = {
             window.clearInterval(GUI.currentKnob);
 
             sendCmd(direction);
-            //resetState();
         }
     }
 };

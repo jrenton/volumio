@@ -21,9 +21,9 @@ function backendRequest(gui) {
         if(data.base64) {
             showCoverImage(data.base64);
         }
-        renderUI(gui.playback);
+        renderUI(gui);
         $('#loader').hide();
-        backendRequest(gui.MpdState);
+        backendRequest(gui);
     }, function(a, b, c) {
         // setTimeout(function() {
         //     GUI.state = 'disconnected';
@@ -135,8 +135,6 @@ function showCoverImage(base64) {
 
 function gotoPlayback(track) {
     $("#open-playback").find("a").click();
-    
-    resetState();
 }
 
 function sendCommands(commands, callback, fail) {

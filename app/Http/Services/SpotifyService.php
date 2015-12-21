@@ -181,11 +181,11 @@ class SpotifyService
 	{
 		if (strcmp($queryType, "filepath") == 0) 
 		{
-			return _getSpopListing($sock, $queryString);
+			return $this->_getSpopListing($sock, $queryString);
 		} 
 		else if (strcmp($queryType, "file") == 0) 
 		{
-			return _searchSpopTracks($sock, $queryString);
+			return $this->_searchSpopTracks($sock, $queryString);
 		}
 	
 		return array();

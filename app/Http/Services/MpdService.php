@@ -87,8 +87,8 @@ class MpdService
 	
 	function loadAllLib($sock)
 	{
-		$flat = _loadDirForLib($sock, array(), "");
-		return json_encode(_organizeJsonLib($flat));
+		$flat = $this->_loadDirForLib($sock, array(), "");
+		return json_encode($this->connectionService->_organizeJsonLib($flat));
 	}
 	
 	function _loadDirForLib($sock, $flat, $dir) 
@@ -111,7 +111,7 @@ class MpdService
 				} 
 				else if ($element == "directory") 
 				{
-					$flat = _loadDirForLib($sock, $flat, $value);
+					$flat = $this->_loadDirForLib($sock, $flat, $value);
 					$skip = true;
 				} 
 				else if ($element == "playlist") 
@@ -129,7 +129,7 @@ class MpdService
 		return $flat;
 	}
 	
-		function playAll($sock, $json) 
+    function playAll($sock, $json) 
 	{
 		if (count($json) > 0) 
 		{
@@ -138,7 +138,7 @@ class MpdService
 			array_push($commands, "clear");
 			array_push($commands, "add \"".html_entity_decode($json[0]['file'])."\"");
 			array_push($commands, "play");
-			chainMpdCommands($sock, $commands);
+			$this->chainMpdCommands($sock, $commands);
 	
 			// Then add remaining
 			$commands = array();
@@ -147,7 +147,7 @@ class MpdService
 				array_push($commands, "add \"".html_entity_decode($json[$i]['file'])."\"");
 			}
 			
-			chainMpdCommands($sock, $commands);
+			$this->chainMpdCommands($sock, $commands);
 		}
 	}
 	
@@ -160,7 +160,7 @@ class MpdService
 			array_push($commands, "add \"".html_entity_decode($path)."\"");
 		}
 		
-		chainMpdCommands($sock, $commands);
+		$this->chainMpdCommands($sock, $commands);
 	}
 	
 	// v2, Does not return until a change occurs.
@@ -182,10 +182,9 @@ class MpdService
 	// Return state array for MPD. Does not return until a change occurs.
 	function monitorMpdState($sock) 
 	{
-		if (sendMpdIdle($sock)) 
+		if ($this->sendMpdIdle($sock)) 
 		{
-			$status = _parseStatusResponse(MpdStatus($sock));
-			return $status;
+			return $this->MpdStatus($sock);
 		}
 	}
 	
@@ -210,8 +209,7 @@ class MpdService
 	function rp_findPath($id,$mpd) 
 	{
 		//$_SESSION['DEBUG'] .= "rp_findPath:$id |";
-		$this->sendMpdCommand($mpd,'playlistid '.$id);
-		$idinfo = $this->connectionService->_parseFileListResponse($this->readMpdResponse($mpd));
+		$idinfo = $this->sendMpdCommandWithResponse($mpd,'playlistid '.$id);
 		$path = $idinfo[0]['file'];
 		//$_SESSION['DEBUG'] .= "Path:$path |";
 		return $path;
@@ -221,8 +219,7 @@ class MpdService
 	function findPLposPath($songpos,$mpd) 
 	{
 		//$_SESSION['DEBUG'] .= "rp_findPath:$id |";
-		$this->sendMpdCommand($mpd,'playlistinfo '.$songpos);
-		$idinfo = $this->connectionService->_parseFileListResponse($this->readMpdResponse($mpd));
+		$idinfo = $this->sendMpdCommandWithResponse($mpd,'playlistinfo '.$songpos);
 		$path = $idinfo[0]['file'];
 		//$_SESSION['DEBUG'] .= "Path:$path |";
 		return $path;
@@ -231,7 +228,7 @@ class MpdService
 	function rp_deleteFile($id,	$mpd) 
 	{
 		$_SESSION['DEBUG'] .= "rp_deleteFile:$id |";
-		if (!unlink(rp_findPath($id,$mpd))) 
+		if (!unlink($this->rp_findPath($id,$mpd))) 
 		{
 			return false;
 		}
@@ -242,7 +239,7 @@ class MpdService
 	function rp_copyFile($id, $mpd) 
 	{
 		$_SESSION['DEBUG'] .= "rp_copyFile: $id|";
-		$path = rp_findPath($id,$mpd);
+		$path = $this->rp_findPath($id,$mpd);
 		$song = $this->parseFileStr($path,"/");
 		$realpath = "/mnt/".$path;
 		$ramplaypath = "/dev/shm/".$song;
@@ -268,7 +265,7 @@ class MpdService
 		$song = $this->parseFileStr($path,"/");
 		$ramplaypath = "ramplay/".$song;
 		$_SESSION['DEBUG'] .= "rp_addPlay:$id $song $path $pos|";
-		addQueue($mpd,$ramplaypath);
+		$this->addQueue($mpd,$ramplaypath);
 		$this->sendMpdCommand($mpd,'play '.$pos);
 	}
 	
@@ -289,7 +286,7 @@ class MpdService
 				case 'sources':
 					$mpd = $this->openMpdSocket('localhost', 6600);
 					$this->sendMpdCommand($mpd,'update');
-					closeMpdSocket($mpd);
+					$this->closeMpdSocket($mpd);
 				break;
 			}
 		}
@@ -331,7 +328,7 @@ class MpdService
 			else if ($cfg['param'] == 'mixer_type' && $cfg['value_player'] == 'hardware' ) 
 			{ 
 				// $hwmixer['device'] = 'hw:0';
-				$hwmixer['control'] = alsa_findHwMixerControl($device);
+				$hwmixer['control'] = $this->connectionService->alsa_findHwMixerControl($device);
 				// $hwmixer['index'] = '1';
 			}  
 			else 
@@ -376,53 +373,57 @@ class MpdService
 	function getTrackInfo($sock,$songID) 
 	{
 		// set currentsong, currentartis, currentalbum
-		$this->sendMpdCommand($sock,"playlistinfo ".$songID);
-		$track = $this->readMpdResponse($sock);
-		return $this->connectionService->_parseFileListResponse($track);
+		return $this->sendMpdCommandWithResponse($sock,"playlistinfo ".$songID);
 	}
+    
+    function sendMpdCommandWithResponse($sock, $command)
+    {
+        $this->sendMpdCommand($sock, $command);
+        $mpdResponse = $this->readMpdResponse($sock);
+        
+		return $this->connectionService->_parseFileListResponse($mpdResponse);
+    }
 	
 	// TODO Justus check which one to get?
 	function getPlayQueue($sock) 
 	{
-		$this->sendMpdCommand($sock,"playlistinfo");
-		$playqueue = $this->readMpdResponse($sock);
-		return $this->connectionService->_parseFileListResponse($playqueue);
+		return $this->sendMpdCommandWithResponse($sock, "playlistinfo");
 	}
 	
-		function searchDB($sock, $querytype, $query = null) 
+	function searchDB($sock, $querytype, $query = null) 
 	{
+        $response = "";
+        
 		switch ($querytype) 
 		{
 			case "filepath":
 				if (isset($query) && !empty($query))
 				{
-					$this->sendMpdCommand($sock,"lsinfo \"".html_entity_decode($query)."\"");
+					$response = $this->sendMpdCommandWithResponse($sock,"lsinfo \"".html_entity_decode($query)."\"");
 					break;
 				} 
 				else 
 				{
-					$this->sendMpdCommand($sock,"lsinfo");
+					$response = $this->sendMpdCommandWithResponse($sock,"lsinfo");
 					break;
 				}
 			case "album":
 			case "artist":
 			case "title":
 			case "file":
-				$this->sendMpdCommand($sock,"search ".$querytype." \"".html_entity_decode($query)."\"");
+				$response = $this->sendMpdCommandWithResponse($sock,"search ".$querytype." \"".html_entity_decode($query)."\"");
 				//$this->sendMpdCommand($sock,"search any \"".html_entity_decode($query)."\"");
 			break;
 		}
 		
 		//$response =  htmlentities($this->readMpdResponse($sock),ENT_XML1,'UTF-8');
 		//$response = htmlspecialchars($this->readMpdResponse($sock));
-		$response = $this->readMpdResponse($sock);
-		
-		return $this->connectionService->_parseFileListResponse($response);
+		return $response;
 	}
 	
 	function remTrackQueue($sock,$songpos) 
 	{
-		$datapath = findPLposPath($songpos,$sock);
+		$datapath = $this->findPLposPath($songpos,$sock);
 		$this->sendMpdCommand($sock,"delete ".$songpos);
 	
 		return $this->readMpdResponse($sock);
@@ -446,8 +447,6 @@ class MpdService
 	
 	function MpdStatus($sock) 
 	{
-		$this->sendMpdCommand($sock,"status");
-	
-		return $this->readMpdResponse($sock);
+		return $this->sendMpdCommandWithResponse($sock, "status");
 	}
 }
