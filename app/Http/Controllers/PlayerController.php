@@ -6,6 +6,7 @@ use App\Http\Services\AlbumArtService;
 use App\Http\Services\ConnectionService;
 use App\Http\Services\SpotifyService;
 use App\Http\Services\MpdService;
+use App\Http\Services\PandoraService;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -15,19 +16,22 @@ class PlayerController extends Controller
     protected $albumArtService;
     protected $spotifyService;
     protected $mpdService;
+    protected $pandoraService;
 
-    public function __construct(ConnectionService $connectionService, SpotifyService $spotifyService, MpdService $mpdService, AlbumArtService $albumArtService)
+    public function __construct(ConnectionService $connectionService, SpotifyService $spotifyService, MpdService $mpdService, AlbumArtService $albumArtService, PandoraService $pandoraService)
     {
         $this->connectionService = $connectionService;
         $this->albumArtService = $albumArtService;
         $this->spotifyService = $spotifyService;
         $this->mpdService = $mpdService;
+        $this->pandoraService = $pandoraService;
     }
     
     function sendCommand(Request $request)
     {
         $mpd = $this->mpdService->openMpdSocket(DAEMONIP, 6600);        
         $spop = $this->spotifyService->openSpopSocket(DAEMONIP, 6602);
+        $pandora = $this->pandoraService->openSocket(DAEMONIP, 4445);
         
         $commandName = $request->input('cmd');
         
@@ -53,7 +57,7 @@ class PlayerController extends Controller
                         } 
                         else 
                         {
-                            $arrayMpdSearchResults = $this->mpdService->searchDB($mpd,'filepath',$path);
+                            $arrayMpdSearchResults = $this->mpdService->searchDB($mpd, 'filepath', $path);
                             echo json_encode($arrayMpdSearchResults);
                         }	
                     } 
@@ -65,6 +69,12 @@ class PlayerController extends Controller
                         {
                             $arraySpopSearchResults = $this->spotifyService->querySpopDB($spop, 'filepath', '');
                             $arraySearchResults = array_merge($arraySearchResults, $arraySpopSearchResults);
+                        }
+                        
+                        if ($pandora)
+                        {
+                            $response = $this->pandoraService->sendCommand($pandora, "queue");
+                            dd($response);
                         }
         
                         echo json_encode($arraySearchResults);

@@ -24,7 +24,7 @@ class MpdService
 			sysCmd('command/shell.sh '.$response);
 			exit;
 		}
-		
+        
 		return $sock;
 	}
 	
