@@ -87,15 +87,27 @@ class MpdController extends Controller
                 
                 $status[$key] = $value;
             } 
+            if (strpos($status["file"], "http://") === false)
+            {
+                $status['base64'] = $this->albumArtService->getBase64AlbumArt($status["file"]);                
+            }
             
-            $status['base64'] = $this->albumArtService->getBase64AlbumArt($status["file"]);
-        
             if (isset($status['Title'])) 
             {
-                $status['currentartist'] = $status['Artist'];
-                $status['currentsong'] = $status['Title'];
-                $status['currentalbum'] = $status['Album'];
-                $status['fileext'] = parseFileStr($status['file'],'.');
+                if (array_key_exists("Artist", $status))
+                {
+                    $status['currentartist'] = $status['Artist'];                    
+                }
+                if (array_key_exists("Title", $status))
+                {
+                    $status['currentsong'] = $status['Title'];
+                }
+                if (array_key_exists("Album", $status))
+                {
+                    $status['currentalbum'] = $status['Album'];
+                }
+                
+                $status['fileext'] = $this->connectionService->parseFileStr($status['file'],'.');
             } 
             else 
             {

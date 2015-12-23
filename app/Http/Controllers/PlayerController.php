@@ -73,8 +73,8 @@ class PlayerController extends Controller
                         
                         if ($pandora)
                         {
-                            $response = $this->pandoraService->sendCommand($pandora, "queue");
-                            dd($response);
+                            //$response = $this->pandoraService->sendCommand($pandora, "queue");
+                            //dd($response);
                         }
         
                         echo json_encode($arraySearchResults);
