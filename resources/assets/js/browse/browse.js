@@ -1,4 +1,8 @@
 var store = require('../store');
+var musicPlayer = require("../services/musicPlayerService");
+var volumio = window.volumio || {};
+
+var router = volumio.router;
 
 module.exports = {
     template: require('./browse.html'),
@@ -7,31 +11,34 @@ module.exports = {
 	},
 	methods: {
 	    playSong: function (song) {
-            sendCommands([
-                        { name: 'spop-stop' }, 
-                        { name: 'addplay', data: { path: song.file }}
-                        ], function(data) {
-                gotoPlayback();
+            musicPlayer.play(song, function(data) {
+                router.go("playback");
             });
+            // sendCommands([
+            //             { name: 'spop-stop' }, 
+            //             { name: 'addplay', data: { path: song.file }}
+            //             ], function(data) {
+            //     gotoPlayback();
+            // });
             
             //notify('add', song.title);
 	    },
-        playSpotifyTrack: function (playTrack) {
-            sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
-                gotoPlayback(playTrack);
-                //getPlaylist();
-            });
+        // playSpotifyTrack: function (playTrack) {
+        //     sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
+        //         gotoPlayback(playTrack);
+        //         //getPlaylist();
+        //     });
     
-            $.each(this.spotifyTracks, function(index, track) {
-                var trackUri = track.SpopTrackUri;
+        //     $.each(this.spotifyTracks, function(index, track) {
+        //         var trackUri = track.SpopTrackUri;
 
-                if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
-                    sendCommand("spop-uadd", { path: trackUri });
-                }
-            });
+        //         if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
+        //             sendCommand("spop-uadd", { path: trackUri });
+        //         }
+        //     });
     
-            getPlaylist();
-        },
+        //     getPlaylist();
+        // },
         openDirectory: function (dir) {
             getDB('filepath', dir.directory, 'file', 0);
         },

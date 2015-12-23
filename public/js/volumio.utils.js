@@ -49,5 +49,4 @@ var AjaxUtils = {
 	        }
 	    });
 	}
-
 };

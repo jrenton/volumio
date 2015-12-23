@@ -9,25 +9,31 @@ Vue.use(VueRouter);
 
 Vue.config.debug = true;
 
-var router = new VueRouter();
+var volumio = window.volumio || {};
 
-router.map({
+volumio.router = new VueRouter();
+
+volumio.router.map({
     '/': {
+        name: "default",
         component: require('./playback/playback')
     },
     '/browse': {
+        name: "browse",
         component: require('./browse/browse')
     },
     // '/library': {
     //     component: libraryView
     // },
     '/playlist': {
+        name: "playlist",
         component: require('./playlist/playlist')
     },
     '/playback': {
+        name: "playback",
         component: require('./playback/playback')
     }
-})
+});
 
 var App = Vue.extend({
     data: function() {
@@ -35,7 +41,7 @@ var App = Vue.extend({
     }
 });
 // Start the App
-router.start(App, '#app');
+volumio.router.start(App, '#app');
 
 $(function() {
     // INITIALIZATION

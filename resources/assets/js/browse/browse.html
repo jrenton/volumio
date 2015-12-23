@@ -35,12 +35,6 @@
 				</div>
 			</li>	
 			<li v-for="track in spotifyTracks" data-path="{{ track.SpopTrackUri }}">
-				<!--content += '" data-artist="';
-			content += inputArr[i].Artist;
-			content += '" data-album="';
-			content += inputArr[i].Album;
-			content += '" data-title="';
-			content += inputArr[i].Title;-->
 				<div class="db-icon db-browse">
 					<i class="fa fa-spotify sx db-browse"></i>
 				</div>
@@ -49,7 +43,7 @@
 						<i class="fa fa-ellipsis-v"></i>
 					</a>
 				</div>
-				<div class="db-entry db-browse" v-on:click="playSpotifyTrack(track)">
+				<div class="db-entry db-browse" v-on:click="playSong(track)">
 					{{ track.Title }} <em class="songtime"> {{ track.Time }}</em>
 					<span> {{ track.Artist }} - {{ track.Album }}</span>
 				</div>
