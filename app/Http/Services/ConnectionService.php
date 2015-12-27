@@ -74,66 +74,6 @@ class ConnectionService
 		return $output;
 	}
 	
-	// format Output for "playlist"
-	function _parseFileListResponse($resp) 
-	{
-		if ( is_null($resp) ) 
-		{
-			return NULL;
-		}
-	
-		$plistArray = array();
-		$dirArray = array();
-		$plCounter = -1;
-		$dirCounter = 0;
-		$plistLine = strtok($resp, "\n");
-		$plistFile = "";
-	
-        while ( $plistLine ) 
-        {
-            try
-            {
-                list ( $element, $value ) = explode(": ", $plistLine, 2);
-	
-                if ( $element == "file" OR $element == "playlist") 
-                {
-                    $plCounter++;
-                    $plistFile = $value;
-                    $plistArray[$plCounter]["file"] = $plistFile;
-                    $plistArray[$plCounter]["fileext"] = $this->parseFileStr($plistFile,'.');
-                    $plistArray[$plCounter]["Type"] = "MpdFile";
-                } 
-                else if ( $element == "directory") 
-                {
-                    $dirCounter++;
-                    $dirArray[$dirCounter]["directory"] = $value;
-                    $dirArray[$dirCounter]["Type"] = "MpdDirectory";
-                } 
-                else 
-                {
-                    $plistArray[$plCounter][$element] = $value;
-                    
-                    if(isset($plistArray[$plCounter]["Time"]))
-                    {
-                        $plistArray[$plCounter]["Time2"] = $this->songTime($plistArray[$plCounter]["Time"]);					
-                    }
-                }
-            }
-            catch(\Exception $ex)
-            {
-                
-            }
-			// if (strpos($plistLine, ": ") === false)
-			// {
-			// 	continue;
-			// }
-			
-			$plistLine = strtok("\n");
-		}
-        
-		return array_merge($dirArray, $plistArray);
-	}
-	
 	// format Output for "status"
 	function _parseStatusResponse($resp) 
 	{

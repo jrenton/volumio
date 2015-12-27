@@ -22,30 +22,20 @@ class SpotifyController extends Controller
     }
 
     function playerEngine(Request $request)
-    {
-        $spop = $this->spopService->openSpopSocket(DAEMONIP, 6602);
-        
-        if (!$spop) 
-        {
-            return "";
-        } 
-        
+    {        
         $state = $request->input('state');
         
         // Get the current status array
-        $status = $this->spopService->getSpopState($spop,"CurrentState");
+        $status = $this->spopService->getSpopState("CurrentState");
     
         if ($state == $status['state']) 
         {
             // If the playback state is the same as specified in the ajax call
             // Wait until the status changes and then return new status
-            $status = $this->spopService->getSpopState($spop, "NextState");
-        } 
-    
-        // Return data in json format to ajax requester and close socket
-        //header('Content-Type: application/json');
+            $status = $this->spopService->getSpopState("NextState");
+        }
         
-        $this->spopService->closeSpopSocket($spop);
+        $this->spopService->closeSpopSocket();
         
         return json_encode($status);
     }

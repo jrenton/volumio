@@ -3,14 +3,17 @@
 namespace App\Http\Services;
 
 use App\Http\Services\ConnectionService;
+use App\Http\Songs\SpotifySong;
 
-class SpotifyService
+class SpotifyService implements IMusicPlayerService
 {
-	protected $connectionService;
+	private $connectionService;
+    private $spop;
 	
 	public function __construct(ConnectionService $connectionService)
     {
         $this->connectionService = $connectionService;
+        $this->spop = $this->openSpopSocket(DAEMONIP, 6602);
     }
 
 	// Spotify daemon communication functions
@@ -27,24 +30,24 @@ class SpotifyService
 		return $sock;
 	}
 	
-	function closeSpopSocket($sock) 
+	function closeSpopSocket() 
 	{
-		$this->sendSpopCommand($sock,"bye");
-		fclose($sock);
+		$this->sendCommand("bye");
+		fclose($this->spop);
 	}
 	
-	function sendSpopCommand($sock, $cmd) 
+	function sendCommand($cmd) 
 	{
-		if ($sock) 
+		if ($this->spop) 
 		{
 			$cmd = $cmd."\n";
-			fputs($sock, $cmd);
+			fputs($this->spop, $cmd);
 	
-			while(!feof($sock))
+			while(!feof($this->spop))
 			{
 				// fgets() may time out during the wait for response from commands like 'idle'.
 				// This loop will keep reading until a response is received, or until the socket closes.
-				$output = fgets($sock);
+				$output = fgets($this->spop);
 	
 				if ($output) 
 				{
@@ -57,31 +60,27 @@ class SpotifyService
 	}
 	
 	// Return state array for spop daemon.
-	function getSpopState($sock, $mode) 
+	function getSpopState($mode) 
 	{
 		$arrayReturn = array();
 	
 		$arrayResponse = array();
 	
-		//writeToLogFile($mode);
-	
 		if (strcmp($mode, "CurrentState") == 0) 
 		{
 			// Return the current state array
-			$arrayResponse = $this->sendSpopCommand($sock, "status");
+			$arrayResponse = $this->sendCommand("status");
 		} 
 		else if (strcmp($mode, "NextState") == 0) 
 		{
 			// Return a state array when a change has occured
-			$arrayResponse = $this->sendSpopCommand($sock, "idle");
+			$arrayResponse = $this->sendCommand("idle");
 		}
 	
 		if($arrayResponse) 
 		{
 			$arrayReturn = $arrayResponse;
 		}
-	
-		//writeToLogFile($arrayResponse);
 	
 		// Format the response to be understandable by Volumio
 		if (array_key_exists("status", $arrayResponse) == TRUE) 
@@ -141,7 +140,6 @@ class SpotifyService
 			{
 				$arrayReturn["random"] = 0;
 			}
-	
 		}
 	
 		if (array_key_exists("position", $arrayResponse) == TRUE && array_key_exists("duration", $arrayResponse) == TRUE) 
@@ -161,7 +159,6 @@ class SpotifyService
 			$arrayReturn["song_percent"] = $nSeekPercent;
 			$arrayReturn["elapsed"] = $nTimeElapsed;
 			$arrayReturn["time"] = $nTimeTotal;
-	
 		}
 	
 		if (array_key_exists("current_track", $arrayResponse) == TRUE && array_key_exists("total_tracks", $arrayResponse) == TRUE) 
@@ -177,15 +174,15 @@ class SpotifyService
 	}
 	
 	// Perform Spotify database query/search
-	function querySpopDB($sock, $queryType, $queryString) 
+	function querySpopDB($queryType, $queryString = "") 
 	{
 		if (strcmp($queryType, "filepath") == 0) 
 		{
-			return $this->_getSpopListing($sock, $queryString);
+			return $this->_getSpopListing($queryString);
 		} 
 		else if (strcmp($queryType, "file") == 0) 
 		{
-			return $this->_searchSpopTracks($sock, $queryString);
+			return $this->_searchSpopTracks($queryString);
 		}
 	
 		return array();
@@ -197,16 +194,18 @@ class SpotifyService
 	}
 	
 	// Perform a Spotify search
-	function _searchSpopTracks($sock, $queryString) 
+	function _searchSpopTracks($queryString) 
 	{
 		$arrayReturn = array();
-		$arrayResponse = $this->sendSpopCommand($sock,"search \"" . $queryString . "\"");
+		$arrayResponse = $this->sendCommand("search \"" . $queryString . "\"");
 	
 		$i = 0;
 		$nItems = sizeof($arrayResponse["tracks"]);
-		while ($i < $nItems) {
+		while ($i < $nItems) 
+        {
 			$arrayCurrentEntry = array();
 			$arrayCurrentEntry["Type"] = "SpopTrack";
+			$arrayCurrentEntry["ServiceType"] = "Spotify";
 			$arrayCurrentEntry["SpopTrackUri"] = (string)$arrayResponse["tracks"][$i]["uri"];
 			$arrayCurrentEntry["Title"] = $arrayResponse["tracks"][$i]["title"];
 			$arrayCurrentEntry["Artist"] = $arrayResponse["tracks"][$i]["artist"];
@@ -221,7 +220,7 @@ class SpotifyService
 	}
 	
 	// Make an array describing the requested level of the Spop database
-	function _getSpopListing($sock, $queryString) 
+	function _getSpopListing($queryString) 
 	{
 		$arrayReturn = array();
 	
@@ -231,14 +230,14 @@ class SpotifyService
 			$arrayRootItem = array();
 			$arrayRootItem["directory"] = "SPOTIFY";
 			$arrayRootItem["Type"] = "SpopDirectory";
+			$arrayRootItem["ServiceType"] = "Spotify";
 			$arrayRoot = array(0 => $arrayRootItem);
 			$arrayReturn = $arrayRoot;
-	
 		} 
 		else if (strncmp($queryString, "SPOTIFY", 7) == 0) 
 		{
 			// Looking into the SPOTIFY folder
-			$arrayResponse = $this->sendSpopCommand($sock,"ls");
+			$arrayResponse = $this->sendCommand("ls");
 			$arrayQueryStringParts = preg_split( "(@|/)", $queryString);
 			$nQueryStringParts = count($arrayQueryStringParts);
 			$sCurrentDirectory = "SPOTIFY";
@@ -260,7 +259,7 @@ class SpotifyService
 				if (strcmp($arrayResponse["playlists"][$arrayQueryStringParts[$i]]["type"], "playlist") == 0) 
                 { 
 				    // This is a playlist, navigate into it and stop
-					$arrayResponse = $this->sendSpopCommand($sock,"ls " . $arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"]);
+					$arrayResponse = $this->sendCommand("ls " . $arrayResponse["playlists"][$arrayQueryStringParts[$i]]["index"]);
 					break;
 				} 
                 else 
@@ -285,6 +284,7 @@ class SpotifyService
                 {
 					$arrayCurrentEntry = array();
 					$arrayCurrentEntry["Type"] = "SpopTrack";
+					$arrayCurrentEntry["ServiceType"] = "Spotify";
 					$arrayCurrentEntry["SpopTrackUri"] = (string)$arrayResponse["tracks"][$i]["uri"];
 					$arrayCurrentEntry["Title"] = $arrayResponse["tracks"][$i]["title"];
 					$arrayCurrentEntry["Artist"] = $arrayResponse["tracks"][$i]["artist"];
@@ -303,6 +303,7 @@ class SpotifyService
                 {
 					$arrayCurrentEntry = array();
 					$arrayCurrentEntry["Type"] = "SpopDirectory";
+					$arrayCurrentEntry["ServiceType"] = "Spotify";
 					$sItemDisplayName = $arrayResponse["playlists"][$i]["name"];
 	
 					if (strcmp($arrayResponse["playlists"][$i]["type"], "playlist") == 0) 
@@ -315,7 +316,6 @@ class SpotifyService
                         {
 							$sItemDisplayName = "Starred";
 						}
-	
 					} 
                     else 
                     {
@@ -334,4 +334,123 @@ class SpotifyService
 	
 		return $arrayReturn;
 	}
+    
+    function play($song = null)
+    {
+        if (!$song)
+        {
+            $this->sendCommand("play");
+        }
+        else if ($song->spopTrackUri)
+        {
+            $this->sendCommand("uplay " . $song->spopTrackUri);
+        }
+    }
+    
+    function stop()
+    {
+        $this->sendCommand("stop");
+    }
+    
+    function pause()
+    {
+        $this->sendCommand("pause");
+    }
+    
+    function next()
+    {
+        $this->sendCommand("next");
+    }
+    
+    function previous()
+    {
+        $this->sendCommand("prev");
+    }
+    
+    function status()
+    {
+        return $this->sendCommand("status");
+    }
+    
+    function image($song = null)
+    {
+        if (!$song)
+        {
+            return $this->sendCommand("image");
+        }
+        
+        return $this->sendCommand("uimage " . $song->spopTrackUri);
+    }
+    
+    function repeat()
+    {
+        $tnis->sendCommand("repeat");
+    }
+    
+    function shuffle()
+    {
+        $tnis->sendCommand("shuffle");
+    }
+    
+    function search($query)
+    {
+        return $this->sendCommand("search " . $query);
+    }
+    
+    function getQueue()
+    {
+        return $this->sendCommand("qls");
+    }
+    
+    function clearQueue()
+    {
+       $this->sendCommand("qclear"); 
+    }
+    
+    function add($song)
+    {
+        $this->sendCommand("uadd " . $song->spopTrackUri);
+    }
+    
+    function addPlaylist($playlist, $song = null)
+    {
+        $create = "";
+        if ($song)
+        {
+            $create = " " . $song->id;
+        }
+        
+        $this->sendCommand("add " . $playlist->id . $create);
+    }
+    
+    function playPlaylist($playlist, $song = null)
+    {
+        $create = "";
+        if ($song)
+        {
+            $create = " " . $song->id;
+        }
+        
+        $this->sendCommand("play " . $playlist->id . $create);
+    }
+    
+    function getPlaylist($playlist)
+    {
+        return $this->sendCommand("ls " . $playlist->id);
+    }
+    
+    function getPlaylists()
+    {
+        return $this->sendCommand("ls");
+    }
+    
+    function rateUp($song)
+    {
+        
+    }
+    
+    function rateDown($song)
+    {
+        
+    }
 }

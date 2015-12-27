@@ -234,7 +234,7 @@ body {
 	margin: 0 20px 0 0;
 }
 #menu-top .dropdown-menu,
-#context-menus .dropdown-menu {
+.context-menu .dropdown-menu {
 	float: right;
 	position: absolute;
 	left: auto;
@@ -252,40 +252,40 @@ body {
     top: 100%;
     z-index: 1000;
 }
-#context-menus .dropdown-menu {
+.context-menu .dropdown-menu {
 	padding-right: 25px;
 	min-width: 160px;
 }
 #menu-top .dropdown-menu > li > a,
-#context-menus .dropdown-menu > li > a {
+.context-menu .dropdown-menu > li > a {
     margin: 0;
 	padding: 15px 20px;
 	background: #7A848E;
 	border-bottom: 1px solid #000;
 }
-#context-menus .dropdown-menu > li > a {
+.context-menu .dropdown-menu > li > a {
 	border-left: 0px solid #000;
 	border-right: 0px solid #000;
 }
 #menu-top .dropdown-menu > li:first-child > a,
-#context-menus .dropdown-menu > li:first-child > a {
+.context-menu .dropdown-menu > li:first-child > a {
 	border-top: 0px solid #000;
 }
 #menu-top .dropdown-menu > li > a:hover,
 #menu-top .dropdown-menu > li > a:focus,
 #menu-top .dropdown-menu > li.active > a,
-#context-menus .dropdown-menu > li > a:hover,
-#context-menus .dropdown-menu > li.active > a {
+.context-menu .dropdown-menu > li > a:hover,
+.context-menu .dropdown-menu > li.active > a {
 	background: #007F0B;
 }
-#menu-top a, #context-menus .dropdown-menu a {
+#menu-top a, .context-menu .dropdown-menu a {
 	font-size: 20px;
 	text-decoration: none;
 	color: #fff;
 }
 #menu-top a:hover, #menu-top a:focus,
-#context-menus .dropdown-menu a:hover,
-#context-menus .dropdown-menu a:focus {
+.context-menu .dropdown-menu a:hover,
+.context-menu .dropdown-menu a:focus {
 	text-decoration: none;
 	outline: none;
 	color: #fff;
@@ -299,7 +299,7 @@ a.back-btn {
 	margin: -3px 5px 0 -5px;
 }
 #menu-top .dropdown i,
-#context-menus i {
+.context-menu i {
 	display: inline-block;
 	width: 16px;
 	text-align: center;
@@ -373,7 +373,7 @@ a.btn-cmd {
 	list-style: none;
 	counter-reset: item;
 }
-.playlist li, .database li {
+.playlist li, .database > li {
 	display: block;
 	position: relative;
 	height: 60px;

@@ -1,6 +1,19 @@
 <div class="tab-content">
 	<div id="database">
 		<ul class="database">
+            <li v-for="dir in pandoraDirectories">
+				<div class="db-icon db-browse folder">
+					<i class="fa sx db-browse" v-bind:class="{ 'fa-pandora': dir.Type == 'PandoraDirectory', 'fa-music': dir.Type != 'PandoraDirectory'}"></i>
+				</div>
+				<div class="db-action">
+					<a href="#" title="Actions" data-toggle="context" data-target="#context-menu">
+						<i class="fa fa-ellipsis-v"></i>
+					</a>
+				</div>
+				<div class="db-entry db-browse db-folder" v-on:click="openPandora(dir)">
+					{{ dir.Name }}
+				</div>
+			</li>
 			<li v-for="file in files" data-path="{{ file.file }}">
 				<div class="db-icon db-browse" v-bind:class="{ 'db-other': file.Time === undefined, 'db-song' : file.Time !== undefined }">
 					<i class="fa fa-music sx db-browse"></i>
@@ -39,11 +52,40 @@
 					<i class="fa fa-spotify sx db-browse"></i>
 				</div>
 				<div class="db-action">
-					<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu-spotifytrack">
+					<a href="#" title="Actions" data-toggle="context" data-target="#context-menu-spotifytrack">
 						<i class="fa fa-ellipsis-v"></i>
 					</a>
 				</div>
-				<div class="db-entry db-browse" v-on:click="playSong(track)">
+                <div id="context-menu-spotifytrack" class="context-menu">
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a v-on:click="play(track)" data-cmd="spop-playtrackuri">
+                                <i class="fa fa-share sx"></i>Play
+                            </a>
+                        </li>
+                        <li>
+                            <a v-on:click="add(track)" data-cmd="spop-addtrackuri">
+                                <i class="fa fa-plus sx"></i>Add to queue
+                            </a>
+                        </li>
+                        <li>
+                            <a v-on:click="searchTitle(track)" data-cmd="spop-searchtitle">
+                                <i class="fa fa-headphones sx"></i>Search title
+                            </a>
+                        </li>
+                        <li>
+                            <a v-on:click="searchArtist(track)" data-cmd="spop-searchartist">
+                                <i class="fa fa-user sx"></i>Search artist
+                            </a>
+                        </li>
+                        <li>
+                            <a v-on:click="searchAlbum(track)" data-cmd="spop-searchalbum">
+                                <i class="fa fa-circle sx"></i>Search album
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+				<div class="db-entry db-browse" v-on:click="play(track)">
 					{{ track.Title }} <em class="songtime"> {{ track.Time }}</em>
 					<span> {{ track.Artist }} - {{ track.Album }}</span>
 				</div>

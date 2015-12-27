@@ -12061,11 +12061,12 @@ if (process.env.NODE_ENV !== 'production' && inBrowser) {
 module.exports = Vue;
 }).call(this,require('_process'))
 },{"_process":1}],4:[function(require,module,exports){
-module.exports = '<div class="tab-content">\n	<div id="database">\n		<ul class="database">\n			<li v-for="file in files" data-path="{{ file.file }}">\n				<div class="db-icon db-browse" v-bind:class="{ \'db-other\': file.Time === undefined, \'db-song\' : file.Time !== undefined }">\n					<i class="fa fa-music sx db-browse"></i>\n				</div>\n				<div class="db-action">\n					<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n				<div class="db-entry db-browse" v-bind:class="{ \'db-other\': file.Time === undefined, \'db-song\' : file.Time !== undefined }" v-on:click="playSong(file)">\n					{{ getFileName(file) }}\n					<em class="songtime"> {{ file.Time }}</em>\n					<span>{{ getAlbumArtist(file) }}</span>\n				</div>\n			</li>\n			<li v-for="dir in mpdDirectories" data-path="{{ dir.directory }}">\n				<div class="db-icon db-folder db-browse">\n					<i class="fa sx" v-bind:class="{\'icon-root\': [\'WEBRADIO\', \'USB\', \'SPOTIFY\', \'RAMPLAY\', \'NAS\'].indexOf(dir.directory) !== -1, \'fa-microphone\' : dir.directory == \'WEBRADIO\', \'fa-code-fork\': dir.directory == \'NAS\', \'fa-usb\': dir.directory == \'USB\', \'fa-spinner\': dir.directory == \'RAMPLAY\'}"></i>\n				</div>\n				<div class="db-action">\n					<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n				<div class="db-entry db-folder db-browse" v-on:click="openDirectory(dir)">\n					<template v-if="dir.DisplayName">\n						{{ dir.DisplayName }}\n					</template>\n					<template v-if="!dir.DisplayName">\n						{{ dir.directory.substr(dir.directory.lastIndexOf(\'/\') + 1, dir.directory.length - dir.directory.lastIndexOf(\'/\') + 1); }}\n					</template>\n				</div>\n			</li>	\n			<li v-for="track in spotifyTracks" data-path="{{ track.SpopTrackUri }}">\n				<!--content += \'" data-artist="\';\n			content += inputArr[i].Artist;\n			content += \'" data-album="\';\n			content += inputArr[i].Album;\n			content += \'" data-title="\';\n			content += inputArr[i].Title;-->\n				<div class="db-icon db-browse">\n					<i class="fa fa-spotify sx db-browse"></i>\n				</div>\n				<div class="db-action">\n					<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu-spotifytrack">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n				<div class="db-entry db-browse" v-on:click="playSpotifyTrack(track)">\n					{{ track.Title }} <em class="songtime"> {{ track.Time }}</em>\n					<span> {{ track.Artist }} - {{ track.Album }}</span>\n				</div>\n			</li>		\n			<li v-for="dir in spotifyDirectories" data-path="{{ dir.directory }}">\n				<div class="db-icon db-folder db-browse">\n					<i class="fa sx" v-bind:class="{ \'fa-folder-open\' : dir.SpopPlaylistIndex === undefined && dir.directory !== \'SPOTIFY\', \'fa-list-ol\': dir.SpopPlaylistIndex !== undefined, \'fa-spotify\' : dir.directory == \'SPOTIFY\', \'icon-root\' : dir.directory == \'SPOTIFY\'}"></i>\n				</div>\n				<template v-if="dir.SpopPlaylistIndex !== undefined">\n					<div class="db-action">\n						<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu-spotifyplaylist">\n							<i class="fa fa-ellipsis-v"></i>\n						</a>\n					</div>\n				</template>\n				<div class="db-entry db-folder db-browse" v-on:click="openDirectory(dir)">\n					{{ dir.DisplayName === undefined ? dir.directory : dir.DisplayName }}\n				</div>\n			</li>\n			<li v-if="isLibrary" id="#db-plug-lib" class="db-plugin" onclick="showLibraryView()">\n				<div class="db-icon db-other">\n					<i class="fa fa-columns icon-root sx"></i>\n				</div>\n				<div class="db-entry db-other">\n					LIBRARY\n				</div>\n			</li>\n			<!--<li class="clearfix"><div class="db-entry">Unknown Song <span>Unknown Artist - Unknown Album</span></div></li>-->\n		</ul>\n	</div>	\n</div>';
+module.exports = '<div class="tab-content">\n	<div id="database">\n		<ul class="database">\n            <li v-for="dir in pandoraDirectories">\n				<div class="db-icon db-browse folder">\n					<i class="fa sx db-browse" v-bind:class="{ \'fa-pandora\': dir.Type == \'PandoraDirectory\', \'fa-music\': dir.Type != \'PandoraDirectory\'}"></i>\n				</div>\n				<div class="db-action">\n					<a href="#" title="Actions" data-toggle="context" data-target="#context-menu">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n				<div class="db-entry db-browse db-folder" v-on:click="openPandora(dir)">\n					{{ dir.Name }}\n				</div>\n			</li>\n			<li v-for="file in files" data-path="{{ file.file }}">\n				<div class="db-icon db-browse" v-bind:class="{ \'db-other\': file.Time === undefined, \'db-song\' : file.Time !== undefined }">\n					<i class="fa fa-music sx db-browse"></i>\n				</div>\n				<div class="db-action">\n					<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n				<div class="db-entry db-browse" v-bind:class="{ \'db-other\': file.Time === undefined, \'db-song\' : file.Time !== undefined }" v-on:click="playSong(file)">\n					{{ getFileName(file) }}\n					<em class="songtime"> {{ file.Time }}</em>\n					<span>{{ getAlbumArtist(file) }}</span>\n				</div>\n			</li>\n			<li v-for="dir in mpdDirectories" data-path="{{ dir.directory }}">\n				<div class="db-icon db-folder db-browse">\n					<i class="fa sx" v-bind:class="{\'icon-root\': [\'WEBRADIO\', \'USB\', \'SPOTIFY\', \'RAMPLAY\', \'NAS\'].indexOf(dir.directory) !== -1, \'fa-microphone\' : dir.directory == \'WEBRADIO\', \'fa-code-fork\': dir.directory == \'NAS\', \'fa-usb\': dir.directory == \'USB\', \'fa-spinner\': dir.directory == \'RAMPLAY\'}"></i>\n				</div>\n				<div class="db-action">\n					<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n				<div class="db-entry db-folder db-browse" v-on:click="openDirectory(dir)">\n					<template v-if="dir.DisplayName">\n						{{ dir.DisplayName }}\n					</template>\n					<template v-if="!dir.DisplayName">\n						{{ dir.directory.substr(dir.directory.lastIndexOf(\'/\') + 1, dir.directory.length - dir.directory.lastIndexOf(\'/\') + 1); }}\n					</template>\n				</div>\n			</li>	\n			<li v-for="track in spotifyTracks" data-path="{{ track.SpopTrackUri }}">\n				<div class="db-icon db-browse">\n					<i class="fa fa-spotify sx db-browse"></i>\n				</div>\n				<div class="db-action">\n					<a href="#" title="Actions" data-toggle="context" data-target="#context-menu-spotifytrack">\n						<i class="fa fa-ellipsis-v"></i>\n					</a>\n				</div>\n                <div id="context-menu-spotifytrack" class="context-menu">\n                    <ul class="dropdown-menu" role="menu">\n                        <li>\n                            <a v-on:click="play(track)" data-cmd="spop-playtrackuri">\n                                <i class="fa fa-share sx"></i>Play\n                            </a>\n                        </li>\n                        <li>\n                            <a v-on:click="add(track)" data-cmd="spop-addtrackuri">\n                                <i class="fa fa-plus sx"></i>Add to queue\n                            </a>\n                        </li>\n                        <li>\n                            <a v-on:click="searchTitle(track)" data-cmd="spop-searchtitle">\n                                <i class="fa fa-headphones sx"></i>Search title\n                            </a>\n                        </li>\n                        <li>\n                            <a v-on:click="searchArtist(track)" data-cmd="spop-searchartist">\n                                <i class="fa fa-user sx"></i>Search artist\n                            </a>\n                        </li>\n                        <li>\n                            <a v-on:click="searchAlbum(track)" data-cmd="spop-searchalbum">\n                                <i class="fa fa-circle sx"></i>Search album\n                            </a>\n                        </li>\n                    </ul>\n                </div>\n				<div class="db-entry db-browse" v-on:click="play(track)">\n					{{ track.Title }} <em class="songtime"> {{ track.Time }}</em>\n					<span> {{ track.Artist }} - {{ track.Album }}</span>\n				</div>\n			</li>		\n			<li v-for="dir in spotifyDirectories" data-path="{{ dir.directory }}">\n				<div class="db-icon db-folder db-browse">\n					<i class="fa sx" v-bind:class="{ \'fa-folder-open\' : dir.SpopPlaylistIndex === undefined && dir.directory !== \'SPOTIFY\', \'fa-list-ol\': dir.SpopPlaylistIndex !== undefined, \'fa-spotify\' : dir.directory == \'SPOTIFY\', \'icon-root\' : dir.directory == \'SPOTIFY\'}"></i>\n				</div>\n				<template v-if="dir.SpopPlaylistIndex !== undefined">\n					<div class="db-action">\n						<a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu-spotifyplaylist">\n							<i class="fa fa-ellipsis-v"></i>\n						</a>\n					</div>\n				</template>\n				<div class="db-entry db-folder db-browse" v-on:click="openDirectory(dir)">\n					{{ dir.DisplayName === undefined ? dir.directory : dir.DisplayName }}\n				</div>\n			</li>\n			<li v-if="isLibrary" id="#db-plug-lib" class="db-plugin" onclick="showLibraryView()">\n				<div class="db-icon db-other">\n					<i class="fa fa-columns icon-root sx"></i>\n				</div>\n				<div class="db-entry db-other">\n					LIBRARY\n				</div>\n			</li>\n			<!--<li class="clearfix"><div class="db-entry">Unknown Song <span>Unknown Artist - Unknown Album</span></div></li>-->\n		</ul>\n	</div>	\n</div>';
 },{}],5:[function(require,module,exports){
 'use strict';
 
 var store = require('../store');
+var musicPlayer = require("../services/musicPlayerService");
 
 module.exports = {
     template: require('./browse.html'),
@@ -12073,29 +12074,50 @@ module.exports = {
         return store.state.browse;
     },
     methods: {
-        playSong: function playSong(song) {
-            sendCommands([{ name: 'spop-stop' }, { name: 'addplay', data: { path: song.file } }], function (data) {
-                gotoPlayback();
+        openPandora: function openPandora(station) {
+            musicPlayer.getPlaylists("Pandora", function (data) {
+                populateDB(data);
+                //window.volumio.router.go("playback");
             });
+        },
+        play: function play(song) {
+            musicPlayer.play(song, function (data) {
+                window.volumio.router.go("playback");
+            });
+            // sendCommands([
+            //             { name: 'spop-stop' },
+            //             { name: 'addplay', data: { path: song.file }}
+            //             ], function(data) {
+            //     gotoPlayback();
+            // });
 
             //notify('add', song.title);
         },
-        playSpotifyTrack: function playSpotifyTrack(playTrack) {
-            sendCommand("spop-uplay", playTrack.SpopTrackUri, function (data) {
-                gotoPlayback(playTrack);
-                //getPlaylist();
-            });
-
-            $.each(this.spotifyTracks, function (index, track) {
-                var trackUri = track.SpopTrackUri;
-
-                if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
-                    sendCommand("spop-uadd", { path: trackUri });
-                }
-            });
-
-            getPlaylist();
+        add: function add(song) {
+            musicPlayer.add(song);
         },
+        searchTitle: function searchTitle(song) {
+            //musicPlayer.add(song);
+        },
+        searchArtist: function searchArtist(song) {
+            //musicPlayer.add(song);
+        },
+        // playSpotifyTrack: function (playTrack) {
+        //     sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
+        //         gotoPlayback(playTrack);
+        //         //getPlaylist();
+        //     });
+
+        //     $.each(this.spotifyTracks, function(index, track) {
+        //         var trackUri = track.SpopTrackUri;
+
+        //         if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
+        //             sendCommand("spop-uadd", { path: trackUri });
+        //         }
+        //     });
+
+        //     getPlaylist();
+        // },
         openDirectory: function openDirectory(dir) {
             getDB('filepath', dir.directory, 'file', 0);
         },
@@ -12127,7 +12149,7 @@ module.exports = {
     }
 };
 
-},{"../store":11,"./browse.html":4}],6:[function(require,module,exports){
+},{"../services/musicPlayerService":12,"../store":13,"./browse.html":4}],6:[function(require,module,exports){
 "use strict";
 
 var Vue = require("vue");
@@ -12141,22 +12163,28 @@ Vue.use(VueRouter);
 
 Vue.config.debug = true;
 
-var router = new VueRouter();
+window.volumio = window.volumio || {};
 
-router.map({
+window.volumio.router = new VueRouter();
+
+window.volumio.router.map({
     '/': {
+        name: "default",
         component: require('./playback/playback')
     },
     '/browse': {
+        name: "browse",
         component: require('./browse/browse')
     },
     // '/library': {
     //     component: libraryView
     // },
     '/playlist': {
+        name: "playlist",
         component: require('./playlist/playlist')
     },
     '/playback': {
+        name: "playback",
         component: require('./playback/playback')
     }
 });
@@ -12167,7 +12195,7 @@ var App = Vue.extend({
     }
 });
 // Start the App
-router.start(App, '#app');
+volumio.router.start(App, '#app');
 
 $(function () {
     // INITIALIZATION
@@ -12178,7 +12206,7 @@ $(function () {
 
     getDB('filepath', GUI.currentpath, 'file');
     $.pnotify.defaults.history = false;
-    getPlaylist();
+    //getPlaylist();
 
     // hide "connecting" layer
     if (GUI.state != 'disconnected') {
@@ -12186,7 +12214,7 @@ $(function () {
     }
 });
 
-},{"./browse/browse":5,"./playback/playback":8,"./playlist/playlist":10,"./store":11,"vue":3,"vue-router":2}],7:[function(require,module,exports){
+},{"./browse/browse":5,"./playback/playback":8,"./playlist/playlist":10,"./store":13,"vue":3,"vue-router":2}],7:[function(require,module,exports){
 module.exports = '<div class="tab-content">\n    <div id="playback" class="tab-pane active">\n        <div class="container txtmid">\n            <div id="playback-info">\n                <span id="currentsong">{{ song.Title }}</span>				\n                <span id="currentartist">{{ song.Artist }}</span>\n                <!--<span id="currentalbum"></span>-->\n            </div>\n            <!-- <span id="playlist-position">&nbsp;</span> -->\n            <div class="playback-controls">	\n                <button class="btn" title="Previous" v-on:click="nav(\'previous\')">\n                    <i class="fa fa-step-backward"></i>\n                </button>\n                <!--<button id="stop" class="btn btn-cmd" title="Stop"><i class="fa fa-stop"></i></button>-->\n                <a id="play" href="#" title="Play/Pause" v-on:click="playPause()">\n                    <span class="fa-stack fa-4x">\n                        <i class="fa fa-circle-thin fa-stack-2x"></i>\n                        <i class="fa fa-stack-1x" v-bind:class="{ \'fa-play\': song.state == \'stop\' || song.state == \'pause\' || !song.state, \'fa-pause\': song.state == \'play\'}"></i>\n                    </span>\n                </a>\n                <button class="btn" title="Next" v-on:click="nav(\'next\')">\n                    <i class="fa fa-step-forward"></i>\n                </button>\n            </div>\n            <div class="row-fluid">\n            \n                <div class="span4">\n                    <div id="timeknob">\n                        <div id="countdown" ms-user-select="none">\n                            <input class="playbackknob" id="time" value="0" data-readonly="false" data-min="0" data-max="1000" data-width="100%" data-thickness="0.30" data-bgColor="rgba(0,0,0,0)" data-fgcolor="#007F0B">\n                        </div>\n                        <span id="countdown-display"></span>\n                        <span id="total"></span>\n                    </div>\n                    <div class="btn-toolbar">\n                        <div class="btn-group">\n                            <a id="repeat" class="btn btn-cmd btn-toggle" href="#notarget" title="Repeat">\n                                <i class="fa fa-repeat"></i>\n                            </a>\n                            <a id="random" class="btn btn-cmd btn-toggle" href="#notarget" title="Random">\n                                <i class="fa fa-random"></i>\n                            </a>\n                            <a id="single" class="btn btn-cmd btn-toggle" href="#notarget" title="Single">\n                                <i class="fa fa-refresh"></i>\n                            </a>\n                            <a id="consume" class="btn btn-cmd btn-toggle" href="#notarget" title="Consume Mode">\n                                <i class="fa fa-trash"></i>\n                            </a>			\n                        </div>\n                    </div>\n                </div>\n                <div class="span4"></div> \n\n                <div class="span4 volume">\n                    <input class="volumeknob" id="volume" data-width="211" data-cursor="true" data-bgColor="rgba(0,0,0,0)" data-fgColor="#007F0B" data-thickness=".25" data-angleArc="250" data-angleOffset="-125" data-skin="tron" value="66">	\n                    <div class="btn-toolbar floatright">\n                        <div class="btn-group">\n                            <a id="volumedn" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-down"></i></a>\n                            <a id="volumemute" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-off"></i> <i class="fa fa-exclamation"></i></a>\n                            <!--<a id="ramplay" class="btn btn-cmd btn-toggle" title="Ramplay" href="#notarget"><i class="fa fa-copy"></i></a> -->\n                            <a id="volumeup" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-up"></i></a>\n                            <!--<a id="dbupdate" class="btn btn-cmd" href="#notarget" title="Updating Music DB..."><i class="fa fa-refresh"></i></a>-->\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>';
 },{}],8:[function(require,module,exports){
 'use strict';
@@ -12229,7 +12257,7 @@ module.exports = {
     }
 };
 
-},{"../store":11,"./playback.html":7}],9:[function(require,module,exports){
+},{"../store":13,"./playback.html":7}],9:[function(require,module,exports){
 module.exports = '<div class="tab-content">\n	<div id="playlist">\n		<ul class="playlist">\n			<li id="pl-{{ song.index }}" v-for="song in mpdSongs">\n				<div class="pl-action" v-on:click="removeMpdSong(song)">\n					<a href="#notarget" title="Remove song from playlist">\n						<i class="fa fa-trash"></i>\n					</a>\n				</div>\n				<div class="pl-entry" v-on:click="playMpdSong(song)">\n					{{ song.title }}\n					<span>\n						{{ song.artist }} - {{ song.album }}\n					</span>\n				</div>\n			</li>\n			<li id="pl-{{ song.index }}" v-for="song in spotifySongs">\n				<div class="pl-action" v-on:click="removeSpotifySong(song)">\n					<a href="#notarget" title="Remove song from playlist">\n						<i class="fa fa-trash"></i>\n					</a>\n				</div>\n				<div class="pl-entry" v-on:click="playSpotifySong(song)">\n					{{ song.title }}\n					<span>\n						{{ song.artist }} - {{ song.album }}\n					</span>\n				</div>\n			</li>\n		</ul>\n	</div>\n</div>';
 },{}],10:[function(require,module,exports){
 'use strict';
@@ -12260,7 +12288,95 @@ module.exports = {
 				}
 };
 
-},{"../store":11,"./playlist.html":9}],11:[function(require,module,exports){
+},{"../store":13,"./playlist.html":9}],11:[function(require,module,exports){
+"use strict";
+
+module.exports = {
+	get: function get(action, data, callback, error, nestedCaller) {
+		//var caller = arguments.callee.caller.name.toString();
+
+		this.ajax(action, "GET", data, callback, error, null, nestedCaller);
+	},
+	post: function post(action, data, callback, error, nestedCaller) {
+		//var caller = arguments.callee.caller.name.toString();
+
+		this.ajax(action, "POST", data, callback, error, null, nestedCaller);
+	},
+	ajax: function ajax(action, method, data, callback, _error, caller, nestedCaller) {
+		var debugText = "STARTING " + method + " request " + action + " from func " + caller;
+		if (nestedCaller) {
+			debugText += " via func " + nestedCaller;
+		}
+
+		console.debug(debugText + " with data=");
+		console.log(data);
+		$.ajax({
+			type: method,
+			url: action,
+			dataType: "json",
+			data: data,
+			async: true,
+			cache: false,
+			success: function success(data) {
+				console.debug("FINISHED " + method + " request " + action + " from func " + caller + " with response =");
+				console.log(data);
+				if (typeof callback === "function") {
+					callback(data);
+				}
+			},
+			error: function error(a, b, c) {
+				console.error("FAILED " + method + " request " + action + " from func " + caller);
+				console.log(a);
+				if (a.responseText) {
+					$('#errorResponseUrl').text(action);
+					$('#errorResponseContent').html(a.responseText);
+					$('#errorResponseModal').modal({
+						show: true
+					});
+				}
+				console.log(b);
+				console.log(c);
+				if (typeof _error === "function") {
+					_error(a, b, c);
+				}
+			}
+		});
+	}
+};
+
+},{}],12:[function(require,module,exports){
+"use strict";
+
+var ajaxUtils = require("./ajaxUtilsService");
+
+module.exports = {
+    uri: "player",
+    send: function send(command, song, serviceType, callback) {
+        //window.volumio.conn.send(command);
+        ajaxUtils.post(this.uri, { cmd: command, song: song, serviceType: serviceType }, function (data) {
+            if (typeof callback === "function") {
+                callback(data);
+            }
+        });
+    },
+    add: function add(song, serviceType, callback) {
+        this.send("add", song, serviceType, callback);
+    },
+    play: function play(song, serviceType, callback) {
+        this.send("play", song, serviceType, callback);
+    },
+    pause: function pause(serviceType, callback) {
+        this.send("pause", null, serviceType, callback);
+    },
+    stop: function stop(serviceType, callback) {
+        this.send("stop", null, serviceType, callback);
+    },
+    getPlaylists: function getPlaylists(serviceType, callback) {
+        this.send("getPlaylists", null, serviceType, callback);
+    }
+};
+
+},{"./ajaxUtilsService":11}],13:[function(require,module,exports){
 "use strict";
 
 window.GUI = {
@@ -12282,7 +12398,9 @@ window.GUI = {
         files: [],
         mpdDirectories: [],
         spotifyTracks: [],
-        spotifyDirectories: []
+        spotifyDirectories: [],
+        pandoraSongs: [],
+        pandoraDirectories: []
     },
     library: {
         showLibrary: false

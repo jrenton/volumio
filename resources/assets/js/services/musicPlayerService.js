@@ -2,32 +2,27 @@ var ajaxUtils = require("./ajaxUtilsService");
 
 module.exports = {
     uri: "player",
-    add: function(song, callback) {    
-        AjaxUtils.post(this.uri, { cmd: "add", song: song }, function(data) {
+    send: function(command, song, serviceType, callback) {
+        //window.volumio.conn.send(command);
+        ajaxUtils.post(this.uri, { cmd: command, song: song, serviceType: serviceType }, function(data) {
             if (typeof callback === "function") {
                 callback(data);
             }
         });
     },
-    play: function(song, callback) {    
-        AjaxUtils.post(this.uri, { cmd: "play", song: song }, function(data) {
-            if (typeof callback === "function") {
-                callback(data);
-            }
-        });
+    add: function(song, serviceType, callback) {
+        this.send("add", song, serviceType, callback);
     },
-    pause: function(song, callback) {
-        AjaxUtils.post(this.uri, { cmd: "pause", song: song }, function(data) {
-            if (typeof callback === "function") {
-                callback(data);
-            }
-        });
+    play: function(song, serviceType, callback) {
+        this.send("play", song, serviceType, callback);
     },
-    stop: function(song, callback) {
-        AjaxUtils.post(this.uri, { cmd: "stop", song: song }, function(data) {
-            if (typeof callback === "function") {
-                callback(data);
-            }
-        });
+    pause: function(serviceType, callback) {
+        this.send("pause", null, serviceType, callback);
+    },
+    stop: function(serviceType, callback) {
+        this.send("stop", null, serviceType, callback);
+    },
+    getPlaylists: function(serviceType, callback) {
+        this.send("getPlaylists", null, serviceType, callback);
     }
 }

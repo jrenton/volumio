@@ -23,20 +23,20 @@ class MpdController extends Controller
     
     public function playerEngine(Request $request)
     {
-        $mpd = $this->mpdService->openMpdSocket(DAEMONIP, 6600) ;
+        //$mpd = $this->mpdService->openMpdSocket(DAEMONIP, 6600) ;
         //$spop = $this->connectionService->openSpopSocket(DAEMONIP, 6602);
         $state = $request->input('state');
         $db = 'sqlite:'.$_SERVER['DOCUMENT_ROOT'].'/db/player.db';
         
         $this->connectionService->playerSession('open', $db, '', ''); 
 
-        if (!$mpd) 
-        {
-            return 'Error Connecting MPD Daemon';
-        }
+        // if (!$mpd) 
+        // {
+        //     return 'Error Connecting MPD Daemon';
+        // }
         
         // fetch MPD status
-        $mpdStatus = $this->mpdService->MpdStatus($mpd);
+        $mpdStatus = $this->mpdService->MpdStatus();
         $status = array_merge(...$mpdStatus);
         // check for CMediaFix
         if ($request->session()->get('cmediafix') == 1) 
@@ -70,13 +70,13 @@ class MpdController extends Controller
         {
             // If the playback state is the same as specified in the ajax call
             // Wait until the status changes and then return new status
-            $status = $this->mpdService->monitorMpdState($mpd);
+            $status = $this->mpdService->monitorMpdState();
         } 
         // -----  check and compare GUI state with Backend state  ----  //
     
         if (array_key_exists("song", $status))
         {
-           $curTrack = $this->mpdService->getTrackInfo($mpd, $status['song']);
+           $curTrack = $this->mpdService->getTrackInfo($status['song']);
         
             foreach($curTrack[0] as $key => $value)
             {
@@ -87,6 +87,7 @@ class MpdController extends Controller
                 
                 $status[$key] = $value;
             } 
+            
             if (strpos($status["file"], "http://") === false)
             {
                 $status['base64'] = $this->albumArtService->getBase64AlbumArt($status["file"]);                
@@ -126,7 +127,7 @@ class MpdController extends Controller
     
             if ($request->session()->get('lastbitdepth') != $status['audio']) 
             {
-                $this->mpdService->sendMpdCommand($mpd,'cmediafix');
+                $this->mpdService->sendMpdCommand('cmediafix');
             }
         }
         
@@ -140,20 +141,20 @@ class MpdController extends Controller
             // }
     
             // Copy the text from /dev/shm
-            $path = $this->mpdService->rp_copyFile($status['nextsongid'],$mpd);
+            $path = $this->mpdService->rp_copyFile($status['nextsongid']);
     
             // Update MPD ramplay location
-            $this->mpdService->rp_updateFolder($mpd);
+            $this->mpdService->rp_updateFolder();
     
             // Launch add/play song
-            $this->mpdService->rp_addPlay($path, $mpd, $status['playlistlength']);
+            $this->mpdService->rp_addPlay($path, $status['playlistlength']);
         }
     
         // JSON response for GUI
         // header('Content-Type: application/json');
         // echo json_encode($status);
             
-        $this->mpdService->closeMpdSocket($mpd);
+        //$this->mpdService->closeMpdSocket();
         
         return json_encode($status);
     }

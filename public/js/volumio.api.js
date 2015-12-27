@@ -1,8 +1,21 @@
 // FUNCTIONS
 // ----------------------------------------------------------------------------------------------------
 
+$(function() {
+    window.volumio = window.volumio || {};
+    
+    window.volumio.conn = new WebSocket('ws://192.168.0.117:8081');
+    window.volumio.conn.onopen = function(e) {
+        console.log("Connection established!");
+    };
+
+    window.volumio.conn.onmessage = function(e) {
+        console.log(e.data);
+    };
+});
+  
 function sendCmd(inputcmd) {
-    AjaxUtils.get('player?cmd=' + inputcmd, {}, function(data) {
+    AjaxUtils.get('player2?cmd=' + inputcmd, {}, function(data) {
         GUI.halt = 1;
     });
 }
@@ -197,6 +210,8 @@ function populateDB(data, path, uplevel, keyword){
     GUI.browse.mpdDirectories = [];
     GUI.browse.spotifyTracks = [];
     GUI.browse.spotifyDirectories = [];
+    GUI.browse.pandoraDirectories = [];
+    GUI.browse.pandoraSongs = [];
     GUI.browse.isLibrary = false;
 
 	if (!keyword || path == '') {
@@ -215,6 +230,8 @@ function populateDB(data, path, uplevel, keyword){
             GUI.browse.spotifyTracks.push(dataItem);            
         } else if (dataItem.Type == 'SpopDirectory') {
             GUI.browse.spotifyDirectories.push(dataItem);            
+        } else if (dataItem.Type == 'PandoraDirectory') {
+            GUI.browse.pandoraDirectories.push(dataItem);            
         }
 	}
 

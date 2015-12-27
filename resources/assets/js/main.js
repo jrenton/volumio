@@ -9,11 +9,11 @@ Vue.use(VueRouter);
 
 Vue.config.debug = true;
 
-var volumio = window.volumio || {};
+window.volumio = window.volumio || {};
 
-volumio.router = new VueRouter();
+window.volumio.router = new VueRouter();
 
-volumio.router.map({
+window.volumio.router.map({
     '/': {
         name: "default",
         component: require('./playback/playback')

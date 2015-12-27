@@ -4,20 +4,27 @@ namespace App\Http\Services;
 
 use App\Http\Services\ConnectionService;
 
-class MpdService
+class MpdService implements IMusicPlayerService
 {
 	protected $connectionService;
+    protected $sock;
 	
-	public function __construct(ConnectionService $connectionService)
+	public function __construct(ConnectionService $connectionService, $sock = null)
     {
         $this->connectionService = $connectionService;
+        if (!$sock)
+        {
+            $sock = $this->openMpdSocket("localhost", 6600);
+        }
+        
+        $this->sock = $sock;
     }
 	
 	// v2
 	function openMpdSocket($host, $port) 
 	{
-		$sock = stream_socket_client('tcp://'.$host.':'.$port.'', $errorno, $errorstr, 30 );
-		$response = $this->readMpdResponse($sock);
+		$this->sock = stream_socket_client('tcp://'.$host.':'.$port.'', $errorno, $errorstr, 30 );
+		$response = $this->readMpdResponse();
 		
 		if ($response = '') 
 		{
@@ -25,36 +32,36 @@ class MpdService
 			exit;
 		}
         
-		return $sock;
+		return $this->sock;
 	}
 	
-	function closeMpdSocket($sock) 
+	function closeMpdSocket() 
 	{
-		$this->sendMpdCommand($sock,"close");
-		fclose($sock);
+		$this->sendMpdCommand("close");
+		fclose($this->sock);
 	}
 	
 	// v2
-	function sendMpdCommand($sock, $cmd) 
+	function sendMpdCommand($cmd) 
 	{
 		if ($cmd == 'cmediafix') 
 		{
 			$cmd = "pause\npause\n";
-			fputs($sock, $cmd);
+			fputs($this->sock, $cmd);
 		} 
 		else 
 		{
 			$cmd = $cmd."\n";
-			fputs($sock, $cmd);	
+			fputs($this->sock, $cmd);	
 		}
 	}
 	
-	function chainMpdCommands($sock, $commands) 
+	function chainMpdCommands($commands) 
 	{
 		foreach ($commands as $command) 
 		{
-			fputs($sock, $command."\n");
-			fflush($sock);
+			fputs($this->sock, $command."\n");
+			fflush($this->sock);
 			// MPD seems to be disoriented when it receives several commands chained. Need to sleep a little bit
 			// 200 ms
 			usleep(200000);
@@ -62,12 +69,12 @@ class MpdService
 	}
 	
 	// v3
-	function readMpdResponse($sock) 
+	function readMpdResponse() 
 	{
 		$output = "";
-		while (!feof($sock)) 
+		while (!feof($this->sock)) 
 		{
-			$response =  fgets($sock, 1024);
+			$response =  fgets($this->sock, 1024);
 			$output .= $response;
 			
 			if (strncmp(MPD_RESPONSE_OK, $response, strlen(MPD_RESPONSE_OK)) == 0) 
@@ -84,17 +91,77 @@ class MpdService
 		
 		return $output;
 	}
-	
-	function loadAllLib($sock)
+    
+    // format Output for "playlist"
+	function parseFileListResponse($resp) 
 	{
-		$flat = $this->_loadDirForLib($sock, array(), "");
+		if ( is_null($resp) ) 
+		{
+			return NULL;
+		}
+	
+		$plistArray = array();
+		$dirArray = array();
+		$plCounter = -1;
+		$dirCounter = 0;
+		$plistLine = strtok($resp, "\n");
+		$plistFile = "";
+	
+        while ( $plistLine ) 
+        {
+            try
+            {
+                list ( $element, $value ) = explode(": ", $plistLine, 2);
+	
+                if ( $element == "file" OR $element == "playlist") 
+                {
+                    $plCounter++;
+                    $plistFile = $value;
+                    $plistArray[$plCounter]["file"] = $plistFile;
+                    $plistArray[$plCounter]["fileext"] = $this->connectionService->parseFileStr($plistFile,'.');
+                    $plistArray[$plCounter]["Type"] = "MpdFile";
+                    $plistArray[$plCounter]["ServiceType"] = "Mpd";
+                } 
+                else if ( $element == "directory") 
+                {
+                    $dirCounter++;
+                    $dirArray[$dirCounter]["directory"] = $value;
+                    $dirArray[$dirCounter]["Type"] = "MpdDirectory";
+                    $dirArray[$plCounter]["ServiceType"] = "Mpd";
+                } 
+                else 
+                {
+                    $plistArray[$plCounter][$element] = $value;
+                    
+                    if(isset($plistArray[$plCounter]["Time"]))
+                    {
+                        $plistArray[$plCounter]["Time2"] = $this->connectionService->songTime($plistArray[$plCounter]["Time"]);					
+                    }
+                }
+            }
+            catch(\Exception $ex)
+            {
+                // If a line does not have a ":", it errors,
+                //  however, if you check for the existence
+                //  of one, it times out.
+            }
+			
+			$plistLine = strtok("\n");
+		}
+        
+		return array_merge($dirArray, $plistArray);
+	}
+	
+	function loadAllLib()
+	{
+		$flat = $this->_loadDirForLib(array(), "");
 		return json_encode($this->connectionService->_organizeJsonLib($flat));
 	}
 	
-	function _loadDirForLib($sock, $flat, $dir) 
+	function _loadDirForLib($flat, $dir) 
 	{
-		$this->sendMpdCommand($sock, "lsinfo \"".html_entity_decode($dir)."\"");
-		$resp = $this->readMpdResponse($sock);
+		$this->sendMpdCommand("lsinfo \"" . html_entity_decode($dir) . "\"");
+		$resp = $this->readMpdResponse();
 	
 		if (!is_null($resp)) 
 		{
@@ -111,7 +178,7 @@ class MpdService
 				} 
 				else if ($element == "directory") 
 				{
-					$flat = $this->_loadDirForLib($sock, $flat, $value);
+					$flat = $this->_loadDirForLib($flat, $value);
 					$skip = true;
 				} 
 				else if ($element == "playlist") 
@@ -129,7 +196,7 @@ class MpdService
 		return $flat;
 	}
 	
-    function playAll($sock, $json) 
+    function playAll($json) 
 	{
 		if (count($json) > 0) 
 		{
@@ -138,7 +205,7 @@ class MpdService
 			array_push($commands, "clear");
 			array_push($commands, "add \"".html_entity_decode($json[0]['file'])."\"");
 			array_push($commands, "play");
-			$this->chainMpdCommands($sock, $commands);
+			$this->chainMpdCommands($commands);
 	
 			// Then add remaining
 			$commands = array();
@@ -147,11 +214,11 @@ class MpdService
 				array_push($commands, "add \"".html_entity_decode($json[$i]['file'])."\"");
 			}
 			
-			$this->chainMpdCommands($sock, $commands);
+			$this->chainMpdCommands($commands);
 		}
 	}
 	
-	function enqueueAll($sock, $json) 
+	function enqueueAll($json) 
 	{
 		$commands = array();
 		foreach ($json as $song) 
@@ -160,11 +227,11 @@ class MpdService
 			array_push($commands, "add \"".html_entity_decode($path)."\"");
 		}
 		
-		$this->chainMpdCommands($sock, $commands);
+		$this->chainMpdCommands($commands);
 	}
 	
 	// v2, Does not return until a change occurs.
-	function sendMpdIdle($sock) 
+	function sendMpdIdle() 
 	{
 		$response = NULL;
 	
@@ -172,32 +239,32 @@ class MpdService
 		// since we don't want to update the GUI for a volume change
 		while (strcmp(substr($response, 0, 14), 'changed: mixer') == 0 || $response == NULL) 
 		{
-			$this->sendMpdCommand($sock,"idle");
-			$response = $this->readMpdResponse($sock);
+			$this->sendMpdCommand("idle");
+			$response = $this->readMpdResponse();
 		}
 	
 		return true;
 	}
 	
 	// Return state array for MPD. Does not return until a change occurs.
-	function monitorMpdState($sock) 
+	function monitorMpdState() 
 	{
-		if ($this->sendMpdIdle($sock)) 
+		if ($this->sendMpdIdle()) 
 		{
-			return $this->MpdStatus($sock);
+			return $this->MpdStatus();
 		}
 	}
 	
 	// Ramplay functions
-	function rp_checkPLid($id,$mpd) 
+	function rp_checkPLid($id) 
 	{
 		$_SESSION['DEBUG'] .= "rp_checkPLid:$id |";
-		$this->sendMpdCommand($mpd,'playlistid '.$id);
-		$response = $this->readMpdResponse($mpd);
+		$this->sendMpdCommand('playlistid '.$id);
+		$response = $this->readMpdResponse();
 		echo "<br>debug__".$response;
 		echo "<br>debug__".stripos($response,'MPD error');
 		
-		if (!stripos($response,'OK')) 
+		if (!stripos($response, 'OK')) 
 		{
 			return false;
 		}
@@ -206,29 +273,29 @@ class MpdService
 	}
 	
 	//## unire con findPLposPath
-	function rp_findPath($id,$mpd) 
+	function rp_findPath($id) 
 	{
 		//$_SESSION['DEBUG'] .= "rp_findPath:$id |";
-		$idinfo = $this->sendMpdCommandWithResponse($mpd,'playlistid '.$id);
+		$idinfo = $this->sendMpdCommandWithResponse('playlistid ' . $id);
 		$path = $idinfo[0]['file'];
 		//$_SESSION['DEBUG'] .= "Path:$path |";
 		return $path;
 	}
 	
 	//## unire con rp_findPath()
-	function findPLposPath($songpos,$mpd) 
+	function findPLposPath($songpos) 
 	{
 		//$_SESSION['DEBUG'] .= "rp_findPath:$id |";
-		$idinfo = $this->sendMpdCommandWithResponse($mpd,'playlistinfo '.$songpos);
+		$idinfo = $this->sendMpdCommandWithResponse('playlistinfo ' . $songpos);
 		$path = $idinfo[0]['file'];
 		//$_SESSION['DEBUG'] .= "Path:$path |";
 		return $path;
 	}
 	
-	function rp_deleteFile($id,	$mpd) 
+	function rp_deleteFile($id) 
 	{
 		$_SESSION['DEBUG'] .= "rp_deleteFile:$id |";
-		if (!unlink($this->rp_findPath($id,$mpd))) 
+		if (!unlink($this->rp_findPath($id))) 
 		{
 			return false;
 		}
@@ -236,13 +303,13 @@ class MpdService
 		return true;
 	}
 	
-	function rp_copyFile($id, $mpd) 
+	function rp_copyFile($id) 
 	{
 		$_SESSION['DEBUG'] .= "rp_copyFile: $id|";
-		$path = $this->rp_findPath($id,$mpd);
-		$song = $this->parseFileStr($path,"/");
-		$realpath = "/mnt/".$path;
-		$ramplaypath = "/dev/shm/".$song;
+		$path = $this->rp_findPath($id);
+		$song = $this->parseFileStr($path, "/");
+		$realpath = "/mnt/" . $path;
+		$ramplaypath = "/dev/shm/" . $song;
 		$_SESSION['DEBUG'] .= "rp_copyFilePATH: $path $ramplaypath|";
 		
 		if (copy($realpath, $ramplaypath)) 
@@ -254,22 +321,22 @@ class MpdService
 		return false;
 	}
 	
-	function rp_updateFolder($mpd) 
+	function rp_updateFolder() 
 	{
 		$_SESSION['DEBUG'] .= "rp_updateFolder: |";
-		$this->sendMpdCommand($mpd,"update ramplay");
+		$this->sendMpdCommand("update ramplay");
 	}
 	
-	function rp_addPlay($path,$mpd,$pos) 
+	function rp_addPlay($path, $pos) 
 	{
 		$song = $this->parseFileStr($path,"/");
-		$ramplaypath = "ramplay/".$song;
+		$ramplaypath = "ramplay/" . $song;
 		$_SESSION['DEBUG'] .= "rp_addPlay:$id $song $path $pos|";
-		$this->addQueue($mpd,$ramplaypath);
-		$this->sendMpdCommand($mpd,'play '.$pos);
+		$this->addQueue($ramplaypath);
+		$this->sendMpdCommand('play ' . $pos);
 	}
 	
-	function waitWorker($sleeptime,$section) 
+	function waitWorker($sleeptime, $section) 
 	{
 		if ($_SESSION['w_active'] == 1) 
 		{
@@ -284,9 +351,10 @@ class MpdService
 			switch ($section) 
 			{
 				case 'sources':
-					$mpd = $this->openMpdSocket('localhost', 6600);
-					$this->sendMpdCommand($mpd,'update');
-					$this->closeMpdSocket($mpd);
+                
+					//$mpd = $this->openMpdSocket('localhost', 6600);
+					$this->sendMpdCommand('update');
+					//$this->closeMpdSocket($mpd);
 				break;
 			}
 		}
@@ -297,7 +365,7 @@ class MpdService
 		// extract mpd.conf from SQLite datastore
 		$dbh = $this->cfgdb_connect($db);
 		$query_cfg = "SELECT param,value_player FROM cfg_mpd WHERE value_player!=''";
-		$mpdcfg = $this->sdbquery($query_cfg,$dbh);
+		$mpdcfg = $this->sdbquery($query_cfg, $dbh);
 		$dbh = null;
 	
 		// set mpd.conf file header
@@ -370,27 +438,27 @@ class MpdService
 		fclose($fh);
 	}
 	
-	function getTrackInfo($sock,$songID) 
+	function getTrackInfo($songID) 
 	{
-		// set currentsong, currentartis, currentalbum
-		return $this->sendMpdCommandWithResponse($sock,"playlistinfo ".$songID);
+		// set currentsong, currentartist, currentalbum
+		return $this->sendMpdCommandWithResponse("playlistinfo " . $songID);
 	}
     
-    function sendMpdCommandWithResponse($sock, $command)
+    function sendMpdCommandWithResponse($command)
     {
-        $this->sendMpdCommand($sock, $command);
-        $mpdResponse = $this->readMpdResponse($sock);
+        $this->sendMpdCommand($command);
+        $mpdResponse = $this->readMpdResponse();
         
-		return $this->connectionService->_parseFileListResponse($mpdResponse);
+		return $this->parseFileListResponse($mpdResponse);
     }
 	
 	// TODO Justus check which one to get?
-	function getPlayQueue($sock) 
+	function getPlayQueue() 
 	{
-		return $this->sendMpdCommandWithResponse($sock, "playlistinfo");
+		return $this->sendMpdCommandWithResponse("playlistinfo");
 	}
 	
-	function searchDB($sock, $querytype, $query = null) 
+	function searchDB($querytype, $query = null) 
 	{
         $response = "";
         
@@ -399,54 +467,149 @@ class MpdService
 			case "filepath":
 				if (isset($query) && !empty($query))
 				{
-					$response = $this->sendMpdCommandWithResponse($sock,"lsinfo \"".html_entity_decode($query)."\"");
+					$response = $this->sendMpdCommandWithResponse("lsinfo \"".html_entity_decode($query)."\"");
 					break;
 				} 
 				else 
 				{
-					$response = $this->sendMpdCommandWithResponse($sock,"lsinfo");
+					$response = $this->sendMpdCommandWithResponse("lsinfo");
 					break;
 				}
 			case "album":
 			case "artist":
 			case "title":
 			case "file":
-				$response = $this->sendMpdCommandWithResponse($sock,"search ".$querytype." \"".html_entity_decode($query)."\"");
-				//$this->sendMpdCommand($sock,"search any \"".html_entity_decode($query)."\"");
+				$response = $this->sendMpdCommandWithResponse("search ".$querytype." \"".html_entity_decode($query)."\"");
+				//$this->sendMpdCommand($this->sock,"search any \"".html_entity_decode($query)."\"");
 			break;
 		}
 		
-		//$response =  htmlentities($this->readMpdResponse($sock),ENT_XML1,'UTF-8');
-		//$response = htmlspecialchars($this->readMpdResponse($sock));
+		//$response =  htmlentities($this->readMpdResponse($this->sock),ENT_XML1,'UTF-8');
+		//$response = htmlspecialchars($this->readMpdResponse($this->sock));
 		return $response;
 	}
 	
-	function remTrackQueue($sock,$songpos) 
+	function remTrackQueue($songpos) 
 	{
-		$datapath = $this->findPLposPath($songpos,$sock);
-		$this->sendMpdCommand($sock,"delete ".$songpos);
+		//$datapath = $this->findPLposPath($songpos);
+		$this->sendMpdCommand("delete " . $songpos);
 	
-		return $this->readMpdResponse($sock);
+		return $this->readMpdResponse();
 	}
 	
-	function addQueue($sock,$path) 
+	function addQueue($path) 
 	{
 		$fileext = $this->parseFileStr($path,'.');
 	
 		if ($fileext == 'm3u' OR $fileext == 'pls' OR strpos($path, '/') === false) 
 		{
-			$this->sendMpdCommand($sock,"load \"".html_entity_decode($path)."\"");
+			$this->sendMpdCommand("load \"".html_entity_decode($path)."\"");
 		} 
 		else 
 		{
-			$this->sendMpdCommand($sock,"add \"".html_entity_decode($path)."\"");
+			$this->sendMpdCommand("add \"".html_entity_decode($path)."\"");
 		}
 	
-		return $this->readMpdResponse($sock);
+		return $this->readMpdResponse();
 	}
 	
-	function MpdStatus($sock) 
+	function MpdStatus() 
 	{
-		return $this->sendMpdCommandWithResponse($sock, "status");
+		return $this->sendMpdCommandWithResponse("status");
 	}
+    
+    function play($song = null)
+    {
+        
+    }
+    
+    function stop()
+    {
+        
+    }
+    
+    function pause()
+    {
+        
+    }
+    
+    function next()
+    {
+        
+    }
+    
+    function previous()
+    {
+        
+    }
+    
+    function status()
+    {
+        
+    }
+    
+    function image($song = null)
+    {
+        
+    }
+    
+    function repeat()
+    {
+        
+    }
+    
+    function shuffle()
+    {
+        
+    }
+    
+    function search($query)
+    {
+        
+    }
+    
+    function getQueue()
+    {
+        
+    }
+    
+    function clearQueue()
+    {
+        
+    }
+    
+    function playPlaylist($playlist, $song = null)
+    {
+        
+    }
+    
+    function add($song)
+    {
+        
+    }
+    
+    function addPlaylist($playlist, $song = null)
+    {
+        
+    }
+    
+    function getPlaylist($playlist)
+    {
+        
+    }
+    
+    function getPlaylists()
+    {
+        
+    }
+    
+    function rateUp($song)
+    {
+        
+    }
+    
+    function rateDown($song)
+    {
+        
+    }
 }

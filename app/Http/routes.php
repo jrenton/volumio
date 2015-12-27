@@ -24,12 +24,18 @@ define('NETCONFPATHBOOT', ROOTPATH.'inc/network/interfaces.loadatboot');
 define("MPD_RESPONSE_ERR", "ACK");
 define("MPD_RESPONSE_OK",  "OK");
 
+$app->configure('options');
+// $this->app->singleton('PandoraSocket', function($app)
+// {
+//     return new App\Http\Sockets\PandoraSocket();
+// });
+
 $app->get('/', function () {
     return view('home');
 });
 
-$app->get('player', [
-    'as' => 'player', 'uses' => 'PlayerController@command'
+$app->get('player2', [
+    'as' => 'player2', 'uses' => 'PlayerController@command'
 ]);
 
 $app->get('playerEngine', [
@@ -42,4 +48,8 @@ $app->get('playerEngineSpop', [
 
 $app->post('sendCommand', [
     'as' => 'sendCommand', 'uses' => 'PlayerController@sendCommand'
+]);
+
+$app->post('player', [
+    'as' => 'player', 'uses' => 'MusicPlayerController@index'
 ]);

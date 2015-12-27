@@ -17,7 +17,9 @@ window.GUI = {
         files: [],
         mpdDirectories: [],
         spotifyTracks: [],
-        spotifyDirectories: []
+        spotifyDirectories: [],
+        pandoraSongs: [],
+        pandoraDirectories: []
     },
     library: {
         showLibrary: false

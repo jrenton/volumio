@@ -1,8 +1,5 @@
 var store = require('../store');
 var musicPlayer = require("../services/musicPlayerService");
-var volumio = window.volumio || {};
-
-var router = volumio.router;
 
 module.exports = {
     template: require('./browse.html'),
@@ -10,9 +7,15 @@ module.exports = {
         return store.state.browse;
 	},
 	methods: {
-	    playSong: function (song) {
+        openPandora: function (station) {
+            musicPlayer.getPlaylists("Pandora", function(data) {
+                populateDB(data);
+                //window.volumio.router.go("playback");
+            });
+        },
+	    play: function (song) {
             musicPlayer.play(song, function(data) {
-                router.go("playback");
+                window.volumio.router.go("playback");
             });
             // sendCommands([
             //             { name: 'spop-stop' }, 
@@ -23,6 +26,15 @@ module.exports = {
             
             //notify('add', song.title);
 	    },
+        add: function (song) {
+            musicPlayer.add(song);
+        },
+        searchTitle: function (song) {
+            //musicPlayer.add(song);
+        },
+        searchArtist: function (song) {
+            //musicPlayer.add(song);
+        },
         // playSpotifyTrack: function (playTrack) {
         //     sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
         //         gotoPlayback(playTrack);
