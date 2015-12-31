@@ -3,7 +3,7 @@ window.GUI = {
     SpopState: 0,
     cmd: 'status',
     playlist: {},
-    currentsong: { Artist: "", Title: "", state: "" },
+    currentsong: { artist: "", title: "", state: "", album: "", type: "", time: 0, elapsed: 0, volume: 0 },
     currentknob: null,
     currentpath: '',
     halt: 0,

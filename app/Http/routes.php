@@ -24,14 +24,43 @@ define('NETCONFPATHBOOT', ROOTPATH.'inc/network/interfaces.loadatboot');
 define("MPD_RESPONSE_ERR", "ACK");
 define("MPD_RESPONSE_OK",  "OK");
 
+//$app->bind('App\Http\WebApis\IClient', 'GuzzleHttp\Client');
+
 $app->configure('options');
 // $this->app->singleton('PandoraSocket', function($app)
 // {
 //     return new App\Http\Sockets\PandoraSocket();
 // });
 
-$app->get('/', function () {
+$app->get('/', function (Illuminate\Http\Request $request) {
+    $code = $request->input('code');
+    
+    if ($code) 
+    {
+        $clientId = "ab6fd2e9ddd04857947ea58e3e44678a";
+        $clientSecret = "9ff97405ccfd47e9b656ae0af0c981a1";
+        $body = [
+            "code" => $code,
+            "grant_type" => "authorization_code",
+            "redirect_uri" => "http://homestead.app:8000",
+            "client_id" => $clientId,
+            "client_secret" => $clientSecret
+        ];
+        $clientIdSecret = base64_encode($clientId . ":" . $clientSecret);
+        //"headers" => ["Authorization: Basic " . $clientIdSecret]
+        $client = new \GuzzleHttp\Client();
+        $request = $client->request('POST', 'https://accounts.spotify.com/api/token', ["form_params" => $body]);
+        $response = json_decode($request->getBody());
+        session(["spotify_access_token" => $response->access_token,
+                 "spotify_refresh_token" => $response->refresh_token]);
+        return redirect("/");
+    }
+    
     return view('home');
+});
+
+$app->get("me", function(App\Http\WebApis\SpotifyWebApi $webApi) {
+    dd($webApi->getFeaturedPlaylists());
 });
 
 $app->get('player2', [

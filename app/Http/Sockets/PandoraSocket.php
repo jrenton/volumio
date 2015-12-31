@@ -11,7 +11,7 @@ class PandoraSocket
         if (!static::$sock)
         {
             static::$sock = stream_socket_client('tcp://localhost:4445', $errorno, $errorstr, 30 );
-            stream_set_timeout(static::$sock, 0, 300000);
+            stream_set_timeout(static::$sock, 0, 200000);
 			fputs(static::$sock, "user admin admin\n");
 	
 			while(!feof(static::$sock))

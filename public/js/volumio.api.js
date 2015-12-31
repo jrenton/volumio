@@ -4,15 +4,53 @@
 $(function() {
     window.volumio = window.volumio || {};
     
-    window.volumio.conn = new WebSocket('ws://192.168.0.117:8081');
+    window.volumio.conn = new WebSocket('ws://192.168.10.10:8081');
     window.volumio.conn.onopen = function(e) {
         console.log("Connection established!");
     };
 
     window.volumio.conn.onmessage = function(e) {
-        console.log(e.data);
+        var data = JSON.parse(e.data);
+        console.log(data);
+        
+        $.each(data, function(index, dataItem) {
+            setState(dataItem);
+        });
     };
 });
+
+function setState(data) {
+    if (data.artist) {
+        window.GUI.currentsong.artist = data.artist;
+    }
+    
+    if (data.album) {              
+        window.GUI.currentsong.album = data.album;
+    }
+    
+    if (data.title) {              
+        window.GUI.currentsong.title = data.title;
+    }
+    
+    if (data.state && window.GUI.currentsong.type != data.ServiceType) {
+        
+        window.GUI.currentsong.state = data.state;
+        if (typeof data.elapsed != "undefined" && typeof data.time != "undefined") {
+            window.GUI.currentsong.elapsed = parseFloat(data.elapsed);
+            window.GUI.currentsong.time = parseFloat(data.time);
+            refreshTimer(data.elapsed, data.time, data.state);
+            refreshKnob();
+        }
+    }
+    
+    if (data.ServiceType) {
+        window.GUI.currentsong.type = data.ServiceType;
+    }
+    
+    if (data.coverart) {
+        showCoverImage(data.coverart);
+    }
+}
   
 function sendCmd(inputcmd) {
     AjaxUtils.get('player2?cmd=' + inputcmd, {}, function(data) {
@@ -26,17 +64,42 @@ function sendPLCmd(inputcmd) {
     });
 }
 
+function backendRequestPandora(gui) {
+    AjaxUtils.post("player", { serviceType: "Pandora", cmd: "status" }, function(data) {
+        console.log("PANDORA BACKEND REQUEST");
+        console.log(data);
+        $.each(data, function(index, dataItem) {
+            console.log(dataItem);
+            setState(dataItem);
+        });
+        
+        if(data.base64) {
+            showCoverImageFromBase64(data.base64);
+        }
+        
+        $('#loader').hide();
+    }, function(a, b, c) {
+        // setTimeout(function() {
+        //     GUI.state = 'disconnected';
+        //     $('#loader').show();
+        //     $('#countdown-display').countdown('pause');
+        //     window.clearInterval(GUI.currentKnob);
+        //     backendRequest();
+        // }, 2000);
+    });
+}
+
 function backendRequest(gui) {
     AjaxUtils.get("playerEngine?state=" + gui.MpdState['state'], {}, function(data) {
         console.log("BACKEND REQUEST");
         console.log(data);
         gui.MpdState = data;
         if(data.base64) {
-            showCoverImage(data.base64);
+            showCoverImageFromBase64(data.base64);
         }
         renderUI(gui);
         $('#loader').hide();
-        backendRequest(gui);
+        //backendRequest(gui);
     }, function(a, b, c) {
         // setTimeout(function() {
         //     GUI.state = 'disconnected';
@@ -57,11 +120,14 @@ function backendRequestSpop(gui) {
     
     AjaxUtils.get("playerEngineSpop?state=" + state, {}, function(data) {
         if (data != '') {
-            if (data) {
+            if (data && data.state == "play") {
+                console.log("SPOTIFY BACKEND");
+                console.log(data);
+                data.ServiceType = "Spotify";
                 gui.SpopState = data;
                 getSpopImage(data.uri);
                 renderUI(gui);
-                backendRequestSpop(gui);
+                setState(data);
             }
         } else {
             // setTimeout(function() {
@@ -127,14 +193,18 @@ function getSpopImage(uri) {
         sendCommand("spop-uimage", { path: uri, p2: 2 }, function(data) {
             if (data) {
                 if (!data.error) {
-                    showCoverImage(data.data);
+                    showCoverImageFromBase64(data.data);
                 }
             }
         });
     }
 }
 
-function showCoverImage(base64) {
+function showCoverImageFromBase64(base64) {
+    showCoverImage("data:image/gif;base64," + base64);
+}
+
+function showCoverImage(imgUrl) {
     var visible = $(".visible-phone:visible");
     var backgroundSize = "contain";
     
@@ -142,7 +212,7 @@ function showCoverImage(base64) {
         backgroundSize = "cover";
     }
     
-    $("#dynamicCss").text("#playbackCover.coverImage:after{background:url(data:image/gif;base64," + base64 + ") no-repeat 50% 0% fixed;background-size:" + backgroundSize + ";}");
+    $("#dynamicCss").text("#playbackCover.coverImage:after{background:url(" + imgUrl + ") no-repeat 50% 0% fixed;background-size:" + backgroundSize + ";}");
     $("#playbackCover").addClass("coverImage");
 }
 
@@ -222,15 +292,15 @@ function populateDB(data, path, uplevel, keyword){
 
 	for (var i = 0; i < data.length; i++) {
         var dataItem = data[i];
-        if (dataItem.Type == 'MpdFile') {
+        if (dataItem.Type == 'MpdFile' && dataItem.ServiceType == "Mpd") {
             GUI.browse.files.push(dataItem);
-        } else if (dataItem.Type == 'MpdDirectory')  {
+        } else if (dataItem.Type == 'MpdDirectory' && dataItem.ServiceType == "Mpd")  {
             GUI.browse.mpdDirectories.push(dataItem);            
-        } else if (dataItem.Type == 'SpopTrack') {
+        } else if (dataItem.Type == 'SpopTrack' && dataItem.ServiceType == "Spotify") {
             GUI.browse.spotifyTracks.push(dataItem);            
-        } else if (dataItem.Type == 'SpopDirectory') {
+        } else if (dataItem.Type == 'SpopDirectory' && dataItem.ServiceType == "Spotify") {
             GUI.browse.spotifyDirectories.push(dataItem);            
-        } else if (dataItem.Type == 'PandoraDirectory') {
+        } else if (dataItem.Type == 'PandoraDirectory' || dataItem.Type == 'PandoraStation' && dataItem.ServiceType == "Pandora") {
             GUI.browse.pandoraDirectories.push(dataItem);            
         }
 	}
@@ -288,30 +358,6 @@ function updateGUI(objectInputState) {
     console.log("updating ui with state");
     console.log(objectInputState);
 
-	var $elapsed = $("#elapsed");
-	var $total = $('#total');
-	var $playlistItem = $("#playlist").find('.playlist li');
-	var $playI = $("#play").find("i").eq(1);
-
-    // check MPD status
-    if (objectInputState['state'] == 'play') {
-        $playI.removeClass('fa-play').addClass('fa-pause');
-
-    } else if (objectInputState['state'] == 'pause') {
-        $playI.removeClass('fa-pause').addClass('fa-play');
-
-    } else if (objectInputState['state'] == 'stop') {
-        $playI.removeClass('fa-pause').addClass('fa-play');
-        $('#countdown-display').countdown('destroy');
-        $elapsed.html('00:00');
-        $total.html('');
-        $('#time').val(0).trigger('change');
-        $playlistItem.removeClass('active');
-    }
-
-	$elapsed.html(timeConvert(objectInputState['elapsed']));
-	$total.html(timeConvert(objectInputState['time']));
-	$playlistItem.removeClass('active');
 	var current = parseInt(objectInputState['song']) + 1;
 
 	if (!isNaN(current)) {
@@ -327,7 +373,6 @@ function updateGUI(objectInputState) {
 
     // check song update
     if (GUI.currentsong != objectInputState['currentsong']) {
-        countdownRestart(0);
         if ($('#panel-dx').hasClass('active')) {
             var current = parseInt(objectInputState['song']);
             customScroll('pl', current);
@@ -342,8 +387,8 @@ function updateGUI(objectInputState) {
     }
     console.log(objectInputState);
     //PlaybackVol.song = { Artist: objectInputState['currentartist'], Title: objectInputState['currentsong'] };
-    GUI.currentsong.Artist = objectInputState['currentartist'];
-    GUI.currentsong.Title = objectInputState['currentsong'];
+    GUI.currentsong.artist = objectInputState['currentartist'];
+    GUI.currentsong.title = objectInputState['currentsong'];
 
     if (objectInputState['repeat'] == 1) {
         $('#repeat').addClass('btn-primary');
@@ -367,12 +412,10 @@ function updateGUI(objectInputState) {
     }
 
     GUI.halt = 0;
-    //GUI.currentsong = objectInputState['currentsong'];
-	//GUI.currentartist = objectInputState['currentartist'];
 
 	//Change Name according to Now Playing
-	if (GUI.currentsong.Artist && GUI.currentsong.Title) {
-		document.title = GUI.currentsong.Title + ' - ' + GUI.currentsong.Artist + ' - ' + 'Volumio';
+	if (GUI.currentsong.artist && GUI.currentsong.title) {
+		document.title = GUI.currentsong.title + ' - ' + GUI.currentsong.artist + ' - ' + 'Volumio';
 	} else {
 		document.title = 'Volumio - Audiophile Music Player';
     }
@@ -396,21 +439,17 @@ function refreshTimer(startFrom, stopTo, state){
 }
 
 // update time knob
-function refreshKnob(json){
+function refreshKnob() {
     window.clearInterval(GUI.currentKnob)
-    var initTime = json['song_percent'];
-    var delta = json['time'] / 1000;
+    var initTime = (GUI.currentsong.elapsed / GUI.currentsong.time) * 1000;
+    var delta = GUI.currentsong.time / 1000;
     var $time = $("#time");
-    $time.val(initTime*10).trigger('change');
+    $time.val(initTime).trigger('change');
     if (GUI.currentsong.state == 'play') {
         GUI.currentKnob = setInterval(function() {
-            if (GUI.visibility == 'visible') {
-                initTime = initTime + 0.1;
-            } else {
-                initTime = initTime + 100/json['time'];
-            }
-            $time.val(initTime*10).trigger('change');
-            //document.title = Math.round(initTime*10) + ' - ' + GUI.visibility;
+            initTime = initTime + 1;
+            window.GUI.currentsong.elapsed = parseFloat(window.GUI.currentsong.elapsed) + parseFloat(delta);
+            $time.val(initTime).trigger('change');
         }, delta * 1000);
     }
 }
@@ -429,13 +468,6 @@ function timeConvert(seconds) {
     }
     
     return display;
-}
-
-// reset countdown
-function countdownRestart(startFrom) {
-	var $countdownDisplay = $("#countdown-display");
-    $countdownDisplay.countdown('destroy');
-    $countdownDisplay.countdown({since: -(startFrom), compact: true, format: 'MS'});
 }
 
 // set volume with knob

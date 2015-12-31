@@ -267,7 +267,7 @@ class PlayerController extends Controller
             else 
             {
                 // Else pass command to MPD
-                echo json_encode($this->mpdService->sendMpdCommand($mpd,$sRawCommand));
+                echo json_encode($this->mpdService->sendMpdCommand($sRawCommand));
             }
         }
     }

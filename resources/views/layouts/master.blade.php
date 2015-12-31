@@ -36,6 +36,7 @@
 		<a class="dropdown-toggle" id="menu-settings" role="button" data-toggle="dropdown" data-target="#" href="index.php"><i class="fa fa-th-list dx"></i></a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="menu-settings">
 			<li><a v-link="{ path: 'playback' }"><i class="fa fa-play sx"></i> Main</a></li>
+                <li><a href="https://accounts.spotify.com/authorize/?response_type=code&client_id=ab6fd2e9ddd04857947ea58e3e44678a&redirect_uri=http://homestead.app:8000&scope=user-follow-modify playlist-modify-private user-library-modify user-library-read"><i class="fa fa-spotify sx"></i> Spotify Connect</a></li>
 			<li><a href="sources.php"><i class="fa fa-folder-open sx"></i> Library</a></li>
 			<li><a href="mpd-config.php"><i class="fa fa-cogs sx"></i> Playback</a></li>
 			<li><a href="net-config.php"><i class="fa fa-sitemap sx"></i> Network</a></li>
@@ -57,7 +58,7 @@
 			</a>
 		</span>
 	</div>
-	<form id="db-search" action="javascript:getDB('search', '', 'file');">
+	<form id="db-search" action="javascript:getDB('search', '', 'file'); javascript:window.volumio.router.go('browse');">
 		<div class="input-append">
 			<input class="span2" id="db-search-keyword" type="text" value="" placeholder="Search">
 			<button class="btn" type="submit"><i class="fa fa-search"></i></button>

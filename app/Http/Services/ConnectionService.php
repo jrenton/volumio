@@ -73,6 +73,23 @@ class ConnectionService
 		exec($syscmd." 2>&1", $output);
 		return $output;
 	}
+    
+    function convertTimeToSeconds($time)
+    {
+        $times = explode(":", $time);
+        
+        if (!is_array($times))
+        {
+            return 0;
+        }
+        
+        if (!array_key_exists(0, $times) || !array_key_exists(1, $times))
+        {
+            return 0;
+        }
+
+        return ((int)$times[0] * 60) + (int)$times[1];
+    }
 	
 	// format Output for "status"
 	function _parseStatusResponse($resp) 

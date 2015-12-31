@@ -1,4 +1,6 @@
 var store = require('../store');
+var musicPlayer = require("../services/musicPlayerService");
+var timeControl = require("../services/timeControl");
 
 module.exports = {
     template: require('./playback.html'),
@@ -7,6 +9,10 @@ module.exports = {
             song: store.state.currentsong
         };
 	},
+    ready: function() {
+        timeControl.refreshTimer();
+        timeControl.refreshKnob();
+    },
 	methods: {
 	    playPause: function () {
             var cmd = '';
@@ -20,18 +26,39 @@ module.exports = {
                 cmd = 'play';
                 $('#countdown-display').countdown({since: 0, compact: true, format: 'MS'});
             }
+            var serviceType = window.GUI.currentsong.type;
 
             window.clearInterval(GUI.currentKnob);
-            sendCmd(cmd);
+            switch(cmd) {
+                case "play":
+                    musicPlayer.play(null, serviceType, function(data) {
+                    });
+                    break;
+                case "pause":
+                    musicPlayer.pause(serviceType, function(data) {
+                    });
+                    break;
+            }
+            //sendCmd(cmd);
             //sendCommand("spop-goto", { "path": this.song.index });
 	    },
 	    nav: function (direction) {
 	    	GUI.halt = 1;
-            //console.log("nav bitch");
 			$('#countdown-display').countdown('pause');
 			window.clearInterval(GUI.currentKnob);
-            
-            sendCmd(direction);
+            var serviceType = window.GUI.currentsong.type;
+            switch (direction) {
+                case "next":
+                    musicPlayer.next(serviceType, function(data) {
+                    });
+                    break;
+                case "previous":
+                    musicPlayer.previous(serviceType, function(data) {
+                        
+                    });
+                    break;
+            }
+            //sendCmd(direction);
 	    }
 	}
 };

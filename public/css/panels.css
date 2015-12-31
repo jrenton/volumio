@@ -98,6 +98,9 @@ body {
 #currentartist, #currentalbum {
 	font-size: 14px;
 }
+#currenttype {
+    font-size: 9px;
+}
 #currentalbum {
 	margin-bottom: 5px;
 }
@@ -188,7 +191,7 @@ body {
 }
 
 .volume {
-	padding-top: 30px;
+	padding: 10px 0;
 }
 .volume .btn-toolbar {
 	margin-top: 20px;
@@ -433,7 +436,8 @@ a.btn-cmd {
 	font-style: normal;
 	color: #000F1D;
 }
-.icon-root {
+.icon-root, 
+.db-icon .fa {
 	color: #fff;
 }
 .playlist .pl-action, .database .db-action {

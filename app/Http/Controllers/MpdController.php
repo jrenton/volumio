@@ -23,17 +23,10 @@ class MpdController extends Controller
     
     public function playerEngine(Request $request)
     {
-        //$mpd = $this->mpdService->openMpdSocket(DAEMONIP, 6600) ;
-        //$spop = $this->connectionService->openSpopSocket(DAEMONIP, 6602);
         $state = $request->input('state');
         $db = 'sqlite:'.$_SERVER['DOCUMENT_ROOT'].'/db/player.db';
         
         $this->connectionService->playerSession('open', $db, '', ''); 
-
-        // if (!$mpd) 
-        // {
-        //     return 'Error Connecting MPD Daemon';
-        // }
         
         // fetch MPD status
         $mpdStatus = $this->mpdService->MpdStatus();
@@ -149,12 +142,6 @@ class MpdController extends Controller
             // Launch add/play song
             $this->mpdService->rp_addPlay($path, $status['playlistlength']);
         }
-    
-        // JSON response for GUI
-        // header('Content-Type: application/json');
-        // echo json_encode($status);
-            
-        //$this->mpdService->closeMpdSocket();
         
         return json_encode($status);
     }

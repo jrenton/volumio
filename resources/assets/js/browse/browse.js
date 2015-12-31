@@ -8,13 +8,26 @@ module.exports = {
 	},
 	methods: {
         openPandora: function (station) {
-            musicPlayer.getPlaylists("Pandora", function(data) {
-                populateDB(data);
-                //window.volumio.router.go("playback");
-            });
+            console.log(station);
+            if (station.Type == "PandoraDirectory") {
+                musicPlayer.getPlaylists("Pandora", function(data) {
+                    populateDB(data);
+                    //window.volumio.router.go("playback");
+                });
+            } else if (station.Type == "PandoraStation") {
+                musicPlayer.playPlaylist(station, "Pandora", function(data) {
+                    
+                    //populateDB(data);
+                    window.volumio.router.go("playback");
+                });
+            }
         },
 	    play: function (song) {
-            musicPlayer.play(song, function(data) {
+            musicPlayer.play(song, song.ServiceType, function(data) {
+                window.GUI.currentsong.artist = song.Artist;
+                window.GUI.currentsong.title = song.Title;
+                window.GUI.currentsong.album = song.Album;
+                window.GUI.currentsong.state = "play";
                 window.volumio.router.go("playback");
             });
             // sendCommands([

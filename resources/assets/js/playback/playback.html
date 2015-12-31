@@ -2,8 +2,9 @@
     <div id="playback" class="tab-pane active">
         <div class="container txtmid">
             <div id="playback-info">
-                <span id="currentsong">{{ song.Title }}</span>				
-                <span id="currentartist">{{ song.Artist }}</span>
+                <span id="currentsong">{{ song.title }}</span>				
+                <span id="currentartist">{{ song.artist }}</span>
+                <span id="currenttype">{{ song.type }}</span>
                 <!--<span id="currentalbum"></span>-->
             </div>
             <!-- <span id="playlist-position">&nbsp;</span> -->
@@ -27,7 +28,7 @@
                 <div class="span4">
                     <div id="timeknob">
                         <div id="countdown" ms-user-select="none">
-                            <input class="playbackknob" id="time" value="0" data-readonly="false" data-min="0" data-max="1000" data-width="100%" data-thickness="0.30" data-bgColor="rgba(0,0,0,0)" data-fgcolor="#007F0B">
+                            <input class="playbackknob" id="time" data-readonly="false" data-min="0" data-max="1000" data-width="100%" data-thickness="0.30" data-bgColor="rgba(0,0,0,0)" data-fgcolor="#007F0B">
                         </div>
                         <span id="countdown-display"></span>
                         <span id="total"></span>

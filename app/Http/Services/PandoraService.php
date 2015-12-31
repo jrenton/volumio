@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Http\Services\ConnectionService;
 use App\Http\Sockets\PandoraSocket;
+use App\Http\Enums\PandoraEnums;
 
 class PandoraService
 {
@@ -55,11 +56,49 @@ class PandoraService
     {
         $message = $this->sendCommand($command);
         
+        return $this->parseMessage($message);
+    }
+    
+    function getElapsedTime($response)
+    {
+        $time = $this->parseTimeFromResponse($response);
+        
+        if (!is_array($time) || !array_key_exists(0, $time))
+        {
+            return 0;
+        }
+        
+        return $this->connectionService->convertTimeToSeconds($time[0]);
+    }
+    
+    function getTotalTime($response)
+    {
+        $time = $this->parseTimeFromResponse($response);
+        
+        if (!is_array($time) || !array_key_exists(1, $time))
+        {
+            return 0;
+        }
+        
+        return $this->connectionService->convertTimeToSeconds($time[1]);
+    }
+    
+    function parseTimeFromResponse($response)
+    {
+        $split = explode(" ", $response);
+        
+        return explode("/", $split[1]);
+    }
+    
+    function parseMessage($message)
+    {
         $messages = explode("\n", $message);
         $returnMessages = array();
         $i = 0;
+        $returnMessages[$i] = array();
         $lastResponseCode = 0;
         $hasBeenOther = false;
+        $hasMultipleValues = count($messages) > 1;
                 
         foreach ($messages as $value)
         {
@@ -74,43 +113,92 @@ class PandoraService
             $type = trim($matches[2]);
             $data = trim($matches[3]);
             
-            if ($responseCode == 203)
+            $status = "";
+            $name = "";
+            
+            try 
             {
-                if ($hasBeenOther)
-                {
-                    $i++;    
-                }
-                
-                $hasBeenOther = true;
-                $returnMessages[$i] = array();
-            } 
-            else if ($responseCode != 203 && $responseCode != 204)
-            {
-                if (!$data)
-                {
-                    $data = $type;    
-                }
-                                
-                if ($responseCode == $lastResponseCode || $lastResponseCode == 203)
-                {
-                    array_push($returnMessages[$i], $data);
-                }
-                else
-                {
-                    $returnMessages[$i][$type] = $data;
-                }
+                $status = PandoraEnums::get((int)$responseCode);
+                $name = strtolower($status->getName()); 
             }
+            catch (\Exception $e) { }           
+            
+            switch ($responseCode)
+            {
+                case PandoraEnums::PLAY:
+                case PandoraEnums::PAUSE:
+                case PandoraEnums::STOP:                                            
+                    $returnMessages[$i]["state"] = $name;
+                    $returnMessages[$i]["elapsed"] = $this->getElapsedTime($value);
+                    $returnMessages[$i]["time"] = $this->getTotalTime($value);
+                    $returnMessages[$i]["ServiceType"] = "Pandora";
+                    
+                    break;
+                case PandoraEnums::ARTIST:
+                case PandoraEnums::ALBUM:
+                case PandoraEnums::COVERART:
+                case PandoraEnums::TITLE:
+                    $returnMessages[$i][$name] = $data;
+                    $returnMessages[$i]["ServiceType"] = "Pandora";
+                    
+                    break;                
+                case PandoraEnums::STATION:
+                    if (array_key_exists($name, $returnMessages[$i]))
+                    {
+                        $i++;
+                    }
+                    $returnMessages[$i]["Type"] = "PandoraStation";
+                    $returnMessages[$i]["ServiceType"] = "Pandora";
+                    $returnMessages[$i]["Name"] = $data;
+                
+                    $returnMessages[$i][$name] = $data;
+                    break;
+                case 203:
+                    if ($hasBeenOther)
+                    {
+                        $i++;    
+                    }
+                    
+                    $hasBeenOther = true;
+                    $returnMessages[$i] = array();
+                    break;
+                case 204:
+                    break;
+                default:
+                    // if (!$data)
+                    // {
+                    //     $data = $type;    
+                    // }
+                                    
+                    // if ($responseCode == $lastResponseCode || $lastResponseCode == 203)
+                    // {
+                    //     array_push($returnMessages[$i], [ $type => $data,
+                    //                                      ]);
+                    // }
+                    // else
+                    // {
+                    //     $returnMessages[$i][$type] = $data;
+                    // }
+                    break;
+            }
+            
+            //$returnMessages[$i]["Name"] = $data;
             
             $lastResponseCode = $responseCode;
         }
-                
+        
+        if (sizeof($returnMessages) == 1 && empty($returnMessages[0]))
+        {
+            return "";
+        }
+        
         if (sizeof($returnMessages) == 1)
         {
-            $returnMessages = array_values($returnMessages[0]);
+            //$returnMessages = array_values($returnMessages[0]);
         }
         else
         {
-            $returnMessages = array_values($returnMessages);
+            //$returnMessages = array_values($returnMessages);
         }
         
         return $returnMessages;
@@ -198,7 +286,7 @@ class PandoraService
     
     function playPlaylist($playlist, $song = null)
     {
-        $this->sendCommand("play station " . $playlist->name);
+        return $this->getResponse('play station "' . $playlist["Name"] . '"');
     }
     
     function getPlaylist($playlist)

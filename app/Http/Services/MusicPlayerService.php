@@ -24,6 +24,8 @@ class MusicPlayerService
         switch ($commandName)
         {
             case "play":
+                $this->stopOtherServices($serviceType);
+            
                 if ($song)
                 {
                     $songClass = "App\\Http\\Songs\\" . $serviceType . "Song";
@@ -34,8 +36,6 @@ class MusicPlayerService
                 {
                     $response = $playerClass->$commandName();
                 }
-                
-                $this->stopOtherServices($serviceType);
                 
                 break;
             case "addQueue":
@@ -75,12 +75,12 @@ class MusicPlayerService
         
         foreach ($services as $service)
         {
-            if ($service == $serviceType)
+            if ($service == $currentServiceType)
                 continue;
             
-            $serviceClass = ServiceUtils::getClass($serviceType, $this->connectionService);
+            $serviceClass = ServiceUtils::getClass($service, $this->connectionService);
         
-            $playerClass->stop();
+            $serviceClass->stop();
         }
     }
 }

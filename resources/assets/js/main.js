@@ -48,6 +48,7 @@ $(function() {
     // ----------------------------------------------------------------------------------------------------
     // first connection with MPD and SPOP daemons
     backendRequest(window.GUI);
+    backendRequestPandora(window.GUI);
 	backendRequestSpop(window.GUI);
 
     getDB('filepath', GUI.currentpath, 'file');
