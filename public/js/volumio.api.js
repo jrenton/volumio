@@ -32,10 +32,11 @@ function setState(data) {
         window.GUI.currentsong.title = data.title;
     }
     
-    if (data.state && window.GUI.currentsong.type != data.ServiceType) {
+    if (data.state && (window.GUI.currentsong.type != data.ServiceType || data.ServiceType == "Pandora")) {
         
         window.GUI.currentsong.state = data.state;
         if (typeof data.elapsed != "undefined" && typeof data.time != "undefined") {
+            
             window.GUI.currentsong.elapsed = parseFloat(data.elapsed);
             window.GUI.currentsong.time = parseFloat(data.time);
             refreshTimer(data.elapsed, data.time, data.state);
@@ -441,7 +442,8 @@ function refreshTimer(startFrom, stopTo, state){
 // update time knob
 function refreshKnob() {
     window.clearInterval(GUI.currentKnob)
-    var initTime = (GUI.currentsong.elapsed / GUI.currentsong.time) * 1000;
+    window.GUI.currentsong.percentcomplete = GUI.currentsong.elapsed / GUI.currentsong.time;
+    var initTime = window.GUI.currentsong.percentcomplete * 1000;
     var delta = GUI.currentsong.time / 1000;
     var $time = $("#time");
     $time.val(initTime).trigger('change');
@@ -449,6 +451,7 @@ function refreshKnob() {
         GUI.currentKnob = setInterval(function() {
             initTime = initTime + 1;
             window.GUI.currentsong.elapsed = parseFloat(window.GUI.currentsong.elapsed) + parseFloat(delta);
+            window.GUI.currentsong.percentcomplete = window.GUI.currentsong.elapsed / GUI.currentsong.time;
             $time.val(initTime).trigger('change');
         }, delta * 1000);
     }

@@ -3,7 +3,8 @@ var store = require('../store');
 module.exports = {
     refreshKnob: function() {
         window.clearInterval(store.state.currentKnob)
-        var initTime = (store.state.currentsong.elapsed / store.state.currentsong.time) * 1000;
+        store.state.currentsong.percentcomplete = store.state.currentsong.elapsed / store.state.currentsong.time;        
+        var initTime = store.state.currentsong.percentcomplete * 1000;
         var delta = store.state.currentsong.time / 1000;
         var $time = $("#time");
         $time.val(initTime).trigger('change');
@@ -11,6 +12,7 @@ module.exports = {
             store.state.currentKnob = setInterval(function() {
                 initTime = initTime + 1;
                 store.state.currentsong.elapsed = parseFloat(store.state.currentsong.elapsed.toString()) + parseFloat(delta.toString());
+                store.state.currentsong.percentcomplete = store.state.currentsong.elapsed / store.state.currentsong.time;        
                 $time.val(initTime).trigger('change');
             }, delta * 1000);
         }

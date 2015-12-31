@@ -104,7 +104,7 @@ h6 {
   .btn.disabled, .btn[disabled] {
     background-color: #95a5a6;
     color: white; }
-  .btn.btn-large {
+  .btn.btn-lg {
     padding-bottom: 12px;
     padding-top: 13px; }
   .btn.btn-primary {

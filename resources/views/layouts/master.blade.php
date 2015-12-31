@@ -60,8 +60,10 @@
 	</div>
 	<form id="db-search" action="javascript:getDB('search', '', 'file'); javascript:window.volumio.router.go('browse');">
 		<div class="input-append">
-			<input class="span2" id="db-search-keyword" type="text" value="" placeholder="Search">
-			<button class="btn" type="submit"><i class="fa fa-search"></i></button>
+			<input id="db-search-keyword" type="text" value="" placeholder="Search">
+			<button class="btn" type="submit">
+                <i class="fa fa-search"></i>
+            </button>
 		</div>
 	</form>
 </div>
@@ -100,8 +102,8 @@
 			<h3 id="poweroff-modal-label">Turn off the player</h3>
 		</div>
 		<div class="modal-body">
-			<button id="syscmd-poweroff" name="syscmd" value="poweroff" class="btn btn-primary btn-large btn-block"><i class="fa fa-power-off sx"></i> Power off</button>
-			<button id="syscmd-reboot" name="syscmd" value="reboot" class="btn btn-primary btn-large btn-block"><i class="fa fa-refresh sx"></i> Reboot</button>
+			<button id="syscmd-poweroff" name="syscmd" value="poweroff" class="btn btn-primary btn-lg btn-block"><i class="fa fa-power-off sx"></i> Power off</button>
+			<button id="syscmd-reboot" name="syscmd" value="reboot" class="btn btn-primary btn-lg btn-block"><i class="fa fa-refresh sx"></i> Reboot</button>
 		</div>
 		<div class="modal-footer">
 			<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
@@ -122,8 +124,8 @@
 		</div>
 		<div class="modal-footer">
 			<div class="form-actions">
-            <button class="btn btn-large" data-dismiss="modal" aria-hidden="true">Cancel</button>
-            <button type="submit" class="btn btn-primary btn-large" name="save" value="save">Add</button>
+            <button class="btn btn-lg" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" name="save" value="save">Add</button>
         </div>
 		</div>
 	</div>
@@ -141,8 +143,8 @@
 		</div>
 		<div class="modal-footer">
 			<div class="form-actions">
-            <button class="btn btn-large" data-dismiss="modal" aria-hidden="true">Cancel</button>
-            <button type="submit" class="btn btn-primary btn-large" name="save" value="save">Add</button>
+            <button class="btn btn-lg" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" name="save" value="save">Add</button>
         </div>
 		</div>
 	</div>
@@ -161,7 +163,7 @@
     <p id="errorResponseUrl"></p>
     <div id="errorResponseContent"></div>
 </div>
-<script src="js/jquery-1.8.2.min.js"></script>
+<script src="js/jquery-1.11.3.min.js"></script>
 <script src="js/jquery-ui-1.11.1.custom.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/bootstrap-select.min.js"></script>

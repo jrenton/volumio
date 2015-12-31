@@ -27,9 +27,9 @@
                         <i class="fa fa-step-forward"></i>
                     </button>
                 </div>
-                <div class="row-fluid">
+                <div class="row">
                 
-                    <div class="span4">
+                    <div class="col-md-4">
                         <div id="timeknob">
                             <div id="countdown" ms-user-select="none">
                                 <input class="playbackknob" id="time" value="0" data-readonly="false" data-min="0" data-max="1000" data-width="100%" data-thickness="0.30" data-bgColor="rgba(0,0,0,0)" data-fgcolor="#007F0B">
@@ -54,9 +54,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="span4"></div> 
+                    <div class="col-md-4"></div> 
     
-                    <div class="span4 volume">
+                    <div class="col-md-4 volume">
                         <input class="volumeknob" id="volume" data-width="211" data-cursor="true" data-bgColor="rgba(0,0,0,0)" data-fgColor="#007F0B" data-thickness=".25" data-angleArc="250" data-angleOffset="-125" data-skin="tron" value="66">	
                         <div class="btn-toolbar floatright">
                             <div class="btn-group">
