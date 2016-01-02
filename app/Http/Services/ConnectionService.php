@@ -11,8 +11,8 @@ class ConnectionService
 		foreach ($flat as $songData) 
 		{
 			$genre = $songData["Genre"] ? $songData["Genre"] : "Unknown";
-			$artist = $songData["AlbumArtist"] ? $songData["AlbumArtist"] : ($songData["Artist"] ? $songData["Artist"] : "Unknown");
-			$album = $songData["Album"] ? $songData["Album"] : "Unknown";
+			$artist = $songData["AlbumArtist"] ? $songData["AlbumArtist"] : ($songData["artist"] ? $songData["artist"] : "Unknown");
+			$album = $songData["album"] ? $songData["album"] : "Unknown";
 	
 			if (!$lib[$genre]) 
 			{
@@ -31,7 +31,7 @@ class ConnectionService
 			
 			$songDataLight = array(	"file" => $songData['file'],
 						"display" => ($songData['Track'] ? $songData['Track']." - " : "")
-							.$songData['Title']);
+							.$songData['title']);
 							
 			array_push($lib[$genre][$artist][$album], $songDataLight);
 		}

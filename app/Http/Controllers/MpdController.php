@@ -75,7 +75,7 @@ class MpdController extends Controller
             {
                 if($key == "Name") 
                 {
-                    $key = "Title";
+                    $key = "title";
                 }
                 
                 $status[$key] = $value;
@@ -86,30 +86,15 @@ class MpdController extends Controller
                 $status['base64'] = $this->albumArtService->getBase64AlbumArt($status["file"]);                
             }
             
-            if (isset($status['Title'])) 
-            {
-                if (array_key_exists("Artist", $status))
-                {
-                    $status['currentartist'] = $status['Artist'];                    
-                }
-                if (array_key_exists("Title", $status))
-                {
-                    $status['currentsong'] = $status['Title'];
-                }
-                if (array_key_exists("Album", $status))
-                {
-                    $status['currentalbum'] = $status['Album'];
-                }
-                
+            if (isset($status['title'])) 
+            {                
                 $status['fileext'] = $this->connectionService->parseFileStr($status['file'],'.');
             } 
             else 
             {
                 $path = $this->connectionService->parseFileStr($curTrack[0]['file'],'/');
                 $status['fileext'] = $this->connectionService->parseFileStr($curTrack[0]['file'],'.');
-                $status['currentartist'] = "";
-                $status['currentsong'] = $song;
-                $status['currentalbum'] = "path: ".$path;
+                $status['album'] = "path: ".$path;
             }
         }
         

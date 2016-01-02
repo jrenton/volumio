@@ -1,53 +1,66 @@
 <?php
 namespace App\Http\WebSockets;
+
+use Ratchet\Wamp\WampServerInterface;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
-use App\Http\Services\PandoraService;
 
-class PlayerWebSocket implements MessageComponentInterface 
+class PlayerWebSocket implements WampServerInterface 
 {
     protected $clients;
-    protected $pandoraService;
 
-    public function __construct(PandoraService $pandoraService) 
+    public function __construct() 
     {
         $this->clients = new \SplObjectStorage;
-        $this->pandoraService = $pandoraService;
     }
 
     public function onOpen(ConnectionInterface $conn) 
     {
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
-
-        echo "New connection! ({$conn->resourceId})\n";
+    }
+    
+    public function onSubscribe(ConnectionInterface $conn, $topic) 
+    {
+        $this->clients->attach($conn);
     }
 
-    public function onMessage(ConnectionInterface $from, $msg) 
+    /**
+     * @param string JSON'ified string we'll receive from ZeroMQ
+     */
+    public function onReceiveMessage($message) 
     {
-        $numRecv = count($this->clients) - 1;
-        echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
-            , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
-
-        $response = $this->pandoraService->getResponse($msg);
-        foreach ($this->clients as $client) 
+        echo "\nReceived message:\n";
+        echo $message;
+        
+        foreach($this->clients as $client)
         {
-            $client->send(json_encode($response));
+            $client->send($message);            
         }
     }
-
+        
+    public function onUnSubscribe(ConnectionInterface $conn, $topic) 
+    {
+    }
+    
     public function onClose(ConnectionInterface $conn) 
     {
-        // The connection is closed, remove it, as we can no longer send it messages
-        $this->clients->detach($conn);
-        
-        echo "Connection {$conn->resourceId} has disconnected\n";
     }
-
+    
+    public function onCall(ConnectionInterface $conn, $id, $topic, array $params) 
+    {
+        // In this application if clients send data it's because the user hacked around in console
+        // $conn->callError($id, $topic, 'You are not allowed to make calls')->close();
+    }
+    
+    public function onPublish(ConnectionInterface $conn, $topic, $event, array $exclude, array $eligible)
+    {
+        // echo "Published";
+        // In this application if clients send data it's because the user hacked around in console
+        //$conn->close();
+    }
+    
     public function onError(ConnectionInterface $conn, \Exception $e) 
     {
-        echo "An error has occurred: {$e->getMessage()}\n";
-
-        $conn->close();
     }
 }

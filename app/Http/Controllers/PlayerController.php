@@ -59,7 +59,7 @@ class PlayerController extends Controller
                             [
                                 "directory" => "Pandora",
                                 "Name" => "PANDORA",
-                                "ServiceType" => "Pandora",
+                                "serviceType" => "Pandora",
                                 "Type" => "PandoraDirectory"
                             ]
                         ];

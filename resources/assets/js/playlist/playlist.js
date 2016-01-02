@@ -3,7 +3,10 @@ var store = require('../store');
 module.exports = {
 	template: require('./playlist.html'),
 	data: function() {
-        return store.state.playlist;
+        return {
+            playlist: store.state.playlist,
+            queue: store.state.queue
+        };
 	},
 	methods: {
 	    playSpotifySong: function (song) {

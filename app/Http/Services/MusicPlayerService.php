@@ -20,7 +20,8 @@ class MusicPlayerService
         $playerClass = ServiceUtils::getClass($serviceType, $this->connectionService);
         
         $response = "";
-                
+        $songClass = "App\\Http\\Songs\\" . $serviceType . "Song";
+        
         switch ($commandName)
         {
             case "play":
@@ -28,7 +29,6 @@ class MusicPlayerService
             
                 if ($song)
                 {
-                    $songClass = "App\\Http\\Songs\\" . $serviceType . "Song";
                     
                     $response = $playerClass->$commandName(ObjectConverterUtil::arrayToObject($song, $songClass));
                 }
@@ -39,9 +39,13 @@ class MusicPlayerService
                 
                 break;
             case "addQueue":
-                $reponse = $playerClass->$commandName($song);
+            case "add":            
+                $reponse = $playerClass->$commandName(ObjectConverterUtil::arrayToObject($song, $songClass));
                 break;
             case "playPlaylist":
+                $this->stopOtherServices($serviceType);
+                $reponse = $playerClass->$commandName($playlist, $song);
+                break;
             case "addPlaylist":
                 $reponse = $playerClass->$commandName($playlist, $song);
                 break;

@@ -3,11 +3,12 @@ require __DIR__ . '/vendor/autoload.php';
 
 use App\Http\Services\PandoraService;
 use App\Http\Services\ConnectionService;
+use App\Http\Notifiers\SongChangeNotifier;
 use App\Http\Sockets\PandoraSocket;
 
 //$loop   = React\EventLoop\Factory::create();
 $loop   = new React\EventLoop\StreamSelectLoop; 
-$pusher = new App\Http\WebSockets\Pusher(new PandoraService(new ConnectionService(), PandoraSocket::getInstance()));
+$pusher = new App\Http\WebSockets\Pusher(new PandoraService(new ConnectionService, new SongChangeNotifier, PandoraSocket::getInstance()));
 
 $client = stream_socket_client('tcp://127.0.0.1:4445');
 stream_set_timeout($client, 0, 100000);

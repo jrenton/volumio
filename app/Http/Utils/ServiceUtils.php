@@ -2,6 +2,8 @@
 
 namespace App\Http\Utils;
 
+use App\Http\Notifiers\SongChangeNotifier;
+
 class ServiceUtils 
 {
     public static function getClass($serviceName, $connectionService) 
@@ -14,7 +16,7 @@ class ServiceUtils
             throw new \Exception("Music player service does not exist for type " . $serviceName);
         }
                 
-        $serviceClass = new $commandClassName($connectionService);
+        $serviceClass = new $commandClassName($connectionService, new SongChangeNotifier);
         
         return $serviceClass;
     }

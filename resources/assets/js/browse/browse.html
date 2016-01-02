@@ -47,7 +47,7 @@
 					</template>
 				</div>
 			</li>	
-			<li v-for="track in spotifyTracks" data-path="{{ track.SpopTrackUri }}">
+			<li v-for="track in spotifyTracks" data-path="{{ track.uri }}">
 				<div class="db-icon db-browse">
 					<i class="fa fa-spotify sx db-browse"></i>
 				</div>
@@ -59,35 +59,35 @@
                 <div id="context-menu-spotifytrack" class="context-menu">
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a v-on:click="play(track)" data-cmd="spop-playtrackuri">
+                            <a v-on:click="play(track)">
                                 <i class="fa fa-share sx"></i>Play
                             </a>
                         </li>
                         <li>
-                            <a v-on:click="add(track)" data-cmd="spop-addtrackuri">
+                            <a v-on:click="add(track)">
                                 <i class="fa fa-plus sx"></i>Add to queue
                             </a>
                         </li>
                         <li>
-                            <a v-on:click="searchTitle(track)" data-cmd="spop-searchtitle">
+                            <a v-on:click="searchTitle(track)">
                                 <i class="fa fa-headphones sx"></i>Search title
                             </a>
                         </li>
                         <li>
-                            <a v-on:click="searchArtist(track)" data-cmd="spop-searchartist">
+                            <a v-on:click="searchArtist(track)">
                                 <i class="fa fa-user sx"></i>Search artist
                             </a>
                         </li>
                         <li>
-                            <a v-on:click="searchAlbum(track)" data-cmd="spop-searchalbum">
+                            <a v-on:click="searchAlbum(track)">
                                 <i class="fa fa-circle sx"></i>Search album
                             </a>
                         </li>
                     </ul>
                 </div>
 				<div class="db-entry db-browse" v-on:click="play(track)">
-					{{ track.Title }} <em class="songtime"> {{ track.Time }}</em>
-					<span> {{ track.Artist }} - {{ track.Album }}</span>
+					{{ track.title }} <em class="songtime"> {{ track.Time }}</em>
+					<span> {{ track.artist }} - {{ track.album }}</span>
 				</div>
 			</li>		
 			<li v-for="dir in spotifyDirectories" data-path="{{ dir.directory }}">
@@ -113,7 +113,7 @@
 					LIBRARY
 				</div>
 			</li>
-			<!--<li class="clearfix"><div class="db-entry">Unknown Song <span>Unknown Artist - Unknown Album</span></div></li>-->
+			<!--<li class="clearfix"><div class="db-entry">Unknown Song <span>Unknown artist - Unknown album</span></div></li>-->
 		</ul>
 	</div>	
 </div>

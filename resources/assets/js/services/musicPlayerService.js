@@ -1,4 +1,5 @@
 var ajaxUtils = require("./ajaxUtilsService");
+var currentSongService = require("../services/currentSongService");
 
 module.exports = {
     uri: "player",
@@ -11,10 +12,11 @@ module.exports = {
         });
     },
     add: function(song, callback) {
-        this.send("add", song, null, song.ServiceType, callback);
+        this.send("add", song, null, song.serviceType, callback);
     },
     play: function(song, serviceType, callback) {
         this.send("play", song, null, serviceType, callback);
+        currentSongService.showCoverArt(song);
     },
     pause: function(serviceType, callback) {
         this.send("pause", null, null, serviceType, callback);

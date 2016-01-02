@@ -7,8 +7,8 @@
         <div id="playback" class="tab-pane active">
             <div class="container txtmid">
                 <div id="playback-info">
-                    <span id="currentsong">@{{ song.Title }}</span>				
-                    <span id="currentartist">@{{ song.Artist }}</span>
+                    <span id="currentsong">@{{ song.title }}</span>				
+                    <span id="currentartist">@{{ song.artist }}</span>
                     <!--<span id="currentalbum"></span>-->
                 </div>
                 <!-- <span id="playlist-position">&nbsp;</span> -->

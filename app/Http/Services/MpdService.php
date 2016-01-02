@@ -3,15 +3,18 @@
 namespace App\Http\Services;
 
 use App\Http\Services\ConnectionService;
+use App\Http\Notifiers\SongChangeNotifier;
 
 class MpdService implements IMusicPlayerService
 {
 	protected $connectionService;
+	protected $songChangeNotifier;
     protected $sock;
 	
-	public function __construct(ConnectionService $connectionService, $sock = null)
+	public function __construct(ConnectionService $connectionService, SongChangeNotifier $songChangeNotifier, $sock = null)
     {
         $this->connectionService = $connectionService;
+        $this->songChangeNotifier = $songChangeNotifier;
         if (!$sock)
         {
             $sock = $this->openMpdSocket("localhost", 6600);
@@ -120,14 +123,14 @@ class MpdService implements IMusicPlayerService
                     $plistArray[$plCounter]["file"] = $plistFile;
                     $plistArray[$plCounter]["fileext"] = $this->connectionService->parseFileStr($plistFile,'.');
                     $plistArray[$plCounter]["Type"] = "MpdFile";
-                    $plistArray[$plCounter]["ServiceType"] = "Mpd";
+                    $plistArray[$plCounter]["serviceType"] = "Mpd";
                 } 
                 else if ( $element == "directory") 
                 {
                     $dirCounter++;
                     $dirArray[$dirCounter]["directory"] = $value;
                     $dirArray[$dirCounter]["Type"] = "MpdDirectory";
-                    $dirArray[$plCounter]["ServiceType"] = "Mpd";
+                    $dirArray[$plCounter]["serviceType"] = "Mpd";
                 } 
                 else 
                 {

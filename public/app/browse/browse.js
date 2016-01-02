@@ -6,7 +6,7 @@ volumio.playback = Vue.extend({
         return volumio.state.browse;
 		// return {
 		// 	isLibrary: false,
-		// 	files: [{ Title: "Something" }],
+		// 	files: [{ title: "Something" }],
 		// 	mpdDirectories: [],
 		// 	spotifyTracks: [],
 		// 	spotifyDirectories: []
@@ -24,15 +24,15 @@ volumio.playback = Vue.extend({
             //notify('add', song.title);
 	    },
         playSpotifyTrack: function (playTrack) {
-            sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
+            sendCommand("spop-uplay", playTrack.uri, function(data) {
                 gotoPlayback(playTrack);
                 //getPlaylist();
             });
     
             $.each(this.spotifyTracks, function(index, track) {
-                var trackUri = track.SpopTrackUri;
+                var trackUri = track.uri;
 
-                if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
+                if (trackUri && track.uri != playTrack.uri) {
                     sendCommand("spop-uadd", { path: trackUri });
                 }
             });
@@ -43,7 +43,7 @@ volumio.playback = Vue.extend({
             getDB('filepath', dir.directory, 'file', 0);
         },
         getFileName: function (file) {
-            var title = file.Title;
+            var title = file.title;
             
             if (!title) {
                 title = file.Name;
@@ -59,10 +59,10 @@ volumio.playback = Vue.extend({
         getAlbumArtist: function (file) {
             var albumArtist = "";
             
-            if (file.Artist && file.Album) {
-                albumArtist = file.Artist + " - " + file.Album;
-            } else if(file.Artist) {
-                albumArtist = file.Artist;
+            if (file.artist && file.album) {
+                albumArtist = file.artist + " - " + file.album;
+            } else if(file.artist) {
+                albumArtist = file.artist;
             }
             
             return albumArtist;

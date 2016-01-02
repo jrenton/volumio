@@ -59,11 +59,13 @@
 		</span>
 	</div>
 	<form id="db-search" action="javascript:getDB('search', '', 'file'); javascript:window.volumio.router.go('browse');">
-		<div class="input-append">
+		<div class="input-group">
 			<input id="db-search-keyword" type="text" value="" placeholder="Search">
-			<button class="btn" type="submit">
-                <i class="fa fa-search"></i>
-            </button>
+            <span class="input-group-btn">
+                <button class="btn" type="submit">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
 		</div>
 	</form>
 </div>
@@ -158,7 +160,7 @@
 		connecting...
 	</div>
 </div>
-<div class="modal hide" id="errorResponseModal">
+<div class="modal" id="errorResponseModal">
     <h2>Ajax error occurred</h2>
     <p id="errorResponseUrl"></p>
     <div id="errorResponseContent"></div>
@@ -181,8 +183,6 @@
 <script src="js/i18n/_messages.en.js" type="text/javascript"></script>
 <script src="js/jquery.pnotify.min.js"></script>
 <script src="js/bootstrap-fileupload.js"></script>
-<script src="https://cdn.socket.io/socket.io-1.3.7.js"></script>
-<script src="js/websock.js"></script>
 <script src="js/main.js"></script>
 <script src="js/volumio.utils.js"></script>
 <script src="js/volumio.api.js"></script>

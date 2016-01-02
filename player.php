@@ -1,21 +1,33 @@
 <?php
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
-use App\Http\WebSockets\PlayerWebSocket;
+require __DIR__ . '/vendor/autoload.php';
+
 use App\Http\Services\PandoraService;
 use App\Http\Services\ConnectionService;
 use App\Http\Sockets\PandoraSocket;
+use App\Http\WebSockets\PlayerWebSocket;
 
-require __DIR__ . '/vendor/autoload.php';
+$loop   = React\EventLoop\Factory::create();
+// $loop   = new React\EventLoop\StreamSelectLoop; 
+$pusher = new App\Http\WebSockets\PlayerWebSocket;
 
-$server = IoServer::factory(
-    new HttpServer(
-        new WsServer(
-            new PlayerWebSocket(new PandoraService(new ConnectionService(), PandoraSocket::getInstance()))
+// Listen for the web server to make a ZeroMQ push after an ajax request
+$context = new React\ZMQ\Context($loop);
+$pull = $context->getSocket(ZMQ::SOCKET_PULL);
+$pull->bind('tcp://127.0.0.1:4500'); // Binding to 127.0.0.1 means the only client that can connect is itself
+$pull->on('message', array($pusher, 'onReceiveMessage'));
+
+// Set up our WebSocket server for clients wanting real-time updates
+$webSock = new React\Socket\Server($loop);
+$webSock->listen(8082, '0.0.0.0'); // Binding to 0.0.0.0 means remotes can connect
+$webServer = new Ratchet\Server\IoServer(
+    new Ratchet\Http\HttpServer(
+        new Ratchet\WebSocket\WsServer(
+            new Ratchet\Wamp\WampServer(
+                $pusher
+            )
         )
     ),
-    8081
+    $webSock
 );
 
-$server->run();
+$loop->run();

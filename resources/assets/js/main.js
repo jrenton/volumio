@@ -41,7 +41,7 @@ var App = Vue.extend({
     }
 });
 // Start the App
-volumio.router.start(App, '#app');
+window.volumio.router.start(App, '#app');
 
 $(function() {
     // INITIALIZATION

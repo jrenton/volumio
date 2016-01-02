@@ -1,8 +1,10 @@
-var store = require('../store');
+var store = require("../store");
 var musicPlayer = require("../services/musicPlayerService");
+var queue = require("../services/queueService");
+var _ = require("lodash");
 
 module.exports = {
-    template: require('./browse.html'),
+    template: require("./browse.html"),
 	data: function() {
         return store.state.browse;
 	},
@@ -12,7 +14,6 @@ module.exports = {
             if (station.Type == "PandoraDirectory") {
                 musicPlayer.getPlaylists("Pandora", function(data) {
                     populateDB(data);
-                    //window.volumio.router.go("playback");
                 });
             } else if (station.Type == "PandoraStation") {
                 musicPlayer.playPlaylist(station, "Pandora", function(data) {
@@ -23,20 +24,18 @@ module.exports = {
             }
         },
 	    play: function (song) {
-            musicPlayer.play(song, song.ServiceType, function(data) {
-                window.GUI.currentsong.artist = song.Artist;
-                window.GUI.currentsong.title = song.Title;
-                window.GUI.currentsong.album = song.Album;
-                window.GUI.currentsong.state = "play";
+            var _self = this;
+            console.log("play this song");
+            console.log(song);
+            musicPlayer.play(song, song.serviceType, function(data) {                
                 window.volumio.router.go("playback");
+                
+                queue.addSongs(_.filter(_self.spotifyTracks, function(track) {
+                    return track.uri != song.uri;
+                }));
+        
+                getPlaylist();
             });
-            // sendCommands([
-            //             { name: 'spop-stop' }, 
-            //             { name: 'addplay', data: { path: song.file }}
-            //             ], function(data) {
-            //     gotoPlayback();
-            // });
-            
             //notify('add', song.title);
 	    },
         add: function (song) {
@@ -49,15 +48,15 @@ module.exports = {
             //musicPlayer.add(song);
         },
         // playSpotifyTrack: function (playTrack) {
-        //     sendCommand("spop-uplay", playTrack.SpopTrackUri, function(data) {
+        //     sendCommand("spop-uplay", playTrack.uri, function(data) {
         //         gotoPlayback(playTrack);
         //         //getPlaylist();
         //     });
     
         //     $.each(this.spotifyTracks, function(index, track) {
-        //         var trackUri = track.SpopTrackUri;
+        //         var trackUri = track.uri;
 
-        //         if (trackUri && track.SpopTrackUri != playTrack.SpopTrackUri) {
+        //         if (trackUri && track.uri != playTrack.uri) {
         //             sendCommand("spop-uadd", { path: trackUri });
         //         }
         //     });
@@ -68,7 +67,7 @@ module.exports = {
             getDB('filepath', dir.directory, 'file', 0);
         },
         getFileName: function (file) {
-            var title = file.Title;
+            var title = file.title;
             
             if (!title) {
                 title = file.Name;
@@ -84,10 +83,10 @@ module.exports = {
         getAlbumArtist: function (file) {
             var albumArtist = "";
             
-            if (file.Artist && file.Album) {
-                albumArtist = file.Artist + " - " + file.Album;
-            } else if(file.Artist) {
-                albumArtist = file.Artist;
+            if (file.artist && file.album) {
+                albumArtist = file.artist + " - " + file.album;
+            } else if(file.artist) {
+                albumArtist = file.artist;
             }
             
             return albumArtist;

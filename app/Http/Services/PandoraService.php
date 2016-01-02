@@ -5,15 +5,18 @@ namespace App\Http\Services;
 use App\Http\Services\ConnectionService;
 use App\Http\Sockets\PandoraSocket;
 use App\Http\Enums\PandoraEnums;
+use App\Http\Notifiers\SongChangeNotifier;
 
 class PandoraService
 {
 	protected $connectionService;
+	protected $songChangeNotifier;
     private $sock;
 	
-	public function __construct(ConnectionService $connectionService, $pandoraSocket = null)
+	public function __construct(ConnectionService $connectionService, SongChangeNotifier $songChangeNotifier, $pandoraSocket = null)
     {
         $this->connectionService = $connectionService;
+        $this->songChangeNotifier = $songChangeNotifier;
         if (!$pandoraSocket)
         {
             $pandoraSocket = PandoraSocket::getInstance();
@@ -131,7 +134,7 @@ class PandoraService
                     $returnMessages[$i]["state"] = $name;
                     $returnMessages[$i]["elapsed"] = $this->getElapsedTime($value);
                     $returnMessages[$i]["time"] = $this->getTotalTime($value);
-                    $returnMessages[$i]["ServiceType"] = "Pandora";
+                    $returnMessages[$i]["serviceType"] = "Pandora";
                     
                     break;
                 case PandoraEnums::ARTIST:
@@ -139,7 +142,7 @@ class PandoraService
                 case PandoraEnums::COVERART:
                 case PandoraEnums::TITLE:
                     $returnMessages[$i][$name] = $data;
-                    $returnMessages[$i]["ServiceType"] = "Pandora";
+                    $returnMessages[$i]["serviceType"] = "Pandora";
                     
                     break;                
                 case PandoraEnums::STATION:
@@ -148,7 +151,7 @@ class PandoraService
                         $i++;
                     }
                     $returnMessages[$i]["Type"] = "PandoraStation";
-                    $returnMessages[$i]["ServiceType"] = "Pandora";
+                    $returnMessages[$i]["serviceType"] = "Pandora";
                     $returnMessages[$i]["Name"] = $data;
                 
                     $returnMessages[$i][$name] = $data;

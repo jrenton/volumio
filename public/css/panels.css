@@ -561,6 +561,14 @@ a.btn-cmd {
 .btnlist.btnlist-bottom .btn {
 	margin-top: 6px;
 }
+#db-search {
+    width: 192px;
+}
+
+#db-search .btn {
+    padding: 6px 12px;
+}
+
 #db-search, #pl-search {
 	display: inline-block;
 	margin-top: 10px;

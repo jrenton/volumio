@@ -2,7 +2,9 @@ window.GUI = {
     MpdState: 0,
     SpopState: 0,
     cmd: 'status',
-    playlist: {},
+    playlist: {
+        songs: []
+    },
     currentsong: { artist: "", title: "", state: "", album: "", type: "", time: 0, elapsed: 0, volume: 0, percentcomplete: 0 },
     currentknob: null,
     currentpath: '',
@@ -23,6 +25,9 @@ window.GUI = {
     },
     library: {
         showLibrary: false
+    },
+    queue: {
+        songs: []
     }
 };
 

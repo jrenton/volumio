@@ -4,16 +4,24 @@ namespace App\Http\Services;
 
 use App\Http\Services\ConnectionService;
 use App\Http\Songs\SpotifySong;
+use App\Http\Sockets\SpotifySocket;
+use App\Http\Notifiers\SongChangeNotifier;
 
 class SpotifyService implements IMusicPlayerService
 {
 	private $connectionService;
+	private $songChangeNotifier;
     private $spop;
 	
-	public function __construct(ConnectionService $connectionService)
+	public function __construct(ConnectionService $connectionService, SongChangeNotifier $songChangeNotifier, $sock = null)
     {
         $this->connectionService = $connectionService;
-        $this->spop = $this->openSpopSocket(DAEMONIP, 6602);
+        $this->songChangeNotifier = $songChangeNotifier;
+        if (!$sock)
+        {
+            $sock = SpotifySocket::getInstance();
+        }
+        $this->spop = $sock;
     }
 
 	// Spotify daemon communication functions
@@ -55,7 +63,7 @@ class SpotifyService implements IMusicPlayerService
 				}
 			}
 	
-			return $this->_parseSpopResponse($output);
+			return json_decode($output, true);
 		}
 	}
 	
@@ -82,6 +90,13 @@ class SpotifyService implements IMusicPlayerService
 			$arrayReturn = $arrayResponse;
 		}
 	
+        $arrayReturn = $this->formatResponse($arrayResponse, $arrayReturn);
+        
+		return $arrayReturn;
+	}
+    
+    function formatResponse($arrayResponse, $arrayReturn = array())
+    {
 		// Format the response to be understandable by Volumio
 		if (array_key_exists("status", $arrayResponse) == TRUE) 
 		{
@@ -102,22 +117,7 @@ class SpotifyService implements IMusicPlayerService
 				$arrayReturn["state"] = $arrayResponse["status"];
 			}
 		}
-	
-		if (array_key_exists("title", $arrayResponse) == TRUE) 
-		{
-			$arrayReturn["currentsong"] = $arrayResponse["title"];
-		}
-	
-		if (array_key_exists("artist", $arrayResponse) == TRUE) 
-		{
-			$arrayReturn["currentartist"] = $arrayResponse["artist"];
-		}
-	
-		if (array_key_exists("album", $arrayResponse) == TRUE) 
-		{
-			$arrayReturn["currentalbum"] = $arrayResponse["album"];
-		}
-	
+		
 		if (array_key_exists("repeat", $arrayResponse) == TRUE) 
 		{
 			if ($arrayResponse["repeat"] == TRUE) 
@@ -169,9 +169,10 @@ class SpotifyService implements IMusicPlayerService
 	
 		$arrayReturn["single"] = 0;
 		$arrayReturn["consume"] = 0;
-	
-		return $arrayReturn;
-	}
+        $arrayReturn["serviceType"] = "spotify";
+        
+        return $arrayReturn;
+    }
 	
 	// Perform Spotify database query/search
 	function querySpopDB($queryType, $queryString = "") 
@@ -187,36 +188,13 @@ class SpotifyService implements IMusicPlayerService
 	
 		return array();
 	}
-	
-	function _parseSpopResponse($resp) 
-	{
-		return json_decode($resp, true);
-	}
-	
+		
 	// Perform a Spotify search
 	function _searchSpopTracks($queryString) 
 	{
-		$arrayReturn = array();
-		$arrayResponse = $this->sendCommand("search \"" . $queryString . "\"");
-	
-		$i = 0;
-		$nItems = sizeof($arrayResponse["tracks"]);
-		while ($i < $nItems) 
-        {
-			$arrayCurrentEntry = array();
-			$arrayCurrentEntry["Type"] = "SpopTrack";
-			$arrayCurrentEntry["ServiceType"] = "Spotify";
-			$arrayCurrentEntry["SpopTrackUri"] = (string)$arrayResponse["tracks"][$i]["uri"];
-			$arrayCurrentEntry["Title"] = $arrayResponse["tracks"][$i]["title"];
-			$arrayCurrentEntry["Artist"] = $arrayResponse["tracks"][$i]["artist"];
-			$arrayCurrentEntry["Album"] = $arrayResponse["tracks"][$i]["album"];
-	
-			array_push($arrayReturn, $arrayCurrentEntry);
-	
-			$i++;
-		}
-	
-		return $arrayReturn;
+		$response = $this->sendCommand("search \"" . $queryString . "\"");
+		
+		return $this->parseSongsResponse($response);
 	}
 	
 	// Make an array describing the requested level of the Spop database
@@ -230,7 +208,7 @@ class SpotifyService implements IMusicPlayerService
 			$arrayRootItem = array();
 			$arrayRootItem["directory"] = "SPOTIFY";
 			$arrayRootItem["Type"] = "SpopDirectory";
-			$arrayRootItem["ServiceType"] = "Spotify";
+			$arrayRootItem["serviceType"] = "Spotify";
 			$arrayRoot = array(0 => $arrayRootItem);
 			$arrayReturn = $arrayRoot;
 		} 
@@ -277,23 +255,8 @@ class SpotifyService implements IMusicPlayerService
 	
 			$i = 0;
 			if (isset($arrayResponse["tracks"])) 
-            { 
-			    // This is a tracklist within a playlist
-				$nItems = sizeof($arrayResponse["tracks"]);
-				while ($i < $nItems) 
-                {
-					$arrayCurrentEntry = array();
-					$arrayCurrentEntry["Type"] = "SpopTrack";
-					$arrayCurrentEntry["ServiceType"] = "Spotify";
-					$arrayCurrentEntry["SpopTrackUri"] = (string)$arrayResponse["tracks"][$i]["uri"];
-					$arrayCurrentEntry["Title"] = $arrayResponse["tracks"][$i]["title"];
-					$arrayCurrentEntry["Artist"] = $arrayResponse["tracks"][$i]["artist"];
-					$arrayCurrentEntry["Album"] = $arrayResponse["tracks"][$i]["album"];
-					
-					array_push($arrayReturn, $arrayCurrentEntry);
-	
-					$i++;
-				}
+            {
+                $arrayReturn = $this->parseSongsResponse($arrayResponse, $arrayReturn);
 			} 
             else if (isset($arrayResponse["playlists"])) 
             {
@@ -303,7 +266,7 @@ class SpotifyService implements IMusicPlayerService
                 {
 					$arrayCurrentEntry = array();
 					$arrayCurrentEntry["Type"] = "SpopDirectory";
-					$arrayCurrentEntry["ServiceType"] = "Spotify";
+					$arrayCurrentEntry["serviceType"] = "Spotify";
 					$sItemDisplayName = $arrayResponse["playlists"][$i]["name"];
 	
 					if (strcmp($arrayResponse["playlists"][$i]["type"], "playlist") == 0) 
@@ -335,15 +298,45 @@ class SpotifyService implements IMusicPlayerService
 		return $arrayReturn;
 	}
     
+    function parseSongsResponse($response, $arrayReturn = array())
+    {        
+        if (isset($response["tracks"]))
+        {
+            $songs = $response["tracks"];
+            foreach ($songs as $song)
+            {
+                array_push($arrayReturn, $this->parseSongResponse($song));                
+            }
+        }
+        
+        return $arrayReturn;
+    }
+    
+    function parseSongResponse($song)
+    {
+        $arrayCurrentEntry = array();
+        $arrayCurrentEntry["Type"] = "SpopTrack";
+        $arrayCurrentEntry["serviceType"] = "Spotify";
+        $arrayCurrentEntry["uri"] = (string)$song["uri"];
+        $arrayCurrentEntry["time"] = $song["duration"] / 1000;
+        $arrayCurrentEntry["elapsed"] = 0;
+        $arrayCurrentEntry["title"] = $song["title"];
+        $arrayCurrentEntry["artist"] = $song["artist"];
+        $arrayCurrentEntry["album"] = $song["album"];
+        
+        return $arrayCurrentEntry;
+    }
+    
     function play($song = null)
     {
         if (!$song)
         {
             $this->sendCommand("play");
         }
-        else if ($song->spopTrackUri)
+        else if ($song->uri)
         {
-            $this->sendCommand("uplay " . $song->spopTrackUri);
+            $this->sendCommand("uplay " . $song->uri);
+            $this->songChangeNotifier->notify($song);
         }
     }
     
@@ -354,7 +347,7 @@ class SpotifyService implements IMusicPlayerService
     
     function pause()
     {
-        $this->sendCommand("pause");
+        $this->sendCommand("toggle");
     }
     
     function next()
@@ -379,7 +372,7 @@ class SpotifyService implements IMusicPlayerService
             return $this->sendCommand("image");
         }
         
-        return $this->sendCommand("uimage " . $song->spopTrackUri);
+        return $this->sendCommand("uimage " . $song->uri);
     }
     
     function repeat()
@@ -409,7 +402,7 @@ class SpotifyService implements IMusicPlayerService
     
     function add($song)
     {
-        $this->sendCommand("uadd " . $song->spopTrackUri);
+        $this->sendCommand("uadd " . $song->uri);
     }
     
     function addPlaylist($playlist, $song = null)

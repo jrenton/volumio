@@ -2,6 +2,12 @@
 // ----------------------------------------------------------------------------------------------------
 
 $(function() {
+    if (Notification) {
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }
+    
     window.volumio = window.volumio || {};
     
     window.volumio.conn = new WebSocket('ws://192.168.10.10:8081');
@@ -17,39 +23,80 @@ $(function() {
             setState(dataItem);
         });
     };
+    
+    window.volumio.songChanger = new WebSocket('ws://192.168.10.10:8082');
+    window.volumio.songChanger.onopen = function(e) {
+        console.log("Notifier Connection established!");
+    };
+
+    window.volumio.songChanger.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        console.log(data);
+        setState(data);
+    };
 });
 
-function setState(data) {
-    if (data.artist) {
-        window.GUI.currentsong.artist = data.artist;
+function setState(song) {
+    notifyUser(song);
+    
+    if (song.artist) {
+        window.GUI.currentsong.artist = song.artist;
     }
     
-    if (data.album) {              
-        window.GUI.currentsong.album = data.album;
+    if (song.album) {              
+        window.GUI.currentsong.album = song.album;
     }
     
-    if (data.title) {              
-        window.GUI.currentsong.title = data.title;
+    if (song.title) {              
+        window.GUI.currentsong.title = song.title;
     }
     
-    if (data.state && (window.GUI.currentsong.type != data.ServiceType || data.ServiceType == "Pandora")) {
-        
-        window.GUI.currentsong.state = data.state;
-        if (typeof data.elapsed != "undefined" && typeof data.time != "undefined") {
+    if (song.state && (window.GUI.currentsong.type == song.serviceType && song.serviceType == "Pandora" || song.state != "stop")) {
+        window.GUI.currentsong.state = song.state;
+        if (typeof song.elapsed != "undefined" && typeof song.time != "undefined") {
             
-            window.GUI.currentsong.elapsed = parseFloat(data.elapsed);
-            window.GUI.currentsong.time = parseFloat(data.time);
-            refreshTimer(data.elapsed, data.time, data.state);
+            window.GUI.currentsong.elapsed = parseFloat(song.elapsed);
+            window.GUI.currentsong.time = parseFloat(song.time);
+            refreshTimer(song.elapsed, song.time, song.state);
             refreshKnob();
         }
     }
     
-    if (data.ServiceType) {
-        window.GUI.currentsong.type = data.ServiceType;
+    if (song.serviceType && song.state != "stop") {
+        window.GUI.currentsong.type = song.serviceType;
     }
     
-    if (data.coverart) {
-        showCoverImage(data.coverart);
+    if (song.coverart) {
+        showCoverImage(song);
+    }
+}
+
+function notifyUser(song) {
+    var artist = window.GUI.currentsong.artist;
+    var album = window.GUI.currentsong.album;
+    var title = window.GUI.currentsong.title;
+    if (song.state == "play" && (song.artist != artist || song.title != title)) {
+        showNotification(song.title, "by " + song.artist, song.serviceType);
+    }
+}
+
+function showNotification(title, message, type) {
+    if (!Notification) {
+        return;
+    }
+
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    } else {
+        var notification = new Notification(title, {
+            icon: "/images/" + type + ".png",
+            body: message,
+        });
+
+        notification.onclick = function () {
+            window.focus();
+            notification.close();
+        };
     }
 }
   
@@ -74,19 +121,10 @@ function backendRequestPandora(gui) {
             setState(dataItem);
         });
         
-        if(data.base64) {
-            showCoverImageFromBase64(data.base64);
-        }
+        showCoverImage(data);
         
         $('#loader').hide();
     }, function(a, b, c) {
-        // setTimeout(function() {
-        //     GUI.state = 'disconnected';
-        //     $('#loader').show();
-        //     $('#countdown-display').countdown('pause');
-        //     window.clearInterval(GUI.currentKnob);
-        //     backendRequest();
-        // }, 2000);
     });
 }
 
@@ -95,20 +133,10 @@ function backendRequest(gui) {
         console.log("BACKEND REQUEST");
         console.log(data);
         gui.MpdState = data;
-        if(data.base64) {
-            showCoverImageFromBase64(data.base64);
-        }
+        showCoverImage(data);
         renderUI(gui);
         $('#loader').hide();
-        //backendRequest(gui);
     }, function(a, b, c) {
-        // setTimeout(function() {
-        //     GUI.state = 'disconnected';
-        //     $('#loader').show();
-        //     $('#countdown-display').countdown('pause');
-        //     window.clearInterval(GUI.currentKnob);
-        //     backendRequest();
-        // }, 2000);
     });
 }
 
@@ -124,21 +152,14 @@ function backendRequestSpop(gui) {
             if (data && data.state == "play") {
                 console.log("SPOTIFY BACKEND");
                 console.log(data);
-                data.ServiceType = "Spotify";
+                data.serviceType = "Spotify";
                 gui.SpopState = data;
                 getSpopImage(data.uri);
                 renderUI(gui);
                 setState(data);
             }
-        } else {
-            // setTimeout(function() {
-            //     backendRequestSpop();
-            // }, 5000);
         }
     }, function(a, b, c) {
-        // setTimeout(function() {
-        //         backendRequestSpop();
-        //     }, 5000);
     });
 }
 
@@ -194,18 +215,29 @@ function getSpopImage(uri) {
         sendCommand("spop-uimage", { path: uri, p2: 2 }, function(data) {
             if (data) {
                 if (!data.error) {
-                    showCoverImageFromBase64(data.data);
+                    var song = { base64: data.data };
+                    showCoverImage(song);
                 }
             }
         });
     }
 }
 
-function showCoverImageFromBase64(base64) {
-    showCoverImage("data:image/gif;base64," + base64);
-}
-
-function showCoverImage(imgUrl) {
+function showCoverImage(song) {
+    var imgUrl = "";
+    
+    if (song.base64) {
+        imgUrl = "data:image/gif;base64," + song.base64;
+    }
+    
+    if (song.coverart) {
+        imgUrl = song.coverart;
+    }
+    
+    if (!imgUrl) {
+        return;
+    }
+    
     var visible = $(".visible-phone:visible");
     var backgroundSize = "contain";
     
@@ -293,15 +325,15 @@ function populateDB(data, path, uplevel, keyword){
 
 	for (var i = 0; i < data.length; i++) {
         var dataItem = data[i];
-        if (dataItem.Type == 'MpdFile' && dataItem.ServiceType == "Mpd") {
+        if (dataItem.Type == 'MpdFile' && dataItem.serviceType == "Mpd") {
             GUI.browse.files.push(dataItem);
-        } else if (dataItem.Type == 'MpdDirectory' && dataItem.ServiceType == "Mpd")  {
+        } else if (dataItem.Type == 'MpdDirectory' && dataItem.serviceType == "Mpd")  {
             GUI.browse.mpdDirectories.push(dataItem);            
-        } else if (dataItem.Type == 'SpopTrack' && dataItem.ServiceType == "Spotify") {
+        } else if (dataItem.Type == 'SpopTrack' && dataItem.serviceType == "Spotify") {
             GUI.browse.spotifyTracks.push(dataItem);            
-        } else if (dataItem.Type == 'SpopDirectory' && dataItem.ServiceType == "Spotify") {
+        } else if (dataItem.Type == 'SpopDirectory' && dataItem.serviceType == "Spotify") {
             GUI.browse.spotifyDirectories.push(dataItem);            
-        } else if (dataItem.Type == 'PandoraDirectory' || dataItem.Type == 'PandoraStation' && dataItem.ServiceType == "Pandora") {
+        } else if (dataItem.Type == 'PandoraDirectory' || dataItem.Type == 'PandoraStation' && dataItem.serviceType == "Pandora") {
             GUI.browse.pandoraDirectories.push(dataItem);            
         }
 	}
@@ -386,10 +418,9 @@ function updateGUI(objectInputState) {
     if (volume[0] && (volume[0].knobEvents === undefined || !volume[0].knobEvents.isSliding)) {
         volume.val((objectInputState['volume'] == '-1') ? 100 : objectInputState['volume']).trigger('change');
     }
-    console.log(objectInputState);
-    //PlaybackVol.song = { Artist: objectInputState['currentartist'], Title: objectInputState['currentsong'] };
-    GUI.currentsong.artist = objectInputState['currentartist'];
-    GUI.currentsong.title = objectInputState['currentsong'];
+    
+    GUI.currentsong.artist = objectInputState['artist'];
+    GUI.currentsong.title = objectInputState['title'];
 
     if (objectInputState['repeat'] == 1) {
         $('#repeat').addClass('btn-primary');
