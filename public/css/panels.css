@@ -854,6 +854,10 @@ button:hover [class^="icon-"]:before, button:hover [class*=" icon-"]:before,
 .share:before {
     border-color: transparent transparent #11181F;
 }
+input:active,
+input:focus {
+    outline: 0;
+}
 textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
     background: #11181F;
 	border: 2px solid #000F1D;

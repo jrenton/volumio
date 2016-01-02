@@ -78,7 +78,6 @@ function updatePanelsTabs() {
     var $visiblePanels = $menuBottom.find("li:visible");
     if ($visiblePanels.length > 0) {
         var panelWidth = Math.round(100000 / $visiblePanels.length) / 1000;
-        console.log(panelWidth);
         var $menuLinks = $menuBottom.find("a");
         $menuLinks.css("width", panelWidth + "% !important;");
         var $menuVisibleLinks = $menuBottom.find("a:visible");
@@ -91,10 +90,6 @@ function showLibraryView() {
     var $tabContent = $(".tab-content");
     $tabContent.find("div.active").removeClass("active");
     $("#panel-lib").addClass("active");
-
-    var $menuBottom = $("#menu-bottom");
-    $menuBottom.find("li.active").removeClass("active");
-    $("#open-panel-lib").addClass("active");
 }
 
 function toggleLazyLoading() {

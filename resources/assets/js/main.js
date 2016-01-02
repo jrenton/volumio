@@ -11,7 +11,9 @@ Vue.config.debug = true;
 
 window.volumio = window.volumio || {};
 
-window.volumio.router = new VueRouter();
+window.volumio.router = new VueRouter({
+    linkActiveClass: "active"
+});
 
 window.volumio.router.map({
     '/': {

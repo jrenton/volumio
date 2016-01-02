@@ -12,6 +12,8 @@ module.exports = {
     ready: function() {
         timeControl.refreshTimer();
         timeControl.refreshKnob();
+        initializePlaybackKnob();
+        initializeVolumeKnob();
     },
 	methods: {
 	    playPause: function () {

@@ -75,7 +75,16 @@ function notifyUser(song) {
     var artist = window.GUI.currentsong.artist;
     var album = window.GUI.currentsong.album;
     var title = window.GUI.currentsong.title;
+    
     if (song.state == "play" && (song.artist != artist || song.title != title)) {
+        if (!song.artist) {
+            song.artist = artist;
+        }
+        
+        if (!song.title) {
+            song.title = title;
+        }
+        
         showNotification(song.title, "by " + song.artist, song.serviceType);
     }
 }
@@ -450,6 +459,142 @@ function updateGUI(objectInputState) {
 		document.title = GUI.currentsong.title + ' - ' + GUI.currentsong.artist + ' - ' + 'Volumio';
 	} else {
 		document.title = 'Volumio - Audiophile Music Player';
+    }
+}
+
+function initializePlaybackKnob() {
+    $('.playbackknob').knob({
+        inline: false,
+		change : function (value) {
+            if (GUI.currentsong.state != 'stop') {
+				// console.log('GUI.halt (Knobs)= ', GUI.halt);
+				window.clearInterval(GUI.currentKnob)
+				//$('#time').val(value);
+				//console.log('click percent = ', value);
+				// implementare comando
+			} else $('#time').val(0);
+        },
+        release : function (value) {
+			if (GUI.currentsong.state != 'stop') {
+				//console.log('release percent = ', value);
+				GUI.halt = 1;
+				// console.log('GUI.halt (Knobs2)= ', GUI.halt);
+				window.clearInterval(GUI.currentKnob);
+
+				var seekto = 0;
+				if (GUI.SpopState['state'] == 'play' || GUI.SpopState['state'] == 'pause') {
+					seekto = Math.floor((value * parseInt(GUI.SpopState['time'])) / 1000);
+					// Spop expects input to seek in ms
+					sendCmd('seek ' + seekto * 1000);
+					// Spop idle mode does not detect a seek change, so update UI manually
+					AjaxUtils.get('playerEngineSpop?state=manualupdate', {}, function(data) {
+							if (data != '') {
+								GUI.SpopState = data;
+								renderUI();
+							}
+						});
+
+				} else {
+					seekto = Math.floor((value * parseInt(GUI.MpdState['time'])) / 1000);
+					sendCmd('seek ' + GUI.MpdState['song'] + ' ' + seekto);
+
+				}
+
+                var $countdownDisplay = $('#countdown-display');
+				$('#time').val(value);
+				$countdownDisplay.countdown('destroy');
+				$countdownDisplay.countdown({since: -seekto, compact: true, format: 'MS'});
+			}
+        },
+        cancel : function () {
+            //console.log('cancel : ', this);
+        },
+        draw : function () {}
+    });
+}
+
+function initializeVolumeKnob() {
+        // volume knob
+    var volumeKnob = $('#volume');
+    if (volumeKnob.length > 0) {
+            volumeKnob[0].isSliding = function() {
+        return volumeKnob[0].knobEvents.isSliding;
+    }
+    volumeKnob[0].setSliding = function(sliding) {
+        volumeKnob[0].knobEvents.isSliding = sliding;
+    }
+    volumeKnob[0].knobEvents = {
+        isSliding: false,
+        // on release => set volume
+    	release: function (value) {
+    	    if (this.hTimeout != null) {
+                clearTimeout(this.hTimeout);
+                this.hTimeout = null;
+    	    }
+    	    volumeKnob[0].setSliding(false);
+            adjustKnobVolume(value);
+    	    setVolume(value);
+        },
+    	hTimeout: null,
+    	// on change => set volume only after a given timeout, to avoid flooding with volume requests
+    	change: function (value) {
+            volumeKnob[0].setSliding(true);
+            var that = this;
+            if (this.hTimeout == null) {
+                this.hTimeout = setTimeout(function(){
+                    clearTimeout(that.hTimeout);
+                    that.hTimeout = null;
+                    setVolume(value);
+                }, 200);
+            }
+        },
+        cancel : function () {
+            volumeKnob[0].setSliding(false);
+        },
+        draw : function () {
+            // "tron" case
+            if(this.$.data('skin') == 'tron') {
+
+                var a = this.angle(this.cv)  // Angle
+                    , sa = this.startAngle          // Previous start angle
+                    , sat = this.startAngle         // Start angle
+                    , ea                            // Previous end angle
+                    , eat = sat + a                 // End angle
+                    , r = true;
+
+                this.g.lineWidth = this.lineWidth;
+
+                this.o.cursor
+                    && (sat = eat - 0.05)
+                    && (eat = eat + 0.05);
+
+                if (this.o.displayPrevious) {
+                    ea = this.startAngle + this.angle(this.value);
+                    this.o.cursor
+                        && (sa = ea - 0.1)
+                        && (ea = ea + 0.1);
+                    this.g.beginPath();
+                    this.g.strokeStyle = this.previousColor;
+                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
+                    this.g.stroke();
+                }
+
+                this.g.beginPath();
+                this.g.strokeStyle = r ? this.o.fgColor : this.fgColor ;
+                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
+                this.g.stroke();
+
+                this.g.lineWidth = 2;
+                this.g.beginPath();
+                this.g.strokeStyle = this.o.fgColor;
+                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 10 + this.lineWidth * 2 / 3, 0, 20 * Math.PI, false);
+                this.g.stroke();
+
+                return false;
+            }
+        }
+    };
+    volumeKnob.knob(volumeKnob[0].knobEvents);
     }
 }
 

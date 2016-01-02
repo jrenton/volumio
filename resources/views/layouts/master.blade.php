@@ -35,8 +35,14 @@
 	<div class="dropdown">
 		<a class="dropdown-toggle" id="menu-settings" role="button" data-toggle="dropdown" data-target="#" href="index.php"><i class="fa fa-th-list dx"></i></a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="menu-settings">
-			<li><a v-link="{ path: 'playback' }"><i class="fa fa-play sx"></i> Main</a></li>
-                <li><a href="https://accounts.spotify.com/authorize/?response_type=code&client_id=ab6fd2e9ddd04857947ea58e3e44678a&redirect_uri=http://homestead.app:8000&scope=user-follow-modify playlist-modify-private user-library-modify user-library-read"><i class="fa fa-spotify sx"></i> Spotify Connect</a></li>
+			<li>
+                <a v-link="{ path: 'playback' }">
+                    <i class="fa fa-play sx"></i> Main
+                </a>
+            </li>
+            <li>
+                <a href="https://accounts.spotify.com/authorize/?response_type=code&client_id=ab6fd2e9ddd04857947ea58e3e44678a&redirect_uri=http://homestead.app:8000&scope=user-follow-modify playlist-modify-private user-library-modify user-library-read"><i class="fa fa-spotify sx"></i> Spotify Connect</a>
+            </li>
 			<li><a href="sources.php"><i class="fa fa-folder-open sx"></i> Library</a></li>
 			<li><a href="mpd-config.php"><i class="fa fa-cogs sx"></i> Playback</a></li>
 			<li><a href="net-config.php"><i class="fa fa-sitemap sx"></i> Network</a></li>
@@ -72,22 +78,22 @@
 <div id="menu-bottom" class="ui-footer ui-bar-f ui-footer-fixed slidedown" data-position="fixed" data-role="footer"  role="banner">
 	<ul>
 		<li>
-			<a v-link="{ path: 'browse' }">
+			<a v-link="{ name: 'browse' }">
 				<i class="fa fa-music sx"></i> Browse
 			</a>
 		</li>
 		<li v-if="showLibrary">
-			<a v-link="{ path: 'library' }">
+			<a v-link="{ name: 'library' }">
 				<i class="fa fa-columns sx"></i> Library
 			</a>
 		</li>
 		<li>
-			<a v-link="{ path: 'playback' }">
+			<a v-link="{ name: 'playback' }">
 				<i class="fa fa-play sx"></i> Playback
 			</a>
 		</li>
 		<li>
-			<a v-link="{ path: 'playlist' }">
+			<a v-link="{ name: 'playlist' }">
 				<i class="fa fa-list sx"></i> Playlist
 			</a>
 		</li>
@@ -183,9 +189,9 @@
 <script src="js/i18n/_messages.en.js" type="text/javascript"></script>
 <script src="js/jquery.pnotify.min.js"></script>
 <script src="js/bootstrap-fileupload.js"></script>
+<script src="js/volumio.api.js"></script>
 <script src="js/main.js"></script>
 <script src="js/volumio.utils.js"></script>
-<script src="js/volumio.api.js"></script>
 <script src="js/volumio.lazyloader.js"></script>
 <script src="js/volumio.library.js"></script>
 <script src="js/volumio.playback.js"></script>
