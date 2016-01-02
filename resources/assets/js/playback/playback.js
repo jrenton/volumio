@@ -60,7 +60,12 @@ module.exports = {
                     });
                     break;
             }
-            //sendCmd(direction);
-	    }
+	    },
+        rateUp: function () {
+            musicPlayer.rateUp(this.song, this.song.type);
+        },
+        rateDown: function () {
+            musicPlayer.rateDown(this.song, this.song.type);
+        }
 	}
 };

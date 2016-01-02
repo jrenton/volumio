@@ -39,6 +39,10 @@ $(function() {
 function setState(song) {
     notifyUser(song);
     
+    if (song.id) {
+        window.GUI.currentsong.id = song.id;
+    }
+    
     if (song.artist) {
         window.GUI.currentsong.artist = song.artist;
     }
@@ -233,7 +237,11 @@ function getSpopImage(uri) {
 function showCoverImage(song) {
     console.log("show cover image");
     console.log(song);
-    if (!song || !song.state || song.state == "stop") {
+    if ($.isArray(song) && song.length == 1) {
+        song = song[0];
+    }
+    
+    if (!song || song.state == "stop" || !song.serviceType) {
         return;
     }
     

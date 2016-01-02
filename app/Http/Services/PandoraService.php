@@ -137,14 +137,16 @@ class PandoraService
                     $returnMessages[$i]["serviceType"] = "Pandora";
                     
                     break;
+                case PandoraEnums::ID:
                 case PandoraEnums::ARTIST:
                 case PandoraEnums::ALBUM:
                 case PandoraEnums::COVERART:
                 case PandoraEnums::TITLE:
+                case PandoraEnums::RATING:                
                     $returnMessages[$i][$name] = $data;
                     $returnMessages[$i]["serviceType"] = "Pandora";
                     
-                    break;                
+                    break;      
                 case PandoraEnums::STATION:
                     if (array_key_exists($name, $returnMessages[$i]))
                     {

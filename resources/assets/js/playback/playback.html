@@ -50,6 +50,14 @@
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn" v-on:click="rateUp()">
+                            <i class="fa fa-thumbs-up"></i>
+                        </button>
+                        <button type="button" class="btn" v-on:click="rateDown()">
+                            <i class="fa fa-thumbs-down"></i>
+                        </button>
+                    </div>
                     <!--<div class="progress">
                         <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" v-bind:style="{ width: (song.percentcomplete * 100).toString() + '%' }">
                             <span class="sr-only">{{ song.percentcomplete }}% Complete</span>

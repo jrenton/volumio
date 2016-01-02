@@ -71,7 +71,7 @@ h6 {
 
 .btn {
   border: none;
-  background: #003670;
+  background: rgba(0, 54, 112, 0.67);
   color: white;
   font-size: 18px;
   text-decoration: none;
@@ -85,7 +85,7 @@ h6 {
   transition: 0.25s;
   -webkit-backface-visibility: hidden; 
   padding: 10px 15px;
-  border: 1px solid #0F284C;
+  border: 1px solid rgba(15, 40, 76, 0.71);
 }
   .btn:hover, .btn:focus {
     outline: 0;

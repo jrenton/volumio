@@ -41,9 +41,10 @@ class MusicPlayerService
             case "addQueue":
             case "add":
             case "image":   
+            case "rateUp":   
+            case "rateDown":   
                 if ($song)
                 {
-                    
                     $response = $playerClass->$commandName(ObjectConverterUtil::arrayToObject($song, $songClass));
                 }
                 else

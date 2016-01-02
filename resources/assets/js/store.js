@@ -5,7 +5,7 @@ window.GUI = {
     playlist: {
         songs: []
     },
-    currentsong: { artist: "", title: "", state: "", album: "", type: "", time: 0, elapsed: 0, volume: 0, percentcomplete: 0 },
+    currentsong: { id: "", artist: "", title: "", state: "", album: "", type: "", time: 0, elapsed: 0, volume: 0, percentcomplete: 0, rating: ""},
     currentknob: null,
     currentpath: '',
     halt: 0,

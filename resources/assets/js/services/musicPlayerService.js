@@ -35,5 +35,11 @@ module.exports = {
     },
     playPlaylist: function(playlist, serviceType, callback) {
         this.send("playPlaylist", null, playlist, serviceType, callback);
+    },
+    rateUp: function(song, serviceType, callback) {
+        this.send("rateUp", song, null, serviceType, callback);
+    },
+    rateDown: function(song, serviceType, callback) {
+        this.send("rateDown", song, null, serviceType, callback);
     }
 }
