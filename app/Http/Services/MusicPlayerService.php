@@ -39,8 +39,17 @@ class MusicPlayerService
                 
                 break;
             case "addQueue":
-            case "add":            
-                $reponse = $playerClass->$commandName(ObjectConverterUtil::arrayToObject($song, $songClass));
+            case "add":
+            case "image":   
+                if ($song)
+                {
+                    
+                    $response = $playerClass->$commandName(ObjectConverterUtil::arrayToObject($song, $songClass));
+                }
+                else
+                {
+                    $response = $playerClass->$commandName();
+                }                   
                 break;
             case "playPlaylist":
                 $this->stopOtherServices($serviceType);
@@ -60,7 +69,6 @@ class MusicPlayerService
             case "stop":
             case "pause":
             case "status":
-            case "image":
             case "shuffle":
             case "repeat":
             case "getQueue":

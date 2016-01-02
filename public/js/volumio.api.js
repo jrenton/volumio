@@ -66,9 +66,7 @@ function setState(song) {
         window.GUI.currentsong.type = song.serviceType;
     }
     
-    if (song.coverart) {
-        showCoverImage(song);
-    }
+    showCoverImage(song);
 }
 
 function notifyUser(song) {
@@ -233,16 +231,26 @@ function getSpopImage(uri) {
 }
 
 function showCoverImage(song) {
-    var imgUrl = "";
-    
-    if (song.base64) {
-        imgUrl = "data:image/gif;base64," + song.base64;
+    console.log("show cover image");
+    console.log(song);
+    if (!song || !song.state || song.state == "stop") {
+        return;
     }
     
-    if (song.coverart) {
-        imgUrl = song.coverart;
+    var imgUrl = getImgUrl(song);
+    
+    if (!imgUrl) {
+        console.log("no imgUrl");
+        AjaxUtils.post("player", { cmd: "image", song: song, serviceType: song.serviceType }, function(data) {
+            imgUrl = getImgUrl(data);
+            setCoverImage(imgUrl);
+        });
     }
     
+    setCoverImage(imgUrl);
+}
+
+function setCoverImage(imgUrl) {
     if (!imgUrl) {
         return;
     }
@@ -255,7 +263,26 @@ function showCoverImage(song) {
     }
     
     $("#dynamicCss").text("#playbackCover.coverImage:after{background:url(" + imgUrl + ") no-repeat 50% 0% fixed;background-size:" + backgroundSize + ";}");
-    $("#playbackCover").addClass("coverImage");
+    $("#playbackCover").addClass("coverImage");  
+}
+
+function getImgUrl(song) {
+    
+    if (!song) {
+        return "";
+    }
+    
+    var imgUrl = "";
+    
+    if (song.base64) {
+        imgUrl = "data:image/gif;base64," + song.base64;
+    }
+    
+    if (song.coverart) {
+        imgUrl = song.coverart;
+    }
+    
+    return imgUrl;
 }
 
 function gotoPlayback(track) {

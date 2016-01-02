@@ -367,12 +367,25 @@ class SpotifyService implements IMusicPlayerService
     
     function image($song = null)
     {
+        $base64Image = [];
         if (!$song)
         {
-            return $this->sendCommand("image");
+            $base64Image = $this->sendCommand("image");
+        }
+        else
+        {
+            $base64Image = $this->sendCommand("uimage " . $song->uri);
         }
         
-        return $this->sendCommand("uimage " . $song->uri);
+        if (!array_key_exists("data", $base64Image))
+        {
+            return null;
+        }
+        
+        $song = new \stdClass;
+        $song->base64 = $base64Image["data"];
+        
+        return $song;
     }
     
     function repeat()
