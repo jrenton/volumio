@@ -66,6 +66,18 @@ module.exports = {
         },
         rateDown: function () {
             musicPlayer.rateDown(this.song, this.song.type);
+        },
+        random: function () {
+            musicPlayer.random(this.song.type);
+        },
+        single: function () {
+            musicPlayer.single(this.song.type);
+        },
+        consume: function () {
+            musicPlayer.consume(this.song.type);
+        },
+        repeat: function () {
+            musicPlayer.repeat(this.song.type);
         }
 	}
 };

@@ -34,16 +34,16 @@
                     </div>
                     <div class="btn-toolbar">
                         <div class="btn-group">
-                            <a id="repeat" class="btn btn-cmd btn-toggle" href="#notarget" title="Repeat">
+                            <a class="btn" title="Repeat" v-on:click="repeat()" v-bind:class="{'btn-success' : repeat === true }">
                                 <i class="fa fa-repeat"></i>
                             </a>
-                            <a id="random" class="btn btn-cmd btn-toggle" href="#notarget" title="Random">
+                            <a class="btn" title="Random" v-on:click="random()" v-bind:class="{'btn-success' : random === true }">
                                 <i class="fa fa-random"></i>
                             </a>
-                            <a id="single" class="btn btn-cmd btn-toggle" href="#notarget" title="Single">
+                            <a class="btn" title="Single" v-on:click="single()" v-bind:class="{'btn-success' : single === true }">
                                 <i class="fa fa-refresh"></i>
                             </a>
-                            <a id="consume" class="btn btn-cmd btn-toggle" href="#notarget" title="Consume Mode">
+                            <a class="btn" title="Consume Mode" v-on:click="consume()" v-bind:class="{'btn-success' : consume === true }">
                                 <i class="fa fa-trash"></i>
                             </a>			
                         </div>
@@ -51,29 +51,29 @@
                 </div>
                 <div class="col-md-4">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn" v-on:click="rateUp()">
+                        <button type="button" class="btn" v-on:click="rateUp()" v-bind:class="{ 'btn-success': song.rating == 'good'}">
                             <i class="fa fa-thumbs-up"></i>
                         </button>
-                        <button type="button" class="btn" v-on:click="rateDown()">
+                        <button type="button" class="btn btn-ratedown" v-on:click="rateDown()" v-bind:class="{ 'btn-danger': song.rating == 'bad'}">
                             <i class="fa fa-thumbs-down"></i>
                         </button>
                     </div>
-                    <!--<div class="progress">
-                        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" v-bind:style="{ width: (song.percentcomplete * 100).toString() + '%' }">
-                            <span class="sr-only">{{ song.percentcomplete }}% Complete</span>
-                        </div>
-                    </div>-->
                 </div> 
 
                 <div class="col-md-4 volume">
-                    <input class="volumeknob" id="volume" data-width="211" data-cursor="true" data-bgColor="rgba(0,0,0,0)" data-fgColor="#007F0B" data-thickness=".25" data-angleArc="250" data-angleOffset="-125" data-skin="tron" value="66">	
+                    <input class="volumeknob" id="volume" data-width="211" data-cursor="true" data-bgColor="rgba(0,0,0,0)" data-fgColor="#007F0B" data-thickness=".25" data-angleArc="250" data-angleOffset="-125" data-skin="tron" v-model="song.volume">	
                     <div class="btn-toolbar floatright">
                         <div class="btn-group">
-                            <a id="volumedn" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-down"></i></a>
-                            <a id="volumemute" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-off"></i> <i class="fa fa-exclamation"></i></a>
-                            <!--<a id="ramplay" class="btn btn-cmd btn-toggle" title="Ramplay" href="#notarget"><i class="fa fa-copy"></i></a> -->
-                            <a id="volumeup" class="btn btn-cmd btn-volume" href="#notarget"><i class="fa fa-volume-up"></i></a>
-                            <!--<a id="dbupdate" class="btn btn-cmd" href="#notarget" title="Updating Music DB..."><i class="fa fa-refresh"></i></a>-->
+                            <a id="volumedn" class="btn">
+                                <i class="fa fa-volume-down"></i>
+                            </a>
+                            <a id="volumemute" class="btn">
+                                <i class="fa fa-volume-off"></i>
+                                <i class="fa fa-exclamation"></i>
+                            </a>
+                            <a id="volumeup" class="btn">
+                                <i class="fa fa-volume-up"></i>
+                            </a>
                         </div>
                     </div>
                 </div>

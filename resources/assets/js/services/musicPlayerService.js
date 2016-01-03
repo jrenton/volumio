@@ -41,5 +41,23 @@ module.exports = {
     },
     rateDown: function(song, serviceType, callback) {
         this.send("rateDown", song, null, serviceType, callback);
+    },
+    single: function(serviceType, callback) {
+        this.send("single", null, null, serviceType, callback);
+    },
+    repeat: function(serviceType, callback) {
+        this.send("repeat", null, null, serviceType, callback);
+    },
+    consume: function(serviceType, callback) {
+        this.send("consume", null, null, serviceType, callback);
+    },
+    random: function(serviceType, callback) {
+        this.send("random", null, null, serviceType, callback);
+    },
+    removeFromQueue: function(song, serviceType, callback) {
+        this.send("removeQueue", song, null, serviceType, callback);
+    },
+    removeFromPlaylist: function(song, serviceType, callback) {
+        this.send("removePlaylist", song, null, serviceType, callback);
     }
 }

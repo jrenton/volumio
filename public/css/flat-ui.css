@@ -71,7 +71,7 @@ h6 {
 
 .btn {
   border: none;
-  background: rgba(0, 54, 112, 0.67);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   font-size: 18px;
   text-decoration: none;
@@ -85,11 +85,16 @@ h6 {
   transition: 0.25s;
   -webkit-backface-visibility: hidden; 
   padding: 10px 15px;
-  border: 1px solid rgba(15, 40, 76, 0.71);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn:hover {
+    background: rgba(0, 127, 11, 0.7);
+}
+.btn:active {
+    outline: 0;
 }
   .btn:hover, .btn:focus {
     outline: 0;
-    background-color: #001C3E;
     color: white;
     -webkit-transition: 0.25s;
     -moz-transition: 0.25s;
@@ -97,7 +102,6 @@ h6 {
     transition: 0.25s;
     -webkit-backface-visibility: hidden; }
   .btn:active, .btn.active {
-    background-color: #2c3e50;
     color: rgba(255, 255, 255, 0.75);
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
@@ -109,11 +113,14 @@ h6 {
     padding-bottom: 12px;
     padding-top: 13px; }
   .btn.btn-primary {
-    background-color: #007F0B; }
+    background-color: #007F0B; 
+    border-color: #006509;
+    }
     .btn.btn-primary:hover, .btn.btn-primary:focus {
-      background-color: #2fe2bf; }
+     
+      background-color: #006509; }
     .btn.btn-primary:active, .btn.btn-primary.active {
-      background-color: #16a085; }
+      background-color: #006509; }
   .btn.btn-info {
     background-color: #3498db; }
     .btn.btn-info:hover, .btn.btn-info:focus {
@@ -121,17 +128,18 @@ h6 {
     .btn.btn-info:active, .btn.btn-info.active {
       background-color: #2383c4; }
   .btn.btn-danger {
-    background-color: #e74c3c; }
+    background-color: rgba(192, 18, 0, 0.71); }
     .btn.btn-danger:hover, .btn.btn-danger:focus {
-      background-color: #ec7063; }
+      background-color: rgba(192, 18, 0, 0.71); }
     .btn.btn-danger:active, .btn.btn-danger.active {
-      background-color: #dc2d1b; }
+      /*background-color: #dc2d1b;*/
+      }
   .btn.btn-success {
-    background-color: #2ecc71; }
+    background-color: rgba(0, 127, 11, 0.7); }
     .btn.btn-success:hover, .btn.btn-success:focus {
-      background-color: #55d98d; }
+      background-color: rgba(0, 127, 11, 0.7); }
     .btn.btn-success:active, .btn.btn-success.active {
-      background-color: #27ad60; }
+      background-color: rgba(0, 127, 11, 0.7); }
   .btn.btn-warning {
     background-color: #f1c40f; }
     .btn.btn-warning:hover, .btn.btn-warning:focus {
@@ -151,8 +159,11 @@ h6 {
       border-radius: 0 6px 6px 0; }
 
 .btn-toolbar .btn.active {
-  color: white; }
-
+  color: white; 
+}
+.btn-ratedown:hover {
+    background:rgba(192, 18, 0, 0.71);
+}
 .demo-headline {
   padding: 73px 0 110px;
   text-align: center; }
@@ -743,162 +754,162 @@ input[type="color"],
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-  .control-group.error textarea, .control-group.error
-  input[type="text"], .control-group.error
-  input[type="password"], .control-group.error
-  input[type="datetime"], .control-group.error
-  input[type="datetime-local"], .control-group.error
-  input[type="date"], .control-group.error
-  input[type="month"], .control-group.error
-  input[type="time"], .control-group.error
-  input[type="week"], .control-group.error
-  input[type="number"], .control-group.error
-  input[type="email"], .control-group.error
-  input[type="url"], .control-group.error
-  input[type="search"], .control-group.error
-  input[type="tel"], .control-group.error
-  input[type="color"], .control-group.error
+  .form-group.error textarea, .form-group.error
+  input[type="text"], .form-group.error
+  input[type="password"], .form-group.error
+  input[type="datetime"], .form-group.error
+  input[type="datetime-local"], .form-group.error
+  input[type="date"], .form-group.error
+  input[type="month"], .form-group.error
+  input[type="time"], .form-group.error
+  input[type="week"], .form-group.error
+  input[type="number"], .form-group.error
+  input[type="email"], .form-group.error
+  input[type="url"], .form-group.error
+  input[type="search"], .form-group.error
+  input[type="tel"], .form-group.error
+  input[type="color"], .form-group.error
   .uneditable-input {
     border-color: #e74c3c;
     color: #e74c3c;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    .control-group.error textarea:focus, .control-group.error
-    input[type="text"]:focus, .control-group.error
-    input[type="password"]:focus, .control-group.error
-    input[type="datetime"]:focus, .control-group.error
-    input[type="datetime-local"]:focus, .control-group.error
-    input[type="date"]:focus, .control-group.error
-    input[type="month"]:focus, .control-group.error
-    input[type="time"]:focus, .control-group.error
-    input[type="week"]:focus, .control-group.error
-    input[type="number"]:focus, .control-group.error
-    input[type="email"]:focus, .control-group.error
-    input[type="url"]:focus, .control-group.error
-    input[type="search"]:focus, .control-group.error
-    input[type="tel"]:focus, .control-group.error
-    input[type="color"]:focus, .control-group.error
+    .form-group.error textarea:focus, .form-group.error
+    input[type="text"]:focus, .form-group.error
+    input[type="password"]:focus, .form-group.error
+    input[type="datetime"]:focus, .form-group.error
+    input[type="datetime-local"]:focus, .form-group.error
+    input[type="date"]:focus, .form-group.error
+    input[type="month"]:focus, .form-group.error
+    input[type="time"]:focus, .form-group.error
+    input[type="week"]:focus, .form-group.error
+    input[type="number"]:focus, .form-group.error
+    input[type="email"]:focus, .form-group.error
+    input[type="url"]:focus, .form-group.error
+    input[type="search"]:focus, .form-group.error
+    input[type="tel"]:focus, .form-group.error
+    input[type="color"]:focus, .form-group.error
     .uneditable-input:focus {
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
       box-shadow: none; }
-  .control-group.success textarea, .control-group.success
-  input[type="text"], .control-group.success
-  input[type="password"], .control-group.success
-  input[type="datetime"], .control-group.success
-  input[type="datetime-local"], .control-group.success
-  input[type="date"], .control-group.success
-  input[type="month"], .control-group.success
-  input[type="time"], .control-group.success
-  input[type="week"], .control-group.success
-  input[type="number"], .control-group.success
-  input[type="email"], .control-group.success
-  input[type="url"], .control-group.success
-  input[type="search"], .control-group.success
-  input[type="tel"], .control-group.success
-  input[type="color"], .control-group.success
+  .form-group.success textarea, .form-group.success
+  input[type="text"], .form-group.success
+  input[type="password"], .form-group.success
+  input[type="datetime"], .form-group.success
+  input[type="datetime-local"], .form-group.success
+  input[type="date"], .form-group.success
+  input[type="month"], .form-group.success
+  input[type="time"], .form-group.success
+  input[type="week"], .form-group.success
+  input[type="number"], .form-group.success
+  input[type="email"], .form-group.success
+  input[type="url"], .form-group.success
+  input[type="search"], .form-group.success
+  input[type="tel"], .form-group.success
+  input[type="color"], .form-group.success
   .uneditable-input {
     border-color: #2ecc71;
     color: #2ecc71;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    .control-group.success textarea:focus, .control-group.success
-    input[type="text"]:focus, .control-group.success
-    input[type="password"]:focus, .control-group.success
-    input[type="datetime"]:focus, .control-group.success
-    input[type="datetime-local"]:focus, .control-group.success
-    input[type="date"]:focus, .control-group.success
-    input[type="month"]:focus, .control-group.success
-    input[type="time"]:focus, .control-group.success
-    input[type="week"]:focus, .control-group.success
-    input[type="number"]:focus, .control-group.success
-    input[type="email"]:focus, .control-group.success
-    input[type="url"]:focus, .control-group.success
-    input[type="search"]:focus, .control-group.success
-    input[type="tel"]:focus, .control-group.success
-    input[type="color"]:focus, .control-group.success
+    .form-group.success textarea:focus, .form-group.success
+    input[type="text"]:focus, .form-group.success
+    input[type="password"]:focus, .form-group.success
+    input[type="datetime"]:focus, .form-group.success
+    input[type="datetime-local"]:focus, .form-group.success
+    input[type="date"]:focus, .form-group.success
+    input[type="month"]:focus, .form-group.success
+    input[type="time"]:focus, .form-group.success
+    input[type="week"]:focus, .form-group.success
+    input[type="number"]:focus, .form-group.success
+    input[type="email"]:focus, .form-group.success
+    input[type="url"]:focus, .form-group.success
+    input[type="search"]:focus, .form-group.success
+    input[type="tel"]:focus, .form-group.success
+    input[type="color"]:focus, .form-group.success
     .uneditable-input:focus {
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
       box-shadow: none; }
-  .control-group.warning textarea, .control-group.warning
-  input[type="text"], .control-group.warning
-  input[type="password"], .control-group.warning
-  input[type="datetime"], .control-group.warning
-  input[type="datetime-local"], .control-group.warning
-  input[type="date"], .control-group.warning
-  input[type="month"], .control-group.warning
-  input[type="time"], .control-group.warning
-  input[type="week"], .control-group.warning
-  input[type="number"], .control-group.warning
-  input[type="email"], .control-group.warning
-  input[type="url"], .control-group.warning
-  input[type="search"], .control-group.warning
-  input[type="tel"], .control-group.warning
-  input[type="color"], .control-group.warning
+  .form-group.warning textarea, .form-group.warning
+  input[type="text"], .form-group.warning
+  input[type="password"], .form-group.warning
+  input[type="datetime"], .form-group.warning
+  input[type="datetime-local"], .form-group.warning
+  input[type="date"], .form-group.warning
+  input[type="month"], .form-group.warning
+  input[type="time"], .form-group.warning
+  input[type="week"], .form-group.warning
+  input[type="number"], .form-group.warning
+  input[type="email"], .form-group.warning
+  input[type="url"], .form-group.warning
+  input[type="search"], .form-group.warning
+  input[type="tel"], .form-group.warning
+  input[type="color"], .form-group.warning
   .uneditable-input {
     border-color: #f1c40f;
     color: #f1c40f;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    .control-group.warning textarea:focus, .control-group.warning
-    input[type="text"]:focus, .control-group.warning
-    input[type="password"]:focus, .control-group.warning
-    input[type="datetime"]:focus, .control-group.warning
-    input[type="datetime-local"]:focus, .control-group.warning
-    input[type="date"]:focus, .control-group.warning
-    input[type="month"]:focus, .control-group.warning
-    input[type="time"]:focus, .control-group.warning
-    input[type="week"]:focus, .control-group.warning
-    input[type="number"]:focus, .control-group.warning
-    input[type="email"]:focus, .control-group.warning
-    input[type="url"]:focus, .control-group.warning
-    input[type="search"]:focus, .control-group.warning
-    input[type="tel"]:focus, .control-group.warning
-    input[type="color"]:focus, .control-group.warning
+    .form-group.warning textarea:focus, .form-group.warning
+    input[type="text"]:focus, .form-group.warning
+    input[type="password"]:focus, .form-group.warning
+    input[type="datetime"]:focus, .form-group.warning
+    input[type="datetime-local"]:focus, .form-group.warning
+    input[type="date"]:focus, .form-group.warning
+    input[type="month"]:focus, .form-group.warning
+    input[type="time"]:focus, .form-group.warning
+    input[type="week"]:focus, .form-group.warning
+    input[type="number"]:focus, .form-group.warning
+    input[type="email"]:focus, .form-group.warning
+    input[type="url"]:focus, .form-group.warning
+    input[type="search"]:focus, .form-group.warning
+    input[type="tel"]:focus, .form-group.warning
+    input[type="color"]:focus, .form-group.warning
     .uneditable-input:focus {
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
       box-shadow: none; }
-  .control-group.info textarea, .control-group.info
-  input[type="text"], .control-group.info
-  input[type="password"], .control-group.info
-  input[type="datetime"], .control-group.info
-  input[type="datetime-local"], .control-group.info
-  input[type="date"], .control-group.info
-  input[type="month"], .control-group.info
-  input[type="time"], .control-group.info
-  input[type="week"], .control-group.info
-  input[type="number"], .control-group.info
-  input[type="email"], .control-group.info
-  input[type="url"], .control-group.info
-  input[type="search"], .control-group.info
-  input[type="tel"], .control-group.info
-  input[type="color"], .control-group.info
+  .form-group.info textarea, .form-group.info
+  input[type="text"], .form-group.info
+  input[type="password"], .form-group.info
+  input[type="datetime"], .form-group.info
+  input[type="datetime-local"], .form-group.info
+  input[type="date"], .form-group.info
+  input[type="month"], .form-group.info
+  input[type="time"], .form-group.info
+  input[type="week"], .form-group.info
+  input[type="number"], .form-group.info
+  input[type="email"], .form-group.info
+  input[type="url"], .form-group.info
+  input[type="search"], .form-group.info
+  input[type="tel"], .form-group.info
+  input[type="color"], .form-group.info
   .uneditable-input {
     border-color: #3498db;
     color: #3498db;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    .control-group.info textarea:focus, .control-group.info
-    input[type="text"]:focus, .control-group.info
-    input[type="password"]:focus, .control-group.info
-    input[type="datetime"]:focus, .control-group.info
-    input[type="datetime-local"]:focus, .control-group.info
-    input[type="date"]:focus, .control-group.info
-    input[type="month"]:focus, .control-group.info
-    input[type="time"]:focus, .control-group.info
-    input[type="week"]:focus, .control-group.info
-    input[type="number"]:focus, .control-group.info
-    input[type="email"]:focus, .control-group.info
-    input[type="url"]:focus, .control-group.info
-    input[type="search"]:focus, .control-group.info
-    input[type="tel"]:focus, .control-group.info
-    input[type="color"]:focus, .control-group.info
+    .form-group.info textarea:focus, .form-group.info
+    input[type="text"]:focus, .form-group.info
+    input[type="password"]:focus, .form-group.info
+    input[type="datetime"]:focus, .form-group.info
+    input[type="datetime-local"]:focus, .form-group.info
+    input[type="date"]:focus, .form-group.info
+    input[type="month"]:focus, .form-group.info
+    input[type="time"]:focus, .form-group.info
+    input[type="week"]:focus, .form-group.info
+    input[type="number"]:focus, .form-group.info
+    input[type="email"]:focus, .form-group.info
+    input[type="url"]:focus, .form-group.info
+    input[type="search"]:focus, .form-group.info
+    input[type="tel"]:focus, .form-group.info
+    input[type="color"]:focus, .form-group.info
     .uneditable-input:focus {
       -webkit-box-shadow: none;
       -moz-box-shadow: none;
@@ -2232,7 +2243,7 @@ body.vjs-full-window {
     top: 35px;
     width: 0;
     -webkit-transform: rotate(360deg); }
-  .login-form .control-group {
+  .login-form .form-group {
     margin-bottom: 6px;
     position: relative; }
   .login-form .login-field {

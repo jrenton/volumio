@@ -312,5 +312,16 @@ class PandoraService
     function rateDown($song)
     {
         $this->sendCommand("rate bad " . $song->id);
+        $this->next();
+    }
+    
+    function removeQueue($song)
+    {
+        
+    }
+    
+    function removePlaylist($song)
+    {
+        
     }
 }

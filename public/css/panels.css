@@ -200,10 +200,6 @@ body {
     float: none;
 }
 
-.btn-toolbar .btn {
-    padding: 10px 30px 10px 20px;
-}
-
 .volumeknob {
 	width: 200px;
 	height: 200px;
@@ -215,8 +211,9 @@ body {
 	margin-bottom: 20px;
 }
 
-
-
+#context-menu-spotifytrack {
+    z-index: 10000;
+}
 /* Menu top
 -------------------------------------------------------------- */
 
@@ -822,7 +819,7 @@ textarea[readonly] {
 .form-horizontal .dk_container {
     margin-bottom: 0;
 }
-input.input-block-level {
+input.form-control {
 	display: block;
 	height: 41px;
 	line-height: 41px;
@@ -1164,7 +1161,7 @@ body { background: #cf0; } */
 	color: #fff;
 }
 
-.control-group.subgroup {
+.form-group.subgroup {
     margin-left: 100px;
 }
 

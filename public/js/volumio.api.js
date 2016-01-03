@@ -51,6 +51,10 @@ function setState(song) {
         window.GUI.currentsong.album = song.album;
     }
     
+    if (song.rating) {
+        window.GUI.currentsong.rating = song.rating;
+    }
+    
     if (song.title) {              
         window.GUI.currentsong.title = song.title;
     }
@@ -87,6 +91,7 @@ function notifyUser(song) {
             song.title = title;
         }
         
+		document.title = song.title + ' - ' + song.artist + ' - ' + 'Volumio';        
         showNotification(song.title, "by " + song.artist, song.serviceType);
     }
 }
@@ -235,8 +240,6 @@ function getSpopImage(uri) {
 }
 
 function showCoverImage(song) {
-    console.log("show cover image");
-    console.log(song);
     if ($.isArray(song) && song.length == 1) {
         song = song[0];
     }
@@ -248,7 +251,6 @@ function showCoverImage(song) {
     var imgUrl = getImgUrl(song);
     
     if (!imgUrl) {
-        console.log("no imgUrl");
         AjaxUtils.post("player", { cmd: "image", song: song, serviceType: song.serviceType }, function(data) {
             imgUrl = getImgUrl(data);
             setCoverImage(imgUrl);
@@ -270,7 +272,7 @@ function setCoverImage(imgUrl) {
         backgroundSize = "cover";
     }
     
-    $("#dynamicCss").text("#playbackCover.coverImage:after{background:url(" + imgUrl + ") no-repeat 50% 0% fixed;background-size:" + backgroundSize + ";}");
+    $("#dynamicCss").text("#playbackCover.coverImage:after{background:url(" + imgUrl + ") no-repeat 50% 50% fixed;background-size:" + backgroundSize + ";}");
     $("#playbackCover").addClass("coverImage");  
 }
 
@@ -463,38 +465,7 @@ function updateGUI(objectInputState) {
         volume.val((objectInputState['volume'] == '-1') ? 100 : objectInputState['volume']).trigger('change');
     }
     
-    GUI.currentsong.artist = objectInputState['artist'];
-    GUI.currentsong.title = objectInputState['title'];
-
-    if (objectInputState['repeat'] == 1) {
-        $('#repeat').addClass('btn-primary');
-    } else {
-        $('#repeat').removeClass('btn-primary');
-    }
-    if (objectInputState['random'] == 1) {
-        $('#random').addClass('btn-primary');
-    } else {
-        $('#random').removeClass('btn-primary');
-    }
-    if (objectInputState['consume'] == 1) {
-        $('#consume').addClass('btn-primary');
-    } else {
-        $('#consume').removeClass('btn-primary');
-    }
-    if (objectInputState['single'] == 1) {
-        $('#single').addClass('btn-primary');
-    } else {
-        $('#single').removeClass('btn-primary');
-    }
-
     GUI.halt = 0;
-
-	//Change Name according to Now Playing
-	if (GUI.currentsong.artist && GUI.currentsong.title) {
-		document.title = GUI.currentsong.title + ' - ' + GUI.currentsong.artist + ' - ' + 'Volumio';
-	} else {
-		document.title = 'Volumio - Audiophile Music Player';
-    }
 }
 
 function initializePlaybackKnob() {
@@ -502,18 +473,13 @@ function initializePlaybackKnob() {
         inline: false,
 		change : function (value) {
             if (GUI.currentsong.state != 'stop') {
-				// console.log('GUI.halt (Knobs)= ', GUI.halt);
-				window.clearInterval(GUI.currentKnob)
-				//$('#time').val(value);
-				//console.log('click percent = ', value);
-				// implementare comando
+				window.clearInterval(GUI.currentKnob);
 			} else $('#time').val(0);
         },
         release : function (value) {
 			if (GUI.currentsong.state != 'stop') {
-				//console.log('release percent = ', value);
 				GUI.halt = 1;
-				// console.log('GUI.halt (Knobs2)= ', GUI.halt);
+                
 				window.clearInterval(GUI.currentKnob);
 
 				var seekto = 0;

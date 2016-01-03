@@ -1,4 +1,5 @@
 var store = require('../store');
+var musicPlayer = require('../services/musicPlayerService');
 
 module.exports = {
 	template: require('./playlist.html'),
@@ -9,20 +10,14 @@ module.exports = {
         };
 	},
 	methods: {
-	    playSpotifySong: function (song) {
-	      sendCommand("spop-goto", { "path": song.index });
+	    play: function (song) {
+            musicPlayer.play(song, song.serviceType);
 	    },
-	    removeSpotifySong: function (song) {
-	    	sendCommand("spop-qrm", { "path": song.index }, function(data) {
-	    		console.log(data);
-	    		getPlaylist();
-	    	});
+	    removeFromQueue: function (song) {
+            musicPlayer.removeQueue(song, song.serviceType);
 	    },
-        playMpdSong: function (song) {
-            sendCmd("play " + song.index);
-        },
-        removeMpdSong: function (song) {
-            sendCmd("trackremove&songid=" + song.index);
+        removeFromPlaylist: function (song) {
+            musicPlayer.removePlaylist(song, song.serviceType);            
         }
 	}
 }

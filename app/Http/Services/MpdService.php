@@ -615,4 +615,14 @@ class MpdService implements IMusicPlayerService
     {
         
     }
+    
+    function removeQueue($song)
+    {
+        
+    }
+    
+    function removePlaylist($song)
+    {
+        
+    }
 }

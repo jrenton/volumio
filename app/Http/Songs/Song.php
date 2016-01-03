@@ -13,5 +13,7 @@ abstract class Song
     public $playlistId;
     public $type;
     public $serviceType;
-    public $state;    
+    public $state;
+    public $queueNumber;
+    public $playlistNumber;
 }

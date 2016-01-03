@@ -7,7 +7,7 @@
 						<i class="fa fa-trash"></i>
 					</a>
 				</div>
-				<div class="pl-entry" v-on:click="playSong(song)">
+				<div class="pl-entry" v-on:click="play(song)">
 					{{ song.title }}
 					<span>
 						{{ song.artist }} - {{ song.album }}
@@ -15,7 +15,7 @@
 				</div>
 			</li>
 			<li id="pl-{{ song.index }}" v-for="song in queue.songs">
-				<div class="pl-action" v-on:click="removeFromQueue(song)">
+				<div class="pl-action">
 					<a title="Remove song from playlist" v-on:click="removeFromQueue(song)">
 						<i class="fa fa-trash"></i>
 					</a>

@@ -459,4 +459,14 @@ class SpotifyService implements IMusicPlayerService
     {
         
     }
+    
+    function removeQueue($song)
+    {
+        $this->sendCommand("qrm " . $song->queueNumber);
+    }
+    
+    function removePlaylist($song)
+    {
+        
+    }
 }

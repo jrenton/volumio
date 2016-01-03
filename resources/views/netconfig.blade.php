@@ -1,0 +1,121 @@
+@extends('layouts.master')
+
+@section('content')
+<div class="container">
+	<h1>Network Configuration</h1>
+	<p>If you mess up with this configuration you can <a data-toggle="modal" href="#net-config-defaults">reset to default</a>.</p>
+	<form class="form-horizontal" data-validate="parsley" method="post">
+		<fieldset>
+			<legend>Wired Connection </legend>
+$_eth0
+			<div class="form-group" >
+				<label class="control-label" for="eth0[dhcp]">IP Address</label>
+				<div class="controls">
+					<select id="dhcp" name="eth0[dhcp]" class="input-large">
+$_int0dhcp
+					</select>
+					<span class="help-block">Choose between Automatic IP Attribution or Static configuration</span>
+				</div>
+			</div>
+			<div id="network-manual-config" class="hide">
+				<div class="form-group">
+					<label class="control-label" for="eth0[ip]">IP address</label>
+					<div class="controls">
+						<input class="input-large" class="input-large" type="text" data-regexp="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" id="address" name="eth0[ip]" value="$_int0[ip]" data-trigger="change" data-required="true">
+						<span class="help-block">Manually set the IP address.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="eth0[netmask]">Netmask</label>
+					<div class="controls">
+						<input class="input-large" class="form-control" type="text" data-regexp="^(254|252|248|240|224|192|128)\.0\.0\.0|255\.(254|252|248|240|224|192|128|0)\.0\.0|255\.255\.(254|252|248|240|224|192|128|0)\.0|255\.255\.255\.(254|252|248|240|224|192|128|0)$" id="netmask" name="eth0[netmask]" value="$_int0[netmask]" data-trigger="change" data-required="true">
+						<span class="help-block">Manually set the network mask.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="eth0[gw]">Gateway</label>
+					<div class="controls">
+						<input class="input-large" class="form-control" type="text" data-regexp="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" id="gateway" name="eth0[gw]" value="$_int0[gw]" data-trigger="change" data-required="true">
+						<span class="help-block">Manually set the gateway.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="eth0[dns1]">Primary DNS</label>
+					<div class="controls">
+						<input class="input-large" class="form-control" type="text" data-regexp="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" id="dns1" name="eth0[dns1]" value="$_int0[dns1]" data-trigger="change" >
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="eth0[dns2]">Secondary DNS</label>
+					<div class="controls">
+						<input class="input-large" class="form-control" type="text" data-regexp="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" id="dns2" name="eth0[dns2]" value="$_int0[dns2]" data-trigger="change" >
+						<span class="help-block">Manually set the primary and secondary DNS.</span>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+		
+		<div class="form-actions">
+			<button type="button" class="btn btn-lg">Cancel</button>
+			<button type="submit" class="btn btn-primary btn-lg" name="save" value="save">Save changes</button>
+		</div>
+	</form> 
+	
+<!--<div $_wlan0hide >-->
+	<form class="form-horizontal" data-validate="parsley"  method="post" > 
+		<fieldset>
+		
+			<legend>Wireless Connection</legend>
+$_wlan0
+			<div class="form-group">
+				<label class="control-label" for="wifisec[ssid]">Network Name</label>
+				<div class="controls">
+					<input class="input-large" class="form-control" type="text" id="wifi-name" name="wifisec[ssid]" value="$_wlan0ssid" data-trigger="change" >
+					<span class="help-block">Set the SSID of the Network you want to connect.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="wifisec[encryption]">Security</label>
+				<div class="controls">
+					<select id="wifi-security" name="wifisec[encryption]" class="input-large">
+$_wlan0security
+					</select>
+					<span class="help-block">Choose the security type of the Wi-Fi you want to connect.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="wifisec[password]">Password</label>
+				<div class="controls">
+					<input class="input-large" class="form-control" type="password" id="wifi-password" name="wifisec[password]" value="$_wifisec[password]" data-trigger="change" >
+					<span class="help-block">Set the password of the Wi-Fi you want to connect.</span>
+				</div>
+			</div>
+		</fieldset>
+		<div class="form-actions">
+			<button type="button" class="btn btn-lg">Cancel</button>
+			<button type="submit" class="btn btn-primary btn-lg" name="save" value="save">Save changes</button>
+		</div>
+	
+</div>
+</form>
+</div>
+<div id="net-config-defaults" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="mpd-config-defaults-label" aria-hidden="true">
+		  <form name="netconf_reset" method="post" id="netconf_reset">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3 id="mpd-config-defaults-label">Reset the configuration</h3>
+			</div>
+			<div class="modal-body">
+				<p>You are going to reset the configuration to the default original values.<br>
+				You will lose any modification.</p>
+			</div>
+			
+			<div class="modal-footer">
+			<input type="hidden" name="reset" value="1">
+				<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+				<button type="submit" class="btn btn-primary" >Continue</button>
+			</div>
+		  </form>
+</div>
+@endsection

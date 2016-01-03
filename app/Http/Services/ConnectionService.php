@@ -321,8 +321,10 @@ class ConnectionService
 		return $result;
 	}
 	
-	function cfgdb_update($table,$dbh,$key,$value) {
-		switch ($table) {
+	function cfgdb_update($table,$dbh,$key,$value) 
+    {
+		switch ($table) 
+        {
 			case 'cfg_engine':
 				$querystr = "UPDATE ".$table." SET value='".$value."' where param='".$key."'";
 				break;
@@ -338,29 +340,30 @@ class ConnectionService
 			case 'cfg_source':
 				$querystr = "UPDATE ".$table." SET name='".$value['name']."', type='".$value['type']."', address='".$value['address']."', remotedir='".$value['remotedir']."', username='".$value['username']."', password='".$value['password']."', charset='".$value['charset']."', rsize='".$value['rsize']."', wsize='".$value['wsize']."', options='".$value['options']."', error='".$value['error']."' where id=".$value['id'];
 				break;
-	
 		}
 		//debug
 		error_log(">>>>> cfgdb_update(".$table.",dbh,".$key.",".$value.") >>>>> \n".$querystr, 0);
 	
-		if ($this->sdbquery($querystr,$dbh)) {
+		if ($this->sdbquery($querystr,$dbh)) 
+        {
 			return true;
-		} else {
-			return false;
 		}
-	
+        
+        return false;
 	}
 	
-	function cfgdb_write($table,$dbh,$values) {
+	function cfgdb_write($table,$dbh,$values)
+    {
 		$querystr = "INSERT INTO ".$table." VALUES (NULL, ".$values.")";
 		//debug
 		error_log(">>>>> cfgdb_write(".$table.",dbh,".$values.") >>>>> \n".$querystr, 0);
 	
-		if ($this->sdbquery($querystr,$dbh)) {
+		if ($this->sdbquery($querystr,$dbh)) 
+        {
 			return true;
-		} else {
-			return false;
 		}
+        
+        return false;
 	}
 	
 	function cfgdb_delete($table,$dbh,$id) 

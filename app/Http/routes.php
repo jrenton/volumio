@@ -59,6 +59,14 @@ $app->get('/', function (Illuminate\Http\Request $request) {
     return view('home');
 });
 
+$app->get("settings", [
+    'as' => 'settings', 'uses' => 'SettingsController@index'
+]);
+
+$app->post('settings', [
+    'as' => 'settingsPost', 'uses' => 'SettingsController@postIndex'
+]);
+
 $app->get("me", function(App\Http\WebApis\SpotifyWebApi $webApi) {
     dd($webApi->getFeaturedPlaylists());
 });
@@ -81,4 +89,16 @@ $app->post('sendCommand', [
 
 $app->post('player', [
     'as' => 'player', 'uses' => 'MusicPlayerController@index'
+]);
+
+$app->get("sources", [
+    'as' => 'sources', 'uses' => 'SourcesController@index'
+]);
+
+$app->get("netconfig", [
+    'as' => 'netconfig', 'uses' => 'NetConfigController@index'
+]);
+
+$app->get("mpdconfig", [
+    'as' => 'mpdconfig', 'uses' => 'MpdConfigController@index'
 ]);

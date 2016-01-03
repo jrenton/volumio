@@ -43,12 +43,36 @@
             <li>
                 <a href="https://accounts.spotify.com/authorize/?response_type=code&client_id=ab6fd2e9ddd04857947ea58e3e44678a&redirect_uri=http://homestead.app:8000&scope=user-follow-modify playlist-modify-private user-library-modify user-library-read"><i class="fa fa-spotify sx"></i> Spotify Connect</a>
             </li>
-			<li><a href="sources.php"><i class="fa fa-folder-open sx"></i> Library</a></li>
-			<li><a href="mpd-config.php"><i class="fa fa-cogs sx"></i> Playback</a></li>
-			<li><a href="net-config.php"><i class="fa fa-sitemap sx"></i> Network</a></li>
-			<li><a href="settings.php"><i class="fa fa-wrench sx"></i> System</a></li>
-			<li><a href="credits.php"><i class="fa fa-trophy sx"></i> Credits</a></li>
-			<li><a href="#poweroff-modal" data-toggle="modal"><i class="fa fa-power-off sx"></i> Turn off</a></li>
+			<li>
+                <a href="/sources">
+                    <i class="fa fa-folder-open sx"></i> Library
+                </a>
+            </li>
+			<li>
+                <a href="/mpdconfig">
+                    <i class="fa fa-cogs sx"></i> Playback
+                </a>
+            </li>
+			<li>
+                <a href="/netconfig">
+                    <i class="fa fa-sitemap sx"></i> Network
+                </a>
+            </li>
+			<li>
+                <a href="/settings">
+                    <i class="fa fa-wrench sx"></i> System
+                </a>
+            </li>
+			<li>
+                <a href="/credits">
+                    <i class="fa fa-trophy sx"></i> Credits
+                </a>
+            </li>
+			<li>
+                <a href="#poweroff-modal" data-toggle="modal">
+                    <i class="fa fa-power-off sx"></i> Turn off
+                </a>
+            </li>
 		</ul>
 	</div>
 	<div id="db-back">
@@ -100,8 +124,9 @@
 	</ul>
 </div>
 <div id="main-container">
-    <div id="playbackCover"></div>
-	<router-view></router-view>
+    @section("content")
+	   <router-view></router-view>
+    @show
 </div>
 <form class="form-horizontal" action="settings.php" method="post">
 	<div id="poweroff-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="poweroff-modal-label" aria-hidden="true">

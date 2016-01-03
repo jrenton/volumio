@@ -24,11 +24,11 @@
     float: right;
 }
 
-.input-append .bootstrap-select.btn-group {
+.input-group .bootstrap-select.btn-group {
     margin-left: -1px;
 }
 
-.input-prepend .bootstrap-select.btn-group {
+.input-group .bootstrap-select.btn-group {
     margin-right: -1px;
 }
 

@@ -23,4 +23,6 @@ interface IMusicPlayerService
     function getPlaylists();
     function rateUp($song);
     function rateDown($song);
+    function removeQueue($song);
+    function removePlaylist($song);
 }
