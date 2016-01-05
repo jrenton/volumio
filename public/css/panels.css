@@ -392,6 +392,7 @@ a.btn-cmd {
 	font-size: 18px;
 	text-align: left;
 	font-weight: bold;
+    z-index: 1;
 }
 .playlist li:before {
 	display: block;
@@ -415,7 +416,7 @@ a.btn-cmd {
 	color: #fff;
 	background: #007F0B;
 }
-.playlist .active span, .database .active span { /* era: .playlist li.active span, .database li.active span */
+.playlist .active span, .database .active span { /* era: .playlist li.active span, .active span */
 	color: #E0E0E0;
 }
 .playlist .pl-entry, .database .db-entry {

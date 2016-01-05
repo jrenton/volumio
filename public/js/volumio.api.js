@@ -108,6 +108,10 @@ function showNotification(title, message, type) {
             icon: "/images/" + type + ".png",
             body: message,
         });
+        
+        setTimeout(function() {
+            notification.close();
+        }, 5000);
 
         notification.onclick = function () {
             window.focus();

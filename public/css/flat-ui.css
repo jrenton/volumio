@@ -923,7 +923,14 @@ textarea[readonly] {
   border-color: transparent;
   color: #cad2d3;
   cursor: default; }
-
+.ratings {
+    margin-top: 20px;
+}
+.ratings .btn {
+    padding: 20px;
+    border-radius: 20px;
+    font-size: 50px;
+}
 input,
 textarea,
 .uneditable-input {
