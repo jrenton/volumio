@@ -76,7 +76,7 @@
 		</ul>
 	</div>
 	<div id="db-back">
-		<a class="back-btn">
+		<a class="back-btn" v-on:click="goBack()">
 			<i class="fa fa-chevron-left sx"></i>
 		</a>
 		<span id="webradio-add">
@@ -88,9 +88,10 @@
 			</a>
 		</span>
 	</div>
-	<form id="db-search" action="javascript:getDB('search', '', 'file'); javascript:window.volumio.router.go('browse');">
+	<form id="db-search" v-on:submit="search(searchTerm)">
 		<div class="input-group">
-			<input id="db-search-keyword" type="text" value="" placeholder="Search">
+			<input id="db-search-keyword" type="text" v-model="searchTerm" value="" placeholder="Search">
+			<!--<input class="form-control" type="text" v-model="searchTerm" value="" placeholder="Search">-->
             <span class="input-group-btn">
                 <button class="btn" type="submit">
                     <i class="fa fa-search"></i>
@@ -128,7 +129,7 @@
 	   <router-view></router-view>
     @show
 </div>
-<form class="form-horizontal" action="settings.php" method="post">
+<form class="form-horizontal" action="settings" method="post">
 	<div id="poweroff-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="poweroff-modal-label" aria-hidden="true">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

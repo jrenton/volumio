@@ -48,5 +48,15 @@ module.exports = {
 	            }
 	        }
 	    });
-	}
+	},
+    ajaxPromise: function(action, method, data) {
+        return $.ajax({
+	        type : method,
+	        url : action,
+	        dataType: "json",
+			data: data,
+	        async : true,
+	        cache : false
+	    });
+    }
 }

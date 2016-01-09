@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\AlbumArtService;
-use App\Http\Services\ConnectionService;
-use App\Http\Services\MusicPlayerService;
-use App\Http\Utils\ObjectConverterUtil;
+use App\Volumio\Services\AlbumArtService;
+use App\Volumio\Services\ConnectionService;
+use App\Volumio\Services\MusicPlayerService;
+use App\Volumio\Utils\ObjectConverterUtil;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -24,7 +24,9 @@ class MusicPlayerController extends Controller
         $song = $request->input('song');
         $serviceType = ucfirst($request->input('serviceType'));
         $playlist = $request->input('playlist');
+        $query = $request->input('query');
+        $searchType = $request->input('searchType');
         
-        return $this->musicPlayerService->sendCommand($commandName, $serviceType, $song, $playlist);
+        return $this->musicPlayerService->sendCommand($commandName, $serviceType, $song, $playlist, $query, $searchType);
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Services\ConnectionService;
-use App\Http\Services\MpdService;
+use App\Volumio\Services\ConnectionService;
+use App\Volumio\Mpd\MpdService;
 
 class SettingsController extends Controller
 {

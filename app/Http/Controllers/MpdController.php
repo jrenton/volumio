@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\AlbumArtService;
-use App\Http\Services\ConnectionService;
-use App\Http\Services\MpdService;
+use App\Volumio\Services\AlbumArtService;
+use App\Volumio\Services\ConnectionService;
+use App\Volumio\Mpd\MpdService;
 use App\User;
 use Illuminate\Http\Request;
 

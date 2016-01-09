@@ -297,7 +297,7 @@
 				<span class="help-block">You can check wether minor updates are available. The system will then retrieve them, if found. You'll be then asked to apply or ignore.</span>
 				</div>
 			</div>
-					</fieldset>
+		</fieldset>
 	</form>
 	<!--
 	<form class="form-horizontal" data-validate="parsley" action="" method="post">

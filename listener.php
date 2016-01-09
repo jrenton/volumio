@@ -1,14 +1,17 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-use App\Http\Services\PandoraService;
-use App\Http\Services\ConnectionService;
-use App\Http\Notifiers\SongChangeNotifier;
-use App\Http\Sockets\PandoraSocket;
+Dotenv::load(__DIR__);
 
-//$loop   = React\EventLoop\Factory::create();
-$loop   = new React\EventLoop\StreamSelectLoop; 
-$pusher = new App\Http\WebSockets\Pusher(new PandoraService(new ConnectionService, new SongChangeNotifier, PandoraSocket::getInstance()));
+//use App\Volumio\Commands\Application;
+use Laravel\Lumen\Application;
+use App\Volumio\WebSockets\Pusher;
+
+$loop = React\EventLoop\Factory::create();
+
+$app = new Application(realpath(__DIR__));
+
+$pusher = $app->make("App\Volumio\WebSockets\Pusher");
 
 $client = stream_socket_client('tcp://127.0.0.1:4445');
 stream_set_timeout($client, 0, 100000);

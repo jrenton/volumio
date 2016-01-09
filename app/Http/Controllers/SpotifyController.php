@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\AlbumArtService;
-use App\Http\Services\ConnectionService;
-use App\Http\Services\SpotifyService;
+use App\Volumio\Services\AlbumArtService;
+use App\Volumio\Services\ConnectionService;
+use App\Volumio\Spotify\SpotifyService;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -35,7 +35,7 @@ class SpotifyController extends Controller
             $status = $this->spopService->getSpopState("NextState");
         }
         
-        $this->spopService->closeSpopSocket();
+        //$this->spopService->closeSpopSocket();
         
         return json_encode($status);
     }

@@ -31,8 +31,10 @@ window.GUI = {
     visibility: 'visible',
     DBupdate: 0,
     browse: {
+        currentView: "default",
         isLibrary: false,
         files: [],
+        directories: [],
         mpdDirectories: [],
         spotifyTracks: [],
         spotifyDirectories: [],
@@ -44,7 +46,8 @@ window.GUI = {
     },
     queue: {
         songs: []
-    }
+    },
+    searchResults: []
 };
 
 module.exports = {

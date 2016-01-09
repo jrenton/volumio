@@ -59,6 +59,10 @@ function setState(song) {
         window.GUI.currentsong.title = song.title;
     }
     
+    if (song.volume) {              
+        window.GUI.currentsong.volume = song.volume;
+    }
+    
     if (song.state && (window.GUI.currentsong.type == song.serviceType && song.serviceType == "Pandora" || song.state != "stop")) {
         window.GUI.currentsong.state = song.state;
         if (typeof song.elapsed != "undefined" && typeof song.time != "undefined") {
@@ -363,6 +367,7 @@ function populateDB(data, path, uplevel, keyword){
     GUI.browse.mpdDirectories = [];
     GUI.browse.spotifyTracks = [];
     GUI.browse.spotifyDirectories = [];
+    GUI.browse.directories = [];
     GUI.browse.pandoraDirectories = [];
     GUI.browse.pandoraSongs = [];
     GUI.browse.isLibrary = false;
@@ -375,6 +380,7 @@ function populateDB(data, path, uplevel, keyword){
 
 	for (var i = 0; i < data.length; i++) {
         var dataItem = data[i];
+        console.log(dataItem);
         if (dataItem.Type == 'MpdFile' && dataItem.serviceType == "Mpd") {
             GUI.browse.files.push(dataItem);
         } else if (dataItem.Type == 'MpdDirectory' && dataItem.serviceType == "Mpd")  {
@@ -385,6 +391,9 @@ function populateDB(data, path, uplevel, keyword){
             GUI.browse.spotifyDirectories.push(dataItem);            
         } else if (dataItem.Type == 'PandoraDirectory' || dataItem.Type == 'PandoraStation' && dataItem.serviceType == "Pandora") {
             GUI.browse.pandoraDirectories.push(dataItem);            
+        } else if (dataItem.type == "Directory") {
+            console.log(dataItem);
+            GUI.browse.directories.push(dataItem);
         }
 	}
 

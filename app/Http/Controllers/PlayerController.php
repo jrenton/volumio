@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\AlbumArtService;
-use App\Http\Services\ConnectionService;
-use App\Http\Services\SpotifyService;
-use App\Http\Services\MpdService;
-use App\Http\Services\PandoraService;
+use App\Volumio\Services\AlbumArtService;
+use App\Volumio\Services\ConnectionService;
+use App\Volumio\Spotify\SpotifyService;
+use App\Volumio\Mpd\MpdService;
+use App\Volumio\Pandora\PandoraService;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -60,7 +60,7 @@ class PlayerController extends Controller
                                 "directory" => "Pandora",
                                 "Name" => "PANDORA",
                                 "serviceType" => "Pandora",
-                                "Type" => "PandoraDirectory"
+                                "type" => "Directory"
                             ]
                         ];
                         //dd($pandoraSearchResults);

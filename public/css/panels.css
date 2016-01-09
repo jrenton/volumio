@@ -383,7 +383,7 @@ a.btn-cmd {
 }
 .playlist li, .database > li {
 	display: block;
-	position: relative;
+	/*position: relative;*/
 	height: 60px;
 	margin: 0;
 	border-bottom: 1px solid #4A4A4A;
@@ -393,6 +393,9 @@ a.btn-cmd {
 	text-align: left;
 	font-weight: bold;
     z-index: 1;
+}
+.playlist li, .database > li:hover {
+	color: #007F0B;
 }
 .playlist li:before {
 	display: block;
@@ -822,8 +825,8 @@ textarea[readonly] {
 }
 input.form-control {
 	display: block;
-	height: 41px;
-	line-height: 41px;
+	height: 49px;
+    line-height: 49px;
 	padding: 8px 0 9px 10px;
 }
 .modal {
@@ -1186,6 +1189,11 @@ body { background: #cf0; } */
 
 .tab-content {
 	margin-top: 60px;
+}
+
+.tab-content {
+    z-index: 1;
+    position: relative;
 }
 
 #database a .fa,

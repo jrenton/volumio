@@ -98,17 +98,17 @@ jQuery(document).ready(function($){ 'use strict';
     // ----------------------------------------------------------------------------------------------------
 
     // click on database "back"
-    $('#db-back').click(function() {
-        --GUI.currentDBpos[10];
-        var path = GUI.currentpath;
-        var cutpos=path.lastIndexOf("/");
-        if (cutpos !=-1) {
-            var path = path.slice(0,cutpos);
-        }  else {
-            path = '';
-        }
-        getDB('filepath', path, GUI.browsemode, 1);
-    });
+    // $('#db-back').click(function() {
+    //     --GUI.currentDBpos[10];
+    //     var path = GUI.currentpath;
+    //     var cutpos=path.lastIndexOf("/");
+    //     if (cutpos !=-1) {
+    //         var path = path.slice(0,cutpos);
+    //     }  else {
+    //         path = '';
+    //     }
+    //     getDB('filepath', path, GUI.browsemode, 1);
+    // });
 
     var $database = $("#database").find(".database");
 
