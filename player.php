@@ -4,11 +4,11 @@ require __DIR__ . '/vendor/autoload.php';
 use App\Http\Services\PandoraService;
 use App\Http\Services\ConnectionService;
 use App\Http\Sockets\PandoraSocket;
-use App\Http\WebSockets\PlayerWebSocket;
+use App\Volumio\WebSockets\PlayerWebSocket;
 
 $loop   = React\EventLoop\Factory::create();
 // $loop   = new React\EventLoop\StreamSelectLoop; 
-$pusher = new App\Http\WebSockets\PlayerWebSocket;
+$pusher = new App\Volumio\WebSockets\PlayerWebSocket;
 
 // Listen for the web server to make a ZeroMQ push after an ajax request
 $context = new React\ZMQ\Context($loop);

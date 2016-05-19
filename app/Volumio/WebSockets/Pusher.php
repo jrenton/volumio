@@ -5,6 +5,7 @@ use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\WampServerInterface;
 use App\Volumio\Pandora\PandoraService;
 use App\Volumio\Notifiers\SongChangeNotifier;
+use App\Volumio\Utils\ObjectConverterUtil;
 
 class Pusher implements WampServerInterface 
 {

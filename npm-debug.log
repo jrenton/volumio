@@ -1,0 +1,132 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/nodejs',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'babel-preset-es2015',
+1 verbose cli   '--save' ]
+2 info using npm@2.15.1
+3 info using node@v4.4.4
+4 verbose install initial load of /var/www/package.json
+5 verbose installManyTop reading scoped package data from /var/www/node_modules/babel-preset-react/package.json
+6 verbose installManyTop reading scoped package data from /var/www/node_modules/bootstrap-sass/package.json
+7 verbose installManyTop reading scoped package data from /var/www/node_modules/gulp/package.json
+8 verbose installManyTop reading scoped package data from /var/www/node_modules/laravel-elixir/package.json
+9 verbose installManyTop reading scoped package data from /var/www/node_modules/lodash/package.json
+10 verbose installManyTop reading scoped package data from /var/www/node_modules/notify-send/package.json
+11 verbose installManyTop reading scoped package data from /var/www/node_modules/vue/package.json
+12 verbose installManyTop reading scoped package data from /var/www/node_modules/vue-router/package.json
+13 info package.json vue@1.0.24 No README data
+14 info package.json notify-send@0.1.2 No license field.
+15 verbose readDependencies loading dependencies from /var/www/package.json
+16 silly cache add args [ 'babel-preset-es2015', null ]
+17 verbose cache add spec babel-preset-es2015
+18 silly cache add parsed spec Result {
+18 silly cache add   raw: 'babel-preset-es2015',
+18 silly cache add   scope: null,
+18 silly cache add   name: 'babel-preset-es2015',
+18 silly cache add   rawSpec: '',
+18 silly cache add   spec: 'latest',
+18 silly cache add   type: 'tag' }
+19 silly addNamed babel-preset-es2015@latest
+20 verbose addNamed "latest" is being treated as a dist-tag for babel-preset-es2015
+21 info addNameTag [ 'babel-preset-es2015', 'latest' ]
+22 silly mapToRegistry name babel-preset-es2015
+23 silly mapToRegistry using default registry
+24 silly mapToRegistry registry https://registry.npmjs.org/
+25 silly mapToRegistry data Result {
+25 silly mapToRegistry   raw: 'babel-preset-es2015',
+25 silly mapToRegistry   scope: null,
+25 silly mapToRegistry   name: 'babel-preset-es2015',
+25 silly mapToRegistry   rawSpec: '',
+25 silly mapToRegistry   spec: 'latest',
+25 silly mapToRegistry   type: 'tag' }
+26 silly mapToRegistry uri https://registry.npmjs.org/babel-preset-es2015
+27 verbose addNameTag registry:https://registry.npmjs.org/babel-preset-es2015 not in flight; fetching
+28 verbose request uri https://registry.npmjs.org/babel-preset-es2015
+29 verbose request no auth needed
+30 info attempt registry request try #1 at 12:47:55 AM
+31 verbose request id 7fe659b924dbee41
+32 http request GET https://registry.npmjs.org/babel-preset-es2015
+33 http 200 https://registry.npmjs.org/babel-preset-es2015
+34 verbose headers { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+34 verbose headers   etag: '"4OZ5R3BN6LMHT06338JY4338O"',
+34 verbose headers   'content-type': 'application/json',
+34 verbose headers   'content-encoding': 'gzip',
+34 verbose headers   'cache-control': 'max-age=300',
+34 verbose headers   'content-length': '4170',
+34 verbose headers   'accept-ranges': 'bytes',
+34 verbose headers   date: 'Thu, 19 May 2016 23:47:57 GMT',
+34 verbose headers   via: '1.1 varnish',
+34 verbose headers   age: '152',
+34 verbose headers   connection: 'keep-alive',
+34 verbose headers   'x-served-by': 'cache-dfw1836-DFW',
+34 verbose headers   'x-cache': 'HIT',
+34 verbose headers   'x-cache-hits': '1',
+34 verbose headers   'x-timer': 'S1463701677.214275,VS0,VE0',
+34 verbose headers   vary: 'Accept-Encoding' }
+35 silly get cb [ 200,
+35 silly get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+35 silly get     etag: '"4OZ5R3BN6LMHT06338JY4338O"',
+35 silly get     'content-type': 'application/json',
+35 silly get     'content-encoding': 'gzip',
+35 silly get     'cache-control': 'max-age=300',
+35 silly get     'content-length': '4170',
+35 silly get     'accept-ranges': 'bytes',
+35 silly get     date: 'Thu, 19 May 2016 23:47:57 GMT',
+35 silly get     via: '1.1 varnish',
+35 silly get     age: '152',
+35 silly get     connection: 'keep-alive',
+35 silly get     'x-served-by': 'cache-dfw1836-DFW',
+35 silly get     'x-cache': 'HIT',
+35 silly get     'x-cache-hits': '1',
+35 silly get     'x-timer': 'S1463701677.214275,VS0,VE0',
+35 silly get     vary: 'Accept-Encoding' } ]
+36 verbose get saving babel-preset-es2015 to /home/volumio/.npm/registry.npmjs.org/babel-preset-es2015/.cache.json
+37 verbose correctMkdir /home/volumio/.npm correctMkdir not in flight; initializing
+38 verbose makeDirectory /home/volumio/.npm creation not in flight; initializing
+39 silly makeDirectory /home/volumio/.npm uid: 1001 gid: 1001
+40 silly addNameTag next cb for babel-preset-es2015 with tag latest
+41 silly addNamed babel-preset-es2015@6.9.0
+42 verbose addNamed "6.9.0" is a plain semver version for babel-preset-es2015
+43 silly mapToRegistry name babel-preset-es2015
+44 silly mapToRegistry using default registry
+45 silly mapToRegistry registry https://registry.npmjs.org/
+46 silly mapToRegistry data Result {
+46 silly mapToRegistry   raw: 'babel-preset-es2015',
+46 silly mapToRegistry   scope: null,
+46 silly mapToRegistry   name: 'babel-preset-es2015',
+46 silly mapToRegistry   rawSpec: '',
+46 silly mapToRegistry   spec: 'latest',
+46 silly mapToRegistry   type: 'tag' }
+47 silly mapToRegistry uri https://registry.npmjs.org/babel-preset-es2015
+48 verbose addRemoteTarball https://registry.npmjs.org/babel-preset-es2015/-/babel-preset-es2015-6.9.0.tgz not in flight; adding
+49 verbose addRemoteTarball [ 'https://registry.npmjs.org/babel-preset-es2015/-/babel-preset-es2015-6.9.0.tgz',
+49 verbose addRemoteTarball   '95e4716ac4481dfb30999cb5c111814e1ada0f41' ]
+50 info retry fetch attempt 1 at 12:47:57 AM
+51 info attempt registry request try #1 at 12:47:57 AM
+52 http fetch GET https://registry.npmjs.org/babel-preset-es2015/-/babel-preset-es2015-6.9.0.tgz
+53 http fetch 200 https://registry.npmjs.org/babel-preset-es2015/-/babel-preset-es2015-6.9.0.tgz
+54 silly fetchAndShaCheck shasum 95e4716ac4481dfb30999cb5c111814e1ada0f41
+55 verbose addTmpTarball /tmp/npm-14518-3de74b1e/registry.npmjs.org/babel-preset-es2015/-/babel-preset-es2015-6.9.0.tgz not in flight; adding
+56 verbose addTmpTarball already have metadata; skipping unpack for babel-preset-es2015@6.9.0
+57 verbose correctMkdir /home/volumio/.npm correctMkdir not in flight; initializing
+58 verbose stack Error: EACCES: permission denied, mkdir '/home/volumio/.npm'
+58 verbose stack     at Error (native)
+59 verbose cwd /var/www
+60 error Linux 3.18.5-v7+
+61 error argv "/usr/bin/nodejs" "/usr/bin/npm" "install" "babel-preset-es2015" "--save"
+62 error node v4.4.4
+63 error npm  v2.15.1
+64 error path /home/volumio/.npm
+65 error code EACCES
+66 error errno -13
+67 error syscall mkdir
+68 error Error: EACCES: permission denied, mkdir '/home/volumio/.npm'
+68 error     at Error (native)
+68 error  { [Error: EACCES: permission denied, mkdir '/home/volumio/.npm']
+68 error   errno: -13,
+68 error   code: 'EACCES',
+68 error   syscall: 'mkdir',
+68 error   path: '/home/volumio/.npm' }
+69 error Please try running this command again as root/Administrator.
+70 verbose exit [ -13, true ]

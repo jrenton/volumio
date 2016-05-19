@@ -1,10 +1,10 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-use App\Http\Notifiers\SongChangeNotifier;
-use App\Http\Services\SpotifyService;
-use App\Http\Services\ConnectionService;
-use App\Http\Sockets\SpotifySocket;
+use App\Volumio\Notifiers\SongChangeNotifier;
+use App\Volumio\Services\SpotifyService;
+use App\Volumio\Services\ConnectionService;
+use App\Volumio\Spotify\SpotifySocket;
 
 $loop   = React\EventLoop\Factory::create();
 $client = SpotifySocket::getInstance();

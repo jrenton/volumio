@@ -222,7 +222,7 @@
 <script src="js/volumio.library.js"></script>
 <script src="js/volumio.playback.js"></script>
 <script src="js/application.js"></script>
-<script src="js/volumio.settings.js"></script>
+<!--<script src="js/volumio.settings.js"></script>-->
 <!--<script src="js/jquery.dropkick-1.0.0.js"></script>-->
 
 <?php
