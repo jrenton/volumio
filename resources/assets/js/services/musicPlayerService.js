@@ -95,5 +95,11 @@ module.exports = {
     },
     getCoverArt: function(serviceType, callback) {
         return this.sendPromise("image", { serviceType: serviceType });
+    },
+    getQueue: function(callback) {
+        return this.sendPromise("getQueue", {});
+    },
+    removeQueue: function(song, serviceType) {
+        return this.sendPromise("removeQueue", { song: song, serviceType: serviceType });
     }
 }

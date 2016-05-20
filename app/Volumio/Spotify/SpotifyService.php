@@ -285,9 +285,14 @@ class SpotifyService implements IMusicPlayerService
         $arrayCurrentEntry = $song;
         $arrayCurrentEntry["type"] = "song";
         $arrayCurrentEntry["serviceType"] = "Spotify";
-        $arrayCurrentEntry["id"] = (string)$song["uri"];
-        $arrayCurrentEntry["time"] = $song["duration"];
+        if (array_key_exists("uri", $song)) {
+            $arrayCurrentEntry["id"] = (string)$song["uri"];            
+        }
         
+        if (array_key_exists("duration", $song)) {
+            $arrayCurrentEntry["time"] = $song["duration"] / 1000;
+        }
+
         $position = 0;
 
         if (array_key_exists("position", $song)) {

@@ -69,7 +69,6 @@ class MusicPlayerService
             case "status":
             case "shuffle":
             case "repeat":
-            case "getQueue":
             case "clearQueue":
             case "getPlaylists":
             case "openService":
@@ -82,6 +81,15 @@ class MusicPlayerService
                     $playerClass = ServiceUtils::getClass(ucfirst($response["serviceType"]), $this->connectionService);
         
                     $response = $playerClass->status();
+                }
+                break;
+            case "getQueue": 
+                $response = $this->currentSongService->getCurrentSong();
+                            
+                if (array_key_exists("serviceType", $response)) {
+                    $playerClass = ServiceUtils::getClass(ucfirst($response["serviceType"]), $this->connectionService);
+        
+                    $response = $playerClass->getQueue();
                 }
                 break;
             case "getServices":
