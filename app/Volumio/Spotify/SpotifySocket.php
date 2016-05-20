@@ -46,8 +46,6 @@ class SpotifySocket
         
         $parsedSong = $this->spotifyService->formatResponse($song, $song);
         
-        echo json_encode($parsedSong);
-        
         $this->songChangeNotifier->notify($parsedSong);
     }
 }

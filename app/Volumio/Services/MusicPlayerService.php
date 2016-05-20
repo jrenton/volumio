@@ -77,6 +77,12 @@ class MusicPlayerService
                 break;
             case "currentSong":
                 $response = $this->currentSongService->getCurrentSong();
+                        
+                if (array_key_exists("serviceType", $response)) {
+                    $playerClass = ServiceUtils::getClass(ucfirst($response["serviceType"]), $this->connectionService);
+        
+                    $response = $playerClass->status();
+                }
                 break;
             case "getServices":
                 $services = config("options.services");

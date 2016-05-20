@@ -28,6 +28,16 @@ class CurrentSongService
         return $song;
     }
     
+    public function updateElapsed($elapsed)
+    {
+        $this->db->update("update current_song set v = '" . $elapsed . "' where k = 'elapsed'"); 
+    }
+    
+    public function updateTime($time)
+    {
+        $this->db->update("update current_song set v = '" . $time . "' where k = 'time'"); 
+    }
+    
     public function addSongToDb($song)
     {
         if (!is_array($song))
@@ -40,6 +50,11 @@ class CurrentSongService
             if (array_key_exists($property, $song))
             {
                 $parsedValue = str_replace("'", "''", $song[$property]);
+
+                if ($parsedValue === NULL || $parsedValue === "") {
+                    continue;
+                }
+                
                 $this->db->update("update current_song set v = '" . $parsedValue . "' where k = '$property'");
             }
         }

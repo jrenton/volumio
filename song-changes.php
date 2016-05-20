@@ -1,18 +1,25 @@
 <?php
+// Song changes is responsible for listening on port 4500
+// which is used when a song is changed (via SongChangeNotifier), and then 
+// sending the message to web socket port 8082
 require __DIR__ . '/vendor/autoload.php';
 
-use App\Http\Services\PandoraService;
-use App\Http\Services\ConnectionService;
-use App\Http\Sockets\PandoraSocket;
-use App\Volumio\WebSockets\PlayerWebSocket;
+Dotenv::load(__DIR__);
+
+use Laravel\Lumen\Application;
+
+$app = new Application(realpath(__DIR__));
+
+$pusher = $app->make("App\Volumio\WebSockets\PlayerWebSocket");
 
 $loop   = React\EventLoop\Factory::create();
-// $loop   = new React\EventLoop\StreamSelectLoop; 
-$pusher = new App\Volumio\WebSockets\PlayerWebSocket;
+//$pusher = new App\Volumio\WebSockets\PlayerWebSocket;
 
 // Listen for the web server to make a ZeroMQ push after an ajax request
 $context = new React\ZMQ\Context($loop);
 $pull = $context->getSocket(ZMQ::SOCKET_PULL);
+
+// Listen to any song changes over port 4500
 $pull->bind('tcp://127.0.0.1:4500'); // Binding to 127.0.0.1 means the only client that can connect is itself
 $pull->on('message', array($pusher, 'onReceiveMessage'));
 

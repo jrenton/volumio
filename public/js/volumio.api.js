@@ -9,8 +9,8 @@ $(function() {
     }
     
     window.volumio = window.volumio || {};
-    
-    window.volumio.conn = new WebSocket('ws://192.168.10.10:8081');
+    window.volumio.connUpdateTimeout;
+    window.volumio.conn = new WebSocket('ws://192.168.0.103:8081');
     window.volumio.conn.onopen = function(e) {
         console.log("Connection established!");
     };
@@ -18,18 +18,20 @@ $(function() {
     window.volumio.conn.onmessage = function(e) {
         var data = JSON.parse(e.data);
         console.log(data);
-        
+        console.log('8081 message');
+
         $.each(data, function(index, dataItem) {
             setState(dataItem);
         });
     };
     
-    window.volumio.songChanger = new WebSocket('ws://192.168.10.10:8082');
+    window.volumio.songChanger = new WebSocket('ws://192.168.0.103:8082');
     window.volumio.songChanger.onopen = function(e) {
         console.log("Notifier Connection established!");
     };
 
     window.volumio.songChanger.onmessage = function(e) {
+        console.log('8082 message');
         var data = JSON.parse(e.data);
         console.log(data);
         setState(data);

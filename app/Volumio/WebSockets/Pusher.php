@@ -66,9 +66,9 @@ class Pusher implements WampServerInterface
             if (sizeof($songInfo) == 1)
             {
                 $songClass = "App\\Volumio\\Pandora\\PandoraSong";
-            
+
                 $song = ObjectConverterUtil::arrayToObject($songInfo[0], $songClass);
-                
+            
                 $this->songChangeNotifier->notify($song);
             }
 

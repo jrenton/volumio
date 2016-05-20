@@ -1,6 +1,7 @@
 var store = require('../store');
 var musicPlayer = require("../services/musicPlayerService");
 var timeControl = require("../services/timeControl");
+var currentSongService = require("../services/currentSongService");
 
 module.exports = {
     template: require('./playback.html'),
@@ -10,10 +11,18 @@ module.exports = {
         };
 	},
     ready: function() {
-        timeControl.refreshTimer();
-        timeControl.refreshKnob();
-        initializePlaybackKnob();
-        initializeVolumeKnob();
+        musicPlayer.currentSong(function(song) {
+            currentSongService.setCurrentSong(song);
+            currentSongService.showCoverArt(song);
+            timeControl.refreshTimer();
+            timeControl.refreshKnob();
+            initializePlaybackKnob();
+            initializeVolumeKnob();
+            
+            musicPlayer.getCoverArt(song.serviceType, function(coverArt) {
+                currentSongService.showCoverArt(coverArt);
+            });
+        });
     },
 	methods: {
 	    playPause: function () {

@@ -4,14 +4,17 @@ namespace App\Volumio\WebSockets;
 use Ratchet\Wamp\WampServerInterface;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use App\Volumio\Services\CurrentSongService;
 
 class PlayerWebSocket implements WampServerInterface 
 {
     protected $clients;
-
-    public function __construct() 
+    protected $currentSongService;
+    
+    public function __construct(CurrentSongService $currentSongService) 
     {
         $this->clients = new \SplObjectStorage;
+        $this->currentSongService = new $currentSongService;
     }
 
     public function onOpen(ConnectionInterface $conn) 
@@ -33,9 +36,32 @@ class PlayerWebSocket implements WampServerInterface
         echo "\nReceived message:\n";
         echo $message;
         
+        $song = (array)json_decode($message);
+        
         foreach($this->clients as $client)
         {
             $client->send($message);            
+        }
+        
+        if (array_key_exists("elapsed", $song)) {
+            $elapsed = $song["elapsed"];
+            
+            if ($elapsed !== NULL
+                && $elapsed !== "") {
+                echo "Elapsed!\n";
+                echo $elapsed;
+                $this->currentSongService->updateElapsed($elapsed);
+            }
+        }
+        
+        if (array_key_exists("time", $song)) {
+            $time = $song["time"];
+            
+            if ($time !== NULL && $time !== "") {
+                echo "Time!\n";
+                echo $time;
+                $this->currentSongService->updateTime($time);
+            }
         }
     }
         

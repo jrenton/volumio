@@ -230,7 +230,13 @@ class PandoraService
     
     function status()
     {
-        return $this->getResponse("status");
+        $status = $this->getResponse("status");
+        
+        if (is_array($status)) {
+            return $status[0];
+        }
+        
+        return $status;
     }
     
     function image()

@@ -88,7 +88,7 @@
 			</a>
 		</span>
 	</div>
-	<form id="db-search" v-on:submit="search(searchTerm)">
+	<form id="db-search" @submit.prevent="search(searchTerm)">
 		<div class="input-group">
 			<input id="db-search-keyword" type="text" v-model="searchTerm" value="" placeholder="Search">
 			<!--<input class="form-control" type="text" v-model="searchTerm" value="" placeholder="Search">-->

@@ -2,6 +2,8 @@ var store = require("../store");
 
 module.exports = {
     setCurrentSong: function(song) {
+        console.log('set current song');
+        console.log(song);
         store.state.currentsong.artist = song.artist;
         store.state.currentsong.title = song.title;
         store.state.currentsong.album = song.album;

@@ -1,11 +1,11 @@
 <?php
+// Pandora listens for messages from pianod tcp 4445
+// and sends the information to the db and websocket 8081
 require __DIR__ . '/vendor/autoload.php';
 
 Dotenv::load(__DIR__);
 
-//use App\Volumio\Commands\Application;
 use Laravel\Lumen\Application;
-use App\Volumio\WebSockets\Pusher;
 
 $loop = React\EventLoop\Factory::create();
 
@@ -33,12 +33,6 @@ $loop->addReadStream($client, function ($client) use ($loop, $pusher) {
     
     $pusher->onReceiveMessage($message);
 });
-
-// Listen for the web server to make a ZeroMQ push after an ajax request
-// $context = new React\ZMQ\Context($loop);
-// $pull = $context->getSocket(ZMQ::SOCKET_PULL);
-// $pull->connect('tcp://127.0.0.1:4445'); // Binding to 127.0.0.1 means the only client that can connect is itself
-// $pull->on('message', array($pusher, 'onBlogEntry'));
 
 // Set up our WebSocket server for clients wanting real-time updates
 $webSock = new React\Socket\Server($loop);

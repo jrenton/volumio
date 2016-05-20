@@ -286,8 +286,13 @@ class SpotifyService implements IMusicPlayerService
         $arrayCurrentEntry["type"] = "song";
         $arrayCurrentEntry["serviceType"] = "Spotify";
         $arrayCurrentEntry["id"] = (string)$song["uri"];
-        $arrayCurrentEntry["time"] = $song["duration"] / 1000;
-        $arrayCurrentEntry["elapsed"] = 0;
+        $arrayCurrentEntry["time"] = $song["duration"];
+        
+        $position = 0;
+
+        if (array_key_exists("position", $song)) {
+            $arrayCurrentEntry["elapsed"] = $song["position"];
+        }
         
         return $arrayCurrentEntry;
     }
@@ -327,7 +332,7 @@ class SpotifyService implements IMusicPlayerService
     
     function status()
     {
-        return $this->sendCommand("status");
+        return $this->parseSongResponse($this->sendCommand("status"));
     }
     
     function image($song = null)

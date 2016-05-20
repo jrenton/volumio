@@ -66,11 +66,13 @@ var App = Vue.extend({
         return store.state;
     },
     ready: function() {
+        console.log('getting current song...');
         musicPlayer.currentSong(function(song) {
             currentSongService.setCurrentSong(song);
             currentSongService.showCoverArt(song);
         });
     },
+
     methods: {
         goBack: function() {
             this.$route.router.go(window.history.back());

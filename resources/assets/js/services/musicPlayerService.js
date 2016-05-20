@@ -92,5 +92,8 @@ module.exports = {
     },
     getServices: function(callback) {
         this.send("getServices", null, callback);
-    } 
+    },
+    getCoverArt: function(serviceType, callback) {
+        return this.sendPromise("image", { serviceType: serviceType });
+    }
 }
