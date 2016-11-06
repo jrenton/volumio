@@ -1,7 +1,7 @@
-var ajaxUtils = require("./ajaxUtilsService");
-var currentSongService = require("../services/currentSongService");
+import ajaxUtils from './ajaxUtilsService';
+import currentSongService from './currentSongService';
 
-module.exports = {
+export default {
     uri: "player",
     send: function(command, data, callback) {
         //window.volumio.conn.send(command);
@@ -101,5 +101,5 @@ module.exports = {
     },
     removeQueue: function(song, serviceType) {
         return this.sendPromise("removeQueue", { song: song, serviceType: serviceType });
-    }
+    },
 }

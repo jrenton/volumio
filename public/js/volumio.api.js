@@ -1,6 +1,6 @@
 // FUNCTIONS
 // ----------------------------------------------------------------------------------------------------
-
+var IP_ADDRESS = '192.168.0.105';
 $(function() {
     if (Notification) {
         if (Notification.permission !== "granted") {
@@ -10,7 +10,7 @@ $(function() {
     
     window.volumio = window.volumio || {};
     window.volumio.connUpdateTimeout;
-    window.volumio.conn = new WebSocket('ws://192.168.0.103:8081');
+    window.volumio.conn = new WebSocket('ws://' + IP_ADDRESS + ':8081');
     window.volumio.conn.onopen = function(e) {
         console.log("Connection established!");
     };
@@ -25,7 +25,7 @@ $(function() {
         });
     };
     
-    window.volumio.songChanger = new WebSocket('ws://192.168.0.103:8082');
+    window.volumio.songChanger = new WebSocket('ws://' + IP_ADDRESS + ':8082');
     window.volumio.songChanger.onopen = function(e) {
         console.log("Notifier Connection established!");
     };
@@ -64,6 +64,7 @@ function setState(song) {
     if (song.volume) {              
         window.GUI.currentsong.volume = song.volume;
     }
+    // store.state.currentsong.elapsed = song.elapsed;
     
     if (song.state && (window.GUI.currentsong.type == song.serviceType && song.serviceType == "Pandora" || song.state != "stop")) {
         window.GUI.currentsong.state = song.state;
@@ -615,7 +616,8 @@ function initializeVolumeKnob() {
 }
 
 // update countdown
-function refreshTimer(startFrom, stopTo, state){
+function refreshTimer(startFrom, stopTo, state) {
+    console.log('refreshhhhh');
 	var $countdownDisplay = $('#countdown-display');
     if (state == 'play') {
         $countdownDisplay.countdown('destroy');

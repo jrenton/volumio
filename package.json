@@ -1,16 +1,43 @@
 {
+  "name": "match",
+  "description": "Match app for students",
+  "author": "",
   "private": true,
-  "devDependencies": {
-    "babel-preset-react": "^6.3.13",
-    "gulp": "^3.8.8",
-    "notify-send": "^0.1.2",
-    "vue": "^1.0.12",
-    "vue-router": "^0.7.7"
+  "scripts": {
+    "dev": "webpack-dev-server --inline --hot --port 9999",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
-    "babel-preset-es2015": "^6.9.0",
-    "bootstrap-sass": "^3.0.0",
-    "laravel-elixir": "^4.0.0",
-    "lodash": "^3.10.1"
+    "vue": "^2.0.0",
+    "vue-router": "^2.0.0",
+    "vuex": "^2.0.0",
+    "vuex-router-sync": "^3.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-plugin-transform-runtime": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0",
+    "babel-preset-stage-2": "^6.0.0",
+    "babel-runtime": "^6.0.0",
+    "cross-env": "^1.0.6",
+    "css-loader": "^0.23.0",
+    "es6-promise": "^3.1.2",
+    "exports-loader": "^0.6.2",
+    "file-loader": "^0.8.4",
+    "imports-loader": "^0.6.5",
+    "json-loader": "^0.5.4",
+    "less": "^2.6.1",
+    "less-loader": "^2.2.2",
+    "url-loader": "^0.5.7",
+    "vue-hot-reload-api": "^1.2.0",
+    "vue-html-loader": "^1.0.0",
+    "vue-loader": "^8.0.0",
+    "vue-style-loader": "^1.0.0",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.0",
+    "webpack-node-externals": "^1.5.4",
+    "webpack-polyfills-plugin": "0.0.9",
+    "whatwg-fetch": "^0.11.0"
   }
 }

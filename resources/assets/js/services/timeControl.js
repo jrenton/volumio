@@ -3,12 +3,16 @@ var store = require('../store');
 module.exports = {
     refreshKnob: function() {
         window.clearInterval(GUI.currentKnob)
+        console.log('refresh dat hoe');
         window.GUI.currentsong.percentcomplete = GUI.currentsong.elapsed / GUI.currentsong.time;
         var initTime = window.GUI.currentsong.percentcomplete * 1000;
         var delta = GUI.currentsong.time / 1000;
         var $time = $("#time");
         $time.val(initTime).trigger('change');
-        if (GUI.currentsong.state == 'play') {
+        console.log('current song======');
+        console.log(GUI.currentsong);
+        if (GUI.currentsong.state == 'play' || GUI.currentsong.state == 'playing') {
+            console.log('lets get it')
             GUI.currentKnob = setInterval(function() {
                 initTime = initTime + 1;
                 window.GUI.currentsong.elapsed = parseFloat(window.GUI.currentsong.elapsed) + parseFloat(delta);
@@ -48,6 +52,8 @@ module.exports = {
         //     $countdownDisplay.countdown({since: 0, compact: true, format: 'MS'});
         //     $countdownDisplay.countdown('pause');
         // }
+        console.log('store!!!');
+        console.log(store);
         var $countdownDisplay = $('#countdown-display');
         if (store.state.currentsong.state == 'play') {
             $countdownDisplay.countdown('destroy');

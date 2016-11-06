@@ -5,26 +5,32 @@ jQuery(document).ready(function($){ 'use strict';
     // playback
     $('.btn-cmd').click(function(){
         var cmd;
-        var $this = $(this);
+        var $this = $(this),
+            id = $this.attr('id');
+
         if ($this.hasClass('btn-volume')) {
             if (GUI.volume == null ) {
                 GUI.volume = $('#volume').val();
             }
-            if ($this.attr('id') == 'volumedn') {
+
+            if (id == 'volumedn') {
                 var vol = parseInt(GUI.volume) - 1;
                 GUI.volume = vol;
                 $('#volumemute').removeClass('btn-primary');
-            } else if ($this.attr('id') == 'volumeup') {
+            }
+            else if (id == 'volumeup') {
                 var vol = parseInt(GUI.volume) + 1;
                 GUI.volume = vol;
                 $('#volumemute').removeClass('btn-primary');
-            } else if ($this.attr('id') == 'volumemute') {
+            }
+            else if (id == 'volumemute') {
                 var $volume = $('#volume');
                 if ($volume.val() != 0 ) {
                     GUI.volume = $volume.val();
                     $this.addClass('btn-primary');
                     var vol = 0;
-                } else {
+                }
+                else {
                     $this.removeClass('btn-primary');
                     var vol = GUI.volume;
                 }
@@ -37,13 +43,13 @@ jQuery(document).ready(function($){ 'use strict';
         //toggle buttons
         if ($this.hasClass('btn-toggle')) {
             if ($this.hasClass('btn-primary')) {
-                cmd = $this.attr('id') + ' 0';
+                cmd = id + ' 0';
             } else {
-                cmd = $this.attr('id') + ' 1';
+                cmd = id + ' 1';
             }
         // send command
         } else {
-            cmd = $this.attr('id');
+            cmd = id;
         }
         
         sendCmd(cmd);
@@ -123,34 +129,36 @@ jQuery(document).ready(function($){ 'use strict';
         var artist = GUI.DBentry[4];
         var album = GUI.DBentry[5];
         GUI.DBentry[0] = '';
-        var $this = $(this);
+        var $this = $(this),
+            cmd = $this.data('cmd');
         var validCommands = ['add', 'addplay', 'addreplaceplay',
                              'update', 'spop-uplay', 'spop-uadd',
                              'spop-playplaylistindex',
                              'spop-addplaylistindex', 'spop-stop']
 
-        if (validCommands.indexOf($this.data('cmd')) !== -1) {
-            sendCommand($this.data('cmd'), path);
-            notify($this.data('cmd'), path);
+        if (validCommands.indexOf(cmd) !== -1) {
+            sendCommand(cmd, path);
+            notify(cmd, path);
         }
 
-        if ($this.data('cmd') == 'addreplaceplay') {
+        if (cmd == 'addreplaceplay') {
             if (path.indexOf("/") == -1) {
 	            $("#pl-saveName").val(path);
-            } else {
+            }
+            else {
 	            $("#pl-saveName").val("");
 			}
         }
 
-        if ($this.data('cmd') == 'spop-searchtitle') {
+        if (cmd == 'spop-searchtitle') {
 			$('#db-search-keyword').val('track:' + title);
 			getDB('search', '', 'file');
         }
-        if ($this.data('cmd') == 'spop-searchartist') {
+        else if (cmd == 'spop-searchartist') {
 			$('#db-search-keyword').val('artist:' + artist);
 			getDB('search', '', 'file');
         }
-        if ($this.data('cmd') == 'spop-searchalbum') {
+        else if (cmd == 'spop-searchalbum') {
 			$('#db-search-keyword').val('album:' + album);
 			getDB('search', '', 'file');
         }
@@ -175,7 +183,8 @@ jQuery(document).ready(function($){ 'use strict';
     $('#menu-bottom a').on('shown', function (e) {
         if(history.pushState) {
             //history.pushState(null, null, e.target.hash);
-        } else {
+        }
+        else {
             window.location.hash = e.target.hash; //Polyfill for old browsers
         }
     });
@@ -207,9 +216,7 @@ jQuery(document).ready(function($){ 'use strict';
     if( $toolTip.length ){
         $toolTip.tooltip();
     }
-
 });
-
 
 // check active tab
 (function() {
@@ -253,4 +260,3 @@ jQuery(document).ready(function($){ 'use strict';
         }
     }
 })();
-

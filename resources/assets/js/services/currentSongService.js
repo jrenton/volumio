@@ -1,16 +1,16 @@
 var store = require("../store");
+var timeControl = require("../services/timeControl");
 
 module.exports = {
     setCurrentSong: function(song) {
         console.log('set current song');
         console.log(song);
-        store.state.currentsong.artist = song.artist;
-        store.state.currentsong.title = song.title;
-        store.state.currentsong.album = song.album;
-        store.state.currentsong.type = song.serviceType;
-        store.state.currentsong.state = song.state;
-        store.state.currentsong.time = song.time;
-        store.state.currentsong.elapsed = song.elapsed;
+        store.commit('SET_SONG', song);
+
+        timeControl.refreshTimer();
+        timeControl.refreshKnob();
+        initializePlaybackKnob();
+        initializeVolumeKnob();
     },
     showCoverArt: function(song) {
         if (!song) {

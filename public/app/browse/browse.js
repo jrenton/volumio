@@ -39,9 +39,7 @@ volumio.playback = Vue.extend({
     
             getPlaylist();
         },
-        openDirectory: function (dir) {
-            getDB('filepath', dir.directory, 'file', 0);
-        },
+
         getFileName: function (file) {
             var title = file.title;
             
