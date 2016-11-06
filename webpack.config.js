@@ -14,7 +14,7 @@ module.exports = {
   plugins: [
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new webpack.ProvidePlugin({
-      'Promise': 'promise',
+      'Promise': 'imports?this=>global!exports?global.Promise!es6-promise',
       'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch'
     }),
     new PolyfillsPlugin([
