@@ -5,9 +5,9 @@ export default {
     musicPlayerService.currentSong((song) => {
       commit('SET_SONG', song);
       // currentSongService.showCoverArt(song);
-      refreshTimer(this.$store.state.currentsong.elapsed,
-                   this.$store.state.currentsong.time,
-                   this.$store.state.currentsong.state);
+      refreshTimer(song.elapsed,
+                   song.time,
+                   song.state);
       refreshKnob();
       // initializePlaybackKnob();
       // initializeVolumeKnob();
