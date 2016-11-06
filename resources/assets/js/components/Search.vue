@@ -53,6 +53,10 @@ import queue from '../services/queueService';
 
 export default {
   computed: {
+    playlist() {
+      return this.$store.state.playlist;
+    },
+
     song() {
       return this.$store.state.currentsong;
     },
@@ -61,9 +65,9 @@ export default {
 	methods: {
     play() {
       musicPlayer.play(this.song, this.song.serviceType, (data) => {                
-        this.$router.go({ name: "playback" });
+        this.$router.push({ name: 'playback' });
         
-        queue.addSongs(_self.playlist.songs);
+        queue.addSongs(this.playlist.songs);
   
         getPlaylist();
       });

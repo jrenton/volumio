@@ -19,10 +19,15 @@ class CurrentSongService
     {
         $song = [];
         $keyValues = $this->db->select("select * from current_song");
-        
+
+        if (is_object($keyValues))
+        {
+            $keyValues = json_decode(json_encode($keyValues), true);
+        }
+
         foreach($keyValues as $keyValue)
         {
-            $song[$keyValue->k] = $keyValue->v;
+            $song[$keyValue["k"]] = $keyValue["v"];
         }
         
         return $song;

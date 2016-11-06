@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import createLogger from 'vuex/logger';
+import createLogger from 'vuex/dist/logger';
 
 import actions from './actions';
 
@@ -85,12 +85,20 @@ const mutations = {
   SET_SPOTIFY_PLAYLISTS(state, playlists) {
     state.browse.spotifyPlaylists = playlists;
   },
+
+  SET_SERVICES(state, services) {
+    state.browse.directories = services;
+  },
+
+  SET_PLAYLIST(state, playlist) {
+    state.playlist = playlist;
+  },
 };
 
 export default new Vuex.Store({
   state: currentState,
   mutations,
-  middlewares: [createLogger()],
+  plugins: [createLogger()],
   actions,
-  // middlewares: (process.env !== 'Release') ? [createLogger()] : [],
+  // plugins: (process.env !== 'Release') ? [createLogger()] : [],
 });

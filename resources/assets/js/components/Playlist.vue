@@ -2,7 +2,8 @@
   <div class="tab-content">
     <div id="playlist">
       <ul class="playlist">
-        <li id="pl-{{ song.index }}" v-for="song in playlist.songs">
+        <li :id="'pl-' + song.index"
+            v-for="song in playlist.songs">
           <div class="pl-action">
             <a title="Remove song from playlist" @click.prevent="removeFromPlaylist(song)">
               <i class="fa fa-trash"></i>
@@ -15,7 +16,8 @@
             </span>
           </div>
         </li>
-        <li id="pl-{{ song.index }}" v-for="song in queue.songs">
+        <li :id="'pl-' + song.index"
+            v-for="song in queue.songs">
           <div class="pl-action">
             <a title="Remove song from playlist" @click.prevent="removeFromQueue(song)">
               <i class="fa fa-trash"></i>

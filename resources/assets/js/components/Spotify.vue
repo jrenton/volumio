@@ -83,15 +83,14 @@ export default {
 
   methods: {
     openDirectory(dir) {
-      this.$router.go({ name: dir.serviceType.toLowerCase() });
+      this.$router.push({ name: dir.serviceType.toLowerCase() });
     },
   },
 
-  route: {
-    activate(transition) {
+  watch: {
+    '$route'() {
       musicPlayer.openService('spotify').then((playlists) => {
         this.$store.commit('SET_SPOTIFY_PLAYLISTS', playlists);
-        done(); 
       });
     },
   },

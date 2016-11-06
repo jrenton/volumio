@@ -37,10 +37,10 @@
                        data-max="1000"
                        data-width="100%"
                        data-thickness="0.30"
-                       data-bgColor="rgba(0,0,0,0)"
+                       data-bgcolor="rgba(0,0,0,0)"
                        data-fgcolor="#007F0B">
               </div>
-              <span id="countdown-display" v-ref:countdown-display></span>
+              <span id="countdown-display" ref="countdownDisplay"></span>
               <span id="total"></span>
             </div>
             <div class="btn-toolbar">
@@ -94,11 +94,11 @@
                    class="volumeknob"
                    data-width="211"
                    data-cursor="true"
-                   data-bgColor="rgba(0,0,0,0)"
-                   data-fgColor="#007F0B"
+                   data-bgcolor="rgba(0,0,0,0)"
+                   data-fgcolor="#007F0B"
                    data-thickness=".25"
-                   data-angleArc="250"
-                   data-angleOffset="-125"
+                   data-anglearc="250"
+                   data-angleoffset="-125"
                    data-skin="tron"
                    v-model="song.volume">	
             <div class="btn-toolbar floatright">

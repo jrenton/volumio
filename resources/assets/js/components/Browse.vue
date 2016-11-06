@@ -11,27 +11,19 @@
 import store from '../store';
 import musicPlayer from '../services/musicPlayerService';
 import queue from '../services/queueService';
-import BrowseDirectories from './BrowseDirectories';
-import Spotify from './Spotify';
-import Pandora from './Pandora';
+import BrowseDirectories from './BrowseDirectories.vue';
+import Spotify from './Spotify.vue';
+import Pandora from './Pandora.vue';
+import Playlist from './Playlist.vue';
+import Playback from './Playback.vue';
 
 export default {
-	data() {
-    return store.state.browse;
-	},
-
-  ready() {
-    musicPlayer.getServices((services) => {
-      store.state.browse.directories = services; 
-    });
-  },
-
 	methods: {
     openDirectory(dir) {
       var serviceType = dir.serviceType.toLowerCase();
       switch (dir.type) {
         case "Directory":
-          this.$router.go({ 
+          this.$router.push({ 
             name: "playlists",
             params: {
               name: serviceType,
@@ -70,10 +62,16 @@ export default {
     }
 	},
 
+  created() {
+    this.$store.dispatch('getServices');
+  },
+
   components: {
     default: BrowseDirectories,
     spotify: Spotify,
     pandora: Pandora,
+    Playlist,
+    Playback,
   },
 };
 </script>

@@ -52,22 +52,21 @@ import musicPlayer from '../services/musicPlayerService';
 import queue from '../services/queueService';
 
 export default {
-  data() {
-    return { 
-      playlist: {}
-    };
+  computed: {
+    playlist() {
+      return this.$store.state.playlist;
+    },
   },
 
   methods: {
     play(song) {
       musicPlayer.play(song, song.serviceType, (data) => {                
-        this.$router.go({ name: 'playback' });
+        this.$router.push({ name: 'playback' });
         
         queue.addSongs(this.playlist.songs);
 
-        getPlaylist();
+        // getPlaylist();
       });
-      //notify('add', song.title);
     },
 
     add(song) {
@@ -79,16 +78,10 @@ export default {
     },
   },
 
-  route: {
-    data(transition) {
-      return musicPlayer.getPlaylist(this.$route.params.id, this.$route.params.name)
-                        .then((data) => {
-        console.log(data);
-        return {
-            playlist: data
-        };   
-      });
-    },
+  watch: {
+    '$route'() {
+      this.$store.dispatch('getPlaylist', { id: this.$route.params.id, name: this.$route.params.name });
+    }
   },
 };
 </script>

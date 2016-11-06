@@ -35,4 +35,17 @@ export default {
        commit('SET_PLAYLISTS', playlists);
     });
   },
+
+  getPlaylist({ commit }, { id, name }) {
+    musicPlayer.getPlaylist(id, name)
+               .then((playlist) => {
+      commit('SET_PLAYLIST', playlist);
+    });
+  },
+
+  getServices({ commit }) {
+    musicPlayerService.getServices((services) => {
+      commit('SET_SERVICES', services);
+    });
+  },
 };

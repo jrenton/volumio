@@ -1,6 +1,6 @@
 <template>
   <ul class="database">
-    <li v-for="file in files" data-path="{{ file.file }}">
+    <li v-for="file in files" :data-path="file.file">
       <div class="db-icon db-browse"
            :class="{ 'db-other': file.Time === undefined, 'db-song' : file.Time !== undefined }">
         <i class="fa fa-music sx db-browse"></i>

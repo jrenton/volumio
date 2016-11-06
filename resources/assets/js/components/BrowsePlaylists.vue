@@ -60,7 +60,7 @@ export default {
           
       }
       else if (dir.type === 'playlist') {
-        this.$router.go({ 
+        this.$router.push({ 
           name: 'viewplaylist', 
           params : {
             name: dir.serviceType.toLowerCase(),
@@ -70,14 +70,14 @@ export default {
       }
       else if (dir.type === 'RadioStation') {
         musicPlayer.playPlaylist(dir, dir.serviceType, () => {
-          this.$router.go({ name: 'playback' }); 
+          this.$router.push({ name: 'playback' }); 
         });
       }
     },
   },
 
-  route: {
-    data(transition) {
+  watch: {
+    '$route'() {
       this.$store.dispatch('getPlaylists', this.$route.params.name);
     },
   },
