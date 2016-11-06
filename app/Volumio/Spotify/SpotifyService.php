@@ -239,7 +239,10 @@ class SpotifyService implements IMusicPlayerService
         {
             $arrayCurrentEntry = $playlist;
             $arrayCurrentEntry["serviceType"] = "Spotify";
-            $sItemDisplayName = $playlist["name"];
+            if (array_key_exists("name", $playlist))
+            {
+                $sItemDisplayName = $playlist["name"];
+            }
 
             if (strcmp($playlist["type"], "playlist") == 0) 
             {
