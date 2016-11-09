@@ -12,24 +12,24 @@ let router = null;
 
 export function getRouter() {
   if (!router) {
-    
+
     router = new VueRouter({
       linkActiveClass: 'active',
       mode: 'history',
       scrollBehavior: () => ({ y: 0 }),
       routes: [
         { path: '/', name: 'default', component: Playback },
-        { path: '/browse', name: 'browse', component: Browse,
-          children: [
-            { path: '/', component: BrowseDirectories },
-            { path: '/:name', component: BrowseDirectories, name: 'browseservice' },
-            { path: '/:name/playlists', component: BrowsePlaylists, name: 'playlists' },
-            { path: '/:name/playlists/:id', component: BrowsePlaylist, name: 'viewplaylist' },
-          ]
-        },
         { path: '/playlist', name: 'playlist', component: Playlist },
         { path: '/playback', name: 'playback', component: Playback },
         { path: '/search', name: 'search', component: Search },
+        { path: '/browse', name: 'browse', component: Browse,
+          children: [
+            { path: '', component: BrowseDirectories },
+            { path: ':name', component: BrowseDirectories, name: 'browseservice' },
+            { path: ':name/playlists', component: BrowsePlaylists, name: 'playlists' },
+            { path: ':name/playlists/:id', component: BrowsePlaylist, name: 'viewplaylist' },
+          ]
+        },
       ],
     });
   }

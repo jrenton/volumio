@@ -44,23 +44,25 @@
           </ul>
         </div>
         <div class="db-entry db-browse" @click.prevent="play(track)">
-            {{ track.title }} <em class="songtime"> {{ track.Time }}</em>
-            <span> {{ track.artist }} - {{ track.album }}</span>
+          {{ track.title }} <em class="songtime"> {{ track.Time }}</em>
+          <span> {{ track.artist }} - {{ track.album }}</span>
         </div>
-      </li>		
-      <li v-for="dir in spotifyPlaylists">
+      </li>
+      <li v-for="playlist in playlists">
         <div class="db-icon db-folder db-browse">
-            <i class="fa sx" v-bind:class="{ 'fa-folder-open' : dir.SpopPlaylistIndex === undefined && dir.directory !== 'SPOTIFY', 'fa-list-ol': dir.SpopPlaylistIndex !== undefined, 'fa-spotify' : dir.directory == 'SPOTIFY', 'icon-root' : dir.directory == 'SPOTIFY'}"></i>
+          <i class="fa sx"
+              :class="{ 'fa-folder-open' : playlist.SpopPlaylistIndex === undefined && playlist.directory !== 'SPOTIFY', 'fa-list-ol': playlist.SpopPlaylistIndex !== undefined, 'fa-spotify' : playlist.directory == 'SPOTIFY', 'icon-root' : playlist.directory == 'SPOTIFY'}"></i>
         </div>
-        <template v-if="dir.SpopPlaylistIndex !== undefined">
-            <div class="db-action">
-                <a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu-spotifyplaylist">
-                    <i class="fa fa-ellipsis-v"></i>
-                </a>
-            </div>
+        <template v-if="playlist.SpopPlaylistIndex !== undefined">
+          <div class="db-action">
+            <a href="#notarget" title="Actions" data-toggle="context" data-target="#context-menu-spotifyplaylist">
+              <i class="fa fa-ellipsis-v"></i>
+            </a>
+          </div>
         </template>
-        <a class="db-entry db-folder db-browse" @click.prevent="getDirectory(dir)">
-            {{ dir.DisplayName === undefined ? dir.directory : dir.DisplayName }}
+        <a class="db-entry db-folder db-browse"
+           @click.prevent="openPlaylist(playlist)">
+          {{ playlist.name === undefined ? playlist.DisplayPath : playlist.name }}
         </a>
       </li>
     </ul>
@@ -72,8 +74,8 @@ import musicPlayer from '../services/musicPlayerService';
 
 export default {
   computed: {
-    spotifyPlaylists() {
-      return this.$store.state.browse.spotifyPlaylists;
+    playlists() {
+      return this.$store.state.browse.spotifyDirectories;
     },
 
     spotifyTracks() {
@@ -82,8 +84,15 @@ export default {
   },
 
   methods: {
-    openDirectory(dir) {
-      this.$router.push({ name: dir.serviceType.toLowerCase() });
+    openPlaylist(playlist) {
+      // this.$store.dispatch('openPlaylist', { playlist, serviceType: 'spotify' });
+      this.$router.push({
+        name: 'viewplaylist',
+        params: {
+          name: playlist.serviceType.toLowerCase(),
+          id: playlist.id,
+        },
+      });
     },
   },
 

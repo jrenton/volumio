@@ -1,25 +1,30 @@
 <template>
   <div class="tab-content">
     <div id="playback" class="tab-pane active">
-      <div class="container txtmid">
-        <div id="playback-info">
-          <span id="currentsong">{{ song.title }}</span>				
-          <span id="currentartist">{{ song.artist }}</span>
-          <span id="currentalbum">{{ song.album }}</span>
-          <span id="currenttype">{{ song.type }}</span>
+      <div class="container text-center">
+        <div class="playback-info">
+          <h2>{{ song.title }}</h2>
+          <h3>{{ song.artist }}</h3>
+          <h4>{{ song.album }}</h4>
+          <h5>{{ song.type }}</h5>
             <!--<span id="currentalbum"></span>-->
         </div>
         <!-- <span id="playlist-position">&nbsp;</span> -->
-        <div class="playback-controls">	
-          <button class="btn" title="Previous" @click.prevent="nav('previous')">
+        <div class="playback-controls">
+          <button class="btn"
+                  title="Previous"
+                  @click.prevent="nav('previous')">
             <i class="fa fa-step-backward"></i>
           </button>
           <!--<button id="stop" class="btn btn-cmd" title="Stop"><i class="fa fa-stop"></i></button>-->
-          <a id="play" href="#" title="Play/Pause" @click.prevent="playPause()">
+          <a id="play"
+             href="#"
+             title="Play/Pause"
+             @click.prevent="playPause()">
             <span class="fa-stack fa-4x">
               <i class="fa fa-circle-thin fa-stack-2x"></i>
               <i class="fa fa-stack-1x"
-                 :class="{ 'fa-play': song.state == 'stop' || song.state == 'pause' || !song.state, 'fa-pause': song.state == 'play'}"></i>
+                 :class="{ 'fa-play': song.state == 'stopped' || song.state == 'paused' || !song.state, 'fa-pause': song.state == 'playing' }"></i>
             </span>
           </a>
           <button class="btn" title="Next" @click.prevent="nav('next')">
@@ -28,21 +33,9 @@
         </div>
         <div class="row">
           <div class="col-md-4">
-            <div id="timeknob">
-              <div id="countdown" ms-user-select="none">
-                <input id="time"
-                       class="playbackknob"
-                       data-readonly="false"
-                       data-min="0"
-                       data-max="1000"
-                       data-width="100%"
-                       data-thickness="0.30"
-                       data-bgcolor="rgba(0,0,0,0)"
-                       data-fgcolor="#007F0B">
-              </div>
-              <span id="countdown-display" ref="countdownDisplay"></span>
-              <span id="total"></span>
-            </div>
+            <elapsed-time :elapsed-time="song.elapsed"
+                          :total-time="song.time"
+                          :state="song.state"></elapsed-time>
             <div class="btn-toolbar">
               <div class="btn-group">
                 <a class="btn"
@@ -68,7 +61,7 @@
                    @click.prevent="consume()"
                    :class="{'btn-success' : consume === true }">
                   <i class="fa fa-trash"></i>
-                </a>			
+                </a>
               </div>
             </div>
           </div>
@@ -87,34 +80,10 @@
                 <i class="fa fa-thumbs-down"></i>
               </button>
             </div>
-          </div> 
+          </div>
 
-          <div class="col-md-4 volume">
-            <input id="volume"
-                   class="volumeknob"
-                   data-width="211"
-                   data-cursor="true"
-                   data-bgcolor="rgba(0,0,0,0)"
-                   data-fgcolor="#007F0B"
-                   data-thickness=".25"
-                   data-anglearc="250"
-                   data-angleoffset="-125"
-                   data-skin="tron"
-                   v-model="song.volume">	
-            <div class="btn-toolbar floatright">
-              <div class="btn-group">
-                <a id="volumedn" class="btn">
-                  <i class="fa fa-volume-down"></i>
-                </a>
-                <a id="volumemute" class="btn">
-                  <i class="fa fa-volume-off"></i>
-                  <i class="fa fa-exclamation"></i>
-                </a>
-                <a id="volumeup" class="btn">
-                  <i class="fa fa-volume-up"></i>
-                </a>
-              </div>
-            </div>
+          <div class="col-md-4">
+            <volume-control></volume-control>
           </div>
         </div>
       </div>
@@ -126,16 +95,15 @@
 import Vue from 'vue';
 import musicPlayer from '../services/musicPlayerService';
 
-export default {
-  data() {
-    return {
-      countdownDisplay: null,
-    };
-  },
+import VolumeControl from './shared/VolumeControl.vue';
+import ElapsedTime from './shared/ElapsedTime.vue';
 
+import { SONG_STATES } from '../utils/enums';
+
+export default {
   computed: {
     song() {
-      this.$store.state.currentsong;
+      return this.$store.state.currentsong;
     },
 
     serviceType() {
@@ -145,31 +113,24 @@ export default {
 
 	methods: {
     playPause() {
-      var cmd = '',
-          countdownDisplay = $('#countdown-display');
+      var cmd = '';
 
-      if (this.song.state == 'play') {
-        cmd = 'pause';
-        this.countdownDisplay.countdown('pause');
+      if (this.song.state == SONG_STATES.PLAYING) {
+        cmd = SONG_STATES.PAUSED;
       }
-      else if (this.song.state == 'pause') {
-        cmd = 'play';
-        this.countdownDisplay.countdown('resume');
+      else if (this.song.state == SONG_STATES.PAUSED) {
+        cmd = SONG_STATES.PLAYING;
       }
-      else if (this.song.state == 'stop') {
-        cmd = 'play';
-        this.countdownDisplay.countdown({since: 0, compact: true, format: 'MS'});
+      else if (this.song.state == SONG_STATES.STOPPED) {
+        cmd = SONG_STATES.PLAYING;
       }
 
-      window.clearInterval(GUI.currentKnob);
       switch(cmd) {
-        case 'play':
-          musicPlayer.play(null, this.serviceType, (data) => {
-          });
+        case SONG_STATES.PLAYING:
+          musicPlayer.play(null, this.serviceType);
           break;
-        case 'pause':
-          musicPlayer.pause(this.serviceType, (data) => {
-          });
+        case SONG_STATES.PAUSED:
+          musicPlayer.pause(this.serviceType);
           break;
       }
       //sendCmd(cmd);
@@ -177,9 +138,6 @@ export default {
     },
 
     nav(direction) {
-      GUI.halt = 1;
-      this.countdownDisplay.countdown('pause');
-      window.clearInterval(GUI.currentKnob);
       switch (direction) {
         case 'next':
           musicPlayer.next(this.serviceType, (data) => {
@@ -187,7 +145,7 @@ export default {
           break;
         case 'previous':
           musicPlayer.previous(this.serviceType, (data) => {
-              
+
           });
           break;
       }
@@ -218,10 +176,68 @@ export default {
     },
 	},
 
-  mounted() {
-    Vue.nextTick(() => {
-      this.countdownDisplay = $(this.$refs.countdownDisplay);
-    });
+  components: {
+    VolumeControl,
+    ElapsedTime,
   },
 };
 </script>
+
+<style lang="less">
+@import "../less/_variables";
+
+.playback-info {
+  padding: 10px 0;
+	margin: 0;
+}
+
+#play {
+	text-decoration: none;
+}
+
+#play:hover {
+	text-decoration: none;
+}
+
+.playback-controls {
+	text-align: center;
+	padding-bottom: 10px;
+}
+
+.playback-controls .btn {
+	width: 60px;
+}
+
+.playback-controls .fa-play,
+.playback-controls .fa-pause {
+	font-size: 20px;
+}
+
+.playback-controls .fa,
+.playback-controls .btn {
+	background: transparent;
+	color: @lightText;
+	border: 0;
+}
+
+#playback {
+	z-index: 1;
+	position: absolute;
+  width: 100%;
+}
+
+#playbackCover.coverImage::after {
+  content: "";
+  opacity: 0.4;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: fixed;
+}
+
+#playlist-position {
+	color: #8FA7BF;
+}
+</style>

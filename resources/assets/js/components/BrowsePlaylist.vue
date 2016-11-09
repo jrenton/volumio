@@ -1,9 +1,6 @@
 <template>
   <ul class="database">
     <li v-for="song in playlist.songs">
-      <!--<div class="db-icon db-browse">
-          <i class="fa fa-spotify sx db-browse"></i>
-      </div>-->
       <div class="db-action">
         <a href="#" title="Actions" data-toggle="context" data-target="#context-menu-song">
           <i class="fa fa-ellipsis-v"></i>
@@ -56,13 +53,21 @@ export default {
     playlist() {
       return this.$store.state.playlist;
     },
+
+    playlistId() {
+      return this.$route.params.id;
+    },
+
+    isPlaylist() {
+      return !!(this.playlistId);
+    },
   },
 
   methods: {
     play(song) {
-      musicPlayer.play(song, song.serviceType, (data) => {                
+      musicPlayer.play(song, song.serviceType, (data) => {
         this.$router.push({ name: 'playback' });
-        
+
         queue.addSongs(this.playlist.songs);
 
         // getPlaylist();
@@ -80,8 +85,17 @@ export default {
 
   watch: {
     '$route'() {
+      console.log('router changed');
       this.$store.dispatch('getPlaylist', { id: this.$route.params.id, name: this.$route.params.name });
+    },
+
+    playlistId() {
+      console.log(this.playlistId);
     }
+  },
+
+  created() {
+    this.$store.dispatch('getPlaylist', { id: this.$route.params.id, name: this.$route.params.name });
   },
 };
 </script>

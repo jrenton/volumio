@@ -17,7 +17,7 @@ class MusicPlayerController extends Controller
     {
         $this->musicPlayerService = $musicPlayerService;
     }
-    
+
     public function index(Request $request)
     {
         $commandName = $request->input('cmd');
@@ -26,7 +26,7 @@ class MusicPlayerController extends Controller
         $playlist = $request->input('playlist');
         $query = $request->input('query');
         $searchType = $request->input('searchType');
-        
+
         return $this->musicPlayerService->sendCommand($commandName, $serviceType, $song, $playlist, $query, $searchType);
     }
 }

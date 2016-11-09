@@ -23,7 +23,10 @@
           </template>
       </div>
     </li>
-    <li v-if="isLibrary" id="#db-plug-lib" class="db-plugin" onclick="showLibraryView()">
+    <li v-if="isLibrary"
+        id="#db-plug-lib"
+        class="db-plugin"
+        onclick="showLibraryView()">
       <div class="db-icon db-other">
         <i class="fa fa-columns icon-root sx"></i>
       </div>
@@ -40,11 +43,23 @@ export default {
     directories() {
       return this.$store.state.browse.directories;
     },
+
+    isLibrary() {
+      return this.$store.state.browse.isLibrary;
+    },
   },
 
   methods: {
     openDirectory(dir) {
-      getDB('filepath', dir.directory, 'file', 0);
+      this.$store.dispatch('openDirectory', dir.directory)
+        .then(() => {
+          this.$router.push({
+            name: 'playlists',
+            params: {
+              name: dir.directory.toLowerCase(),
+            },
+          });
+        });
     },
   },
 };

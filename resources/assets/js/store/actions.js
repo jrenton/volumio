@@ -1,20 +1,10 @@
 import musicPlayerService from '../services/musicPlayerService';
+import commandService from '../services/sendCommandService';
 
 export default {
   getCurrentSong({ commit }) {
     musicPlayerService.currentSong((song) => {
       commit('SET_SONG', song);
-      // currentSongService.showCoverArt(song);
-      refreshTimer(song.elapsed,
-                   song.time,
-                   song.state);
-      refreshKnob();
-      // initializePlaybackKnob();
-      // initializeVolumeKnob();
-      
-      // musicPlayer.getCoverArt(song.serviceType, function(coverArt) {
-      //     currentSongService.showCoverArt(coverArt);
-      // });
     });
   },
 
@@ -32,13 +22,13 @@ export default {
 
   getPlaylists({ commit }, name) {
     musicPlayerService.getPlaylists(name).then((playlists) => {
-       commit('SET_PLAYLISTS', playlists);
+      commit('SET_PLAYLISTS', playlists);
     });
   },
 
   getPlaylist({ commit }, { id, name }) {
-    musicPlayer.getPlaylist(id, name)
-               .then((playlist) => {
+    musicPlayerService.getPlaylist(id, name)
+    .then((playlist) => {
       commit('SET_PLAYLIST', playlist);
     });
   },
@@ -46,6 +36,22 @@ export default {
   getServices({ commit }) {
     musicPlayerService.getServices((services) => {
       commit('SET_SERVICES', services);
+    });
+  },
+
+  openDirectory({ commit }, directory) {
+    return new Promise((resolve, reject) => {
+      commandService.send('filepath', directory, (data) => {
+        commit('SET_DIRECTORY', { path: directory, data });
+        resolve();
+      });
+    });
+  },
+
+  openPlaylist({ commit }, { playlist, serviceType }) {
+    musicPlayerService.getPlaylist(playlist.id, serviceType)
+    .then((playlist) => {
+      commit('SET_PLAYLIST', playlist);
     });
   },
 };

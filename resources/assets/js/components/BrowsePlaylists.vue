@@ -42,6 +42,12 @@ import musicPlayer from '../services/musicPlayerService';
 import queue from '../services/queueService';
 
 export default {
+  data() {
+    return {
+      newPlaylist: null,
+    };
+  },
+
   computed: {
     playlists() {
       return this.$store.playlists;
@@ -57,11 +63,11 @@ export default {
       console.log("open this directory");
       console.log(dir);
       if (dir.type === 'folder') {
-          
+
       }
       else if (dir.type === 'playlist') {
-        this.$router.push({ 
-          name: 'viewplaylist', 
+        this.$router.push({
+          name: 'viewplaylist',
           params : {
             name: dir.serviceType.toLowerCase(),
             id: dir.id,
@@ -70,7 +76,7 @@ export default {
       }
       else if (dir.type === 'RadioStation') {
         musicPlayer.playPlaylist(dir, dir.serviceType, () => {
-          this.$router.push({ name: 'playback' }); 
+          this.$router.push({ name: 'playback' });
         });
       }
     },

@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var PolyfillsPlugin = require('webpack-polyfills-plugin');
 
 module.exports = {
+  cache: true,
   entry: {
     main: './resources/assets/js/main.js',
   },
@@ -50,7 +51,7 @@ module.exports = {
         loader: 'vue-html',
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif|svg|ttf)$/,
         loader: 'url',
         query: {
           limit: 10000,
@@ -63,7 +64,7 @@ module.exports = {
     historyApiFallback: true,
     noInfo: true,
   },
-  devtool: '#eval-source-map',
+  devtool: 'eval',
 }
 
 if (process.env.NODE_ENV === 'production') {

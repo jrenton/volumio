@@ -1,11 +1,12 @@
-var musicPlayer = require("./musicPlayerService");
-var store = require("../store");
+import musicPlayer from './musicPlayerService';
+import store from '../store';
 
-module.exports = {
-    addSongs: function(songs) {
-        $.each(songs, function(index, song) {
-            musicPlayer.add(song);
-            store.state.queue.songs.push(song);
-        });
-    }
+export default {
+  addSongs(songs) {
+    store.commit('ADD_TO_QUEUE', songs);
+
+    songs.forEach((song, index) => {
+      musicPlayer.add(song);
+    });
+  },
 }

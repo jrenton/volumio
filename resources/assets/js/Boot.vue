@@ -61,11 +61,11 @@
         <div class="input-group">
           <input id="db-search-keyword" type="text" v-model="searchTerm" value="" placeholder="Search">
           <!--<input class="form-control" type="text" v-model="searchTerm" value="" placeholder="Search">-->
-                <span class="input-group-btn">
-                    <button class="btn" type="submit">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </span>
+          <span class="input-group-btn">
+              <button class="btn" type="submit">
+                  <i class="fa fa-search"></i>
+              </button>
+          </span>
         </div>
       </form>
     </div>
@@ -120,7 +120,7 @@
           <h3 id="webradio-modal-label">Add New WebRadio</h3>
         </div>
         <div class="modal-body">
-          <form action="settings.php" method="POST">	
+          <form action="settings.php" method="POST">
         <input name="radio-name" type="text" placeholder="WebRadio Name" />
         <input name="radio-url" type="text" placeholder="WebRadio URL"/>
         </form>
@@ -140,7 +140,7 @@
           <h3 id="update-modal-label">Add New WebRadio</h3>
         </div>
         <div class="modal-body">
-          <form action="updates/check_updates.php" method="POST">	
+          <form action="updates/check_updates.php" method="POST">
         Cose varie da dire
         </form>
         </div>
@@ -170,7 +170,105 @@
 </template>
 
 <script>
+var IP_ADDRESS = '192.168.0.105';
+
+if (Notification) {
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+}
+
+function setupWebsockets(store) {
+  window.volumio = window.volumio || {};
+  window.volumio.conn = new WebSocket('ws://' + IP_ADDRESS + ':8081');
+  window.volumio.conn.onopen = function(e) {
+    console.debug("Connection established!");
+  };
+
+  window.volumio.conn.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+
+    $.each(data, function(index, dataItem) {
+      setState(store, dataItem);
+    });
+  };
+
+  window.volumio.songChanger = new WebSocket('ws://' + IP_ADDRESS + ':8082');
+  window.volumio.songChanger.onopen = function(e) {
+    console.debug("Notifier Connection established!");
+  };
+
+  window.volumio.songChanger.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    setState(store, data);
+  };
+}
+
+function setState(store, song) {
+  notifyUser(store, song);
+
+  store.commit('SET_SONG_STATE', song);
+  // showCoverImage(song);
+}
+
+function notifyUser(store, song) {
+  var artist = store.state.currentsong.artist;
+  var album = store.state.currentsong.album;
+  var title = store.state.currentsong.title;
+
+  if ((song.state == 'playing' || song.status == 'playing')
+      && (song.artist != artist || song.title != title)) {
+    if (!song.artist) {
+      song.artist = artist;
+    }
+
+    if (!song.title) {
+      song.title = title;
+    }
+
+    document.title = `${song.title} by ${song.artist} - Volumio`;
+    showNotification(song.title, 'by ' + song.artist, song.serviceType);
+  }
+}
+
+function showNotification(title, message, type) {
+  if (!Notification) {
+    return;
+  }
+
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+  else {
+    var notification = new Notification(title, {
+      icon: "/images/" + type + ".png",
+      body: message,
+    });
+
+    setTimeout(() => {
+      notification.close();
+    }, 5000);
+
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
+  }
+}
+
 export default {
+  data() {
+    return {
+      searchTerm: null,
+    };
+  },
+
+  computed: {
+    showLibrary() {
+      return this.$store.state.library.showLibrary;
+    },
+  },
+
   methods: {
     goBack() {
       this.$router.push(window.history.back());
@@ -185,6 +283,13 @@ export default {
 
   created() {
     this.$store.dispatch('getCurrentSong');
+    setupWebsockets(this.$store);
   },
 };
 </script>
+
+<style lang="less">
+@import "./less/panels";
+@import "./less/flat-ui";
+@import "./less/toggle";
+</style>
